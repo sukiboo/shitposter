@@ -30,7 +30,8 @@ src/shitposter/
 
   clients/
     telegram.py       # httpx wrapper for Telegram Bot API
-    image_api.py      # placeholder image provider (Pillow)
+    text_to_image.py  # placeholder image provider (Pillow)
+    text_to_text.py   # template caption provider
 
 tests/
   conftest.py
@@ -59,7 +60,7 @@ cp settings.example.yaml settings.yaml
 ```
 TELEGRAM_BOT_TOKEN=your-bot-token
 TELEGRAM_CHAT_ID=your-chat-id
-SHITPOSTER_ARTIFACT_ROOT=./artifacts
+ARTIFACTS_PATH=./artifacts
 ```
 
 ### `settings.yaml`
@@ -101,7 +102,7 @@ uv run shitposter run --at 2026-02-08_09-00-00 --force
 
 ## Run artifacts
 
-Each run creates a directory under `<artifact_root>/runs/<run_id>/`:
+Each run creates a directory under `<artifacts_path>/<run_id>/`:
 
 ```
 2026-02-08_09-00-00/

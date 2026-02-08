@@ -6,7 +6,7 @@ from shitposter.pipeline import execute
 def test_dry_run_creates_artifacts(settings):
     execute(settings, dry_run=True)
 
-    run_dirs = list(settings.env.shitposter_artifact_root.joinpath("runs").iterdir())
+    run_dirs = list(settings.env.artifacts_path.iterdir())
     assert len(run_dirs) == 1
 
     run_dir = run_dirs[0]
@@ -26,7 +26,7 @@ def test_dry_run_creates_artifacts(settings):
 def test_idempotency_skips_published(settings):
     execute(settings, dry_run=True)
 
-    run_dirs = list(settings.env.shitposter_artifact_root.joinpath("runs").iterdir())
+    run_dirs = list(settings.env.artifacts_path.iterdir())
     run_dir = run_dirs[0]
 
     # Fake a publish
@@ -39,7 +39,7 @@ def test_idempotency_skips_published(settings):
 def test_force_reruns(settings):
     execute(settings, dry_run=True)
 
-    run_dirs = list(settings.env.shitposter_artifact_root.joinpath("runs").iterdir())
+    run_dirs = list(settings.env.artifacts_path.iterdir())
     run_dir = run_dirs[0]
     run_dir.joinpath("publish.json").write_text("{}")
 

@@ -24,4 +24,4 @@ def test_create_run_context(tmp_path):
     ctx = create_run_context(tmp_path, datetime(2026, 3, 15, 14, 30, 0))
     assert ctx.run_id == "2026-03-15_14-30-00"
     assert ctx.run_dir.exists()
-    assert ctx.run_dir == tmp_path.joinpath("runs", "2026-03-15_14-30-00")
+    assert ctx.run_dir == tmp_path.joinpath("2026-03-15_14-30-00")

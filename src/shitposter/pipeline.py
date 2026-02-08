@@ -15,7 +15,7 @@ def execute(
     dry_run: bool = False,
     force: bool = False,
 ):
-    ctx = create_run_context(settings.env.shitposter_artifact_root, run_at)
+    ctx = create_run_context(settings.env.artifacts_path, run_at)
     print(f"Run {ctx.run_id} → {ctx.run_dir}")
 
     if ctx.is_published and not force:
@@ -42,8 +42,6 @@ def execute(
         ImageInput(
             prompt=prompt_out.prompt,
             provider=settings.app.image.provider,
-            width=settings.app.image.width,
-            height=settings.app.image.height,
         ),
     )
     print(f"Image: {image_out.image_path}")

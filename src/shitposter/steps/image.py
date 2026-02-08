@@ -5,27 +5,12 @@ from typing import Protocol
 from pydantic import BaseModel
 
 from shitposter.artifacts import RunContext
+from shitposter.clients.text_to_image import RandomImageProvider
 from shitposter.steps.base import Step
 
 
 class ImageProvider(Protocol):
-    def generate(self, prompt: str, output_path: Path, width: int, height: int) -> dict: ...
-
-
-class RandomImageProvider:
-    def generate(self, prompt: str, output_path: Path, width: int, height: int) -> dict:
-        import random as _random
-
-        from PIL import Image
-
-        img = Image.new("RGB", (width, height))
-        pixels = [
-            (_random.randint(0, 255), _random.randint(0, 255), _random.randint(0, 255))
-            for _ in range(width * height)
-        ]
-        img.putdata(pixels)
-        img.save(output_path)
-        return {"provider": "placeholder", "prompt": prompt}
+    def generate(self, prompt: str, width: int, height: int) -> bytes: ...
 
 
 PROVIDERS: dict[str, type[ImageProvider]] = {
@@ -36,8 +21,8 @@ PROVIDERS: dict[str, type[ImageProvider]] = {
 class ImageInput(BaseModel):
     prompt: str
     provider: str = "placeholder"
-    width: int = 1024
-    height: int = 1024
+    width: int = 512
+    height: int = 512
 
 
 class ImageOutput(BaseModel):
@@ -50,14 +35,17 @@ class ImageStep(Step[ImageInput, ImageOutput]):
     def execute(self, ctx: RunContext, input: ImageInput) -> ImageOutput:
         provider_cls = PROVIDERS[input.provider]
         provider = provider_cls()
-        metadata = provider.generate(input.prompt, ctx.image_path, input.width, input.height)
+        image_data = provider.generate(input.prompt, input.width, input.height)
 
+        ctx.image_path.write_bytes(image_data)
+
+        metadata = {"provider": input.provider, "prompt": input.prompt}
         output = ImageOutput(
             image_path=ctx.image_path,
             provider=input.provider,
             metadata=metadata,
         )
 
-        ctx.image_meta_json.write_text(json.dumps(output.metadata, indent=2))
+        ctx.image_meta_json.write_text(json.dumps(metadata, indent=2))
 
         return output

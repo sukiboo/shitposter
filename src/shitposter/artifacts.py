@@ -47,7 +47,7 @@ RUN_ID_FORMAT = "%Y-%m-%d_%H-%M-%S"
 
 def create_run_context(artifact_root: Path, run_at: datetime | None = None) -> RunContext:
     run_id = (run_at or datetime.now()).strftime(RUN_ID_FORMAT)
-    run_dir = artifact_root.joinpath("runs", run_id)
+    run_dir = artifact_root.joinpath(run_id)
     run_dir.mkdir(parents=True, exist_ok=True)
     return RunContext(run_id=run_id, run_dir=run_dir)
 

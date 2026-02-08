@@ -10,7 +10,7 @@ class EnvSettings(BaseSettings):
 
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
-    shitposter_artifact_root: Path = Path("artifacts")
+    artifacts_path: Path = Path("artifacts")
 
 
 class PromptConfig(BaseModel):
@@ -20,8 +20,6 @@ class PromptConfig(BaseModel):
 
 class ImageConfig(BaseModel):
     provider: str = "placeholder"
-    width: int = 1024
-    height: int = 1024
 
 
 class CaptionConfig(BaseModel):
