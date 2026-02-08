@@ -1,0 +1,18 @@
+prompt:
+  template: "A surreal digital painting of {topic}, vibrant colors, dreamlike atmosphere"
+  topics:
+    - "a cat wearing a business suit"
+    - "a frog contemplating existence"
+    - "a raccoon doing taxes"
+    - "a pigeon running a startup"
+
+image:
+  provider: placeholder
+  width: 1024
+  height: 1024
+
+caption:
+  template: "{topic} | AI-generated art"
+
+publish:
+  platform: telegram

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shitposter"
+version = "0.1.0"
+description = "Automated content generation and posting pipeline"
+requires-python = ">=3.12"
+dependencies = [
+    "typer>=0.15",
+    "httpx>=0.28",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    "pyyaml>=6.0",
+    "pillow>=11.0",
+]
+
+[project.scripts]
+shitposter = "shitposter.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shitposter"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pre-commit>=4.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
