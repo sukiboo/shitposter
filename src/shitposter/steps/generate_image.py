@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from typing import Protocol
 
 from pydantic import BaseModel
 
@@ -8,12 +7,7 @@ from shitposter.artifacts import RunContext
 from shitposter.clients.text_to_image import RandomImageProvider
 from shitposter.steps.base import Step
 
-
-class ImageProvider(Protocol):
-    def generate(self, prompt: str, width: int, height: int) -> bytes: ...
-
-
-PROVIDERS: dict[str, type[ImageProvider]] = {
+PROVIDERS = {
     "placeholder": RandomImageProvider,
 }
 

@@ -27,10 +27,17 @@ def run(
         typer.Option("--publish", help="Publish to channel instead of debug DM."),
     ] = False,
 ):
-    from shitposter.artifacts import RUN_ID_FORMAT
+    from shitposter.artifacts import RUN_ID_FORMAT, create_run_context
     from shitposter.config import load_settings
     from shitposter.pipeline import execute
 
     run_at = datetime.strptime(at, RUN_ID_FORMAT) if at else None
     settings = load_settings()
-    execute(settings, run_at=run_at, dry_run=dry_run, force=force, publish=publish)
+    ctx = create_run_context(
+        settings.env.artifacts_path,
+        run_at,
+        dry_run=dry_run,
+        force=force,
+        publish=publish,
+    )
+    execute(settings, ctx)

@@ -16,9 +16,6 @@ class ConstructPromptOutput(BaseModel):
 
 class ConstructPromptStep(Step[ConstructPromptInput, ConstructPromptOutput]):
     def execute(self, ctx: RunContext, input: ConstructPromptInput) -> ConstructPromptOutput:
-        output = ConstructPromptOutput(prompt=input.prompt)
-
-        ctx.prompt_txt.write_text(output.prompt)
+        output = ConstructPromptOutput(prompt=f"an image of {input.prompt}")
         ctx.prompt_json.write_text(json.dumps(output.model_dump(), indent=2))
-
         return output

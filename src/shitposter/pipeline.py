@@ -1,7 +1,4 @@
-from datetime import datetime
-
-from shitposter.artifacts import create_run_context, write_summary
-from shitposter.clients.telegram import TelegramClient
+from shitposter.artifacts import RunContext, write_summary
 from shitposter.config import Settings
 from shitposter.steps.construct_prompt import ConstructPromptInput, ConstructPromptStep
 from shitposter.steps.generate_caption import GenerateCaptionInput, GenerateCaptionStep
@@ -9,78 +6,68 @@ from shitposter.steps.generate_image import GenerateImageInput, GenerateImageSte
 from shitposter.steps.publish_post import PublishPostInput, PublishPostStep
 
 
-def execute(
-    settings: Settings,
-    run_at: datetime | None = None,
-    dry_run: bool = False,
-    force: bool = False,
-    publish: bool = False,
-):
-    ctx = create_run_context(settings.env.artifacts_path, run_at)
-    print(f"Run {ctx.run_id} → {ctx.run_dir}")
+def execute(settings: Settings, ctx: RunContext):
+    print(f"Run {ctx.run_id}...")
 
-    if ctx.is_published and not force:
-        print(f"Already published for {ctx.run_id}. Use --force to re-run.")
+    if ctx.is_published and not ctx.force:
+        print(f"Already published for {ctx.run_id}. Use `--force` to re-run.")
         return
 
-    # step 1: construct the image-generation prompt
-    #  input: prompt string
-    # output: prompt text
-    prompt_out = ConstructPromptStep().execute(
+    # step 1: construct the image generation prompt
+    #  input: prompt text
+    # output: image generation prompt
+    image_prompt = ConstructPromptStep().execute(
         ctx,
         ConstructPromptInput(
             prompt=settings.run.prompt.prompt,
         ),
     )
-    print(f"Prompt: {prompt_out.prompt}")
+    print(f"Step 1: {image_prompt.prompt=}")
 
-    # step 2: generate an image from the prompt (provider-dependent)
-    #  input: prompt text, provider name, dimensions
+    # step 2: generate an image from the prompt
+    #  input: image prompt, image provider
     # output: image file path, provider metadata
-    image_out = GenerateImageStep().execute(
+    image = GenerateImageStep().execute(
         ctx,
         GenerateImageInput(
-            prompt=prompt_out.prompt,
+            prompt=image_prompt.prompt,
             provider=settings.run.image.provider,
         ),
     )
-    print(f"Image: {image_out.image_path}")
+    print(f"Step 2: {image.image_path=}")
 
     # step 3: generate the post caption
-    #  input: prompt text, provider name
+    #  input: image prompt, caption provider
     # output: caption text
-    caption_out = GenerateCaptionStep().execute(
+    caption = GenerateCaptionStep().execute(
         ctx,
         GenerateCaptionInput(
-            prompt=prompt_out.prompt,
+            prompt=image_prompt.prompt,
             provider=settings.run.caption.provider,
         ),
     )
-    print(f"Caption: {caption_out.caption}")
+    print(f"Step 3: {caption.caption_text=}")
 
-    # step 4: send the image + caption to the configured platform
-    #  input: image path, caption
+    # step 4: publish post to the configured platforms
+    #  input: image path, caption text
     # output: publish.json with message ID + response
-    if dry_run:
-        print("Dry run — skipping publish.")
+    PublishPostStep(
+        env=settings.env,
+        platform=settings.run.publish.platform,
+        publish=ctx.publish,
+    ).execute(
+        ctx,
+        PublishPostInput(
+            image_path=image.image_path,
+            caption=caption.caption_text,
+        ),
+    )
+    if ctx.dry_run:
+        print("Step 4: dry run -- skipping publish")
     else:
-        if publish:
-            bot_token = settings.env.telegram_channel_bot_token
-            chat_id = settings.env.telegram_channel_chat_id
-        else:
-            bot_token = settings.env.telegram_debug_bot_token
-            chat_id = settings.env.telegram_debug_chat_id
+        target = settings.run.publish.platform if ctx.publish else "debug chat"
+        print(f"Step 4: published to {target}")
 
-        publisher = TelegramClient(bot_token=bot_token, chat_id=chat_id)
-        PublishPostStep(publisher=publisher, platform=settings.run.publish.platform).execute(
-            ctx,
-            PublishPostInput(
-                image_path=image_out.image_path,
-                caption=caption_out.caption,
-            ),
-        )
-        target = settings.run.publish.platform if publish else "debug DM"
-        print(f"Published to {target}.")
-
-    # step 5: write a summary of the run (config, run_id, dry_run flag, publish status)
-    write_summary(ctx, settings.run.model_dump(), dry_run)
+    # step 5: write a summary of the run
+    write_summary(ctx, settings.run.model_dump())
+    print(f"Step 5: run summary saved to `{ctx.run_dir}`")

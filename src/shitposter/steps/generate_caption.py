@@ -1,4 +1,4 @@
-from typing import Protocol
+import json
 
 from pydantic import BaseModel
 
@@ -6,12 +6,7 @@ from shitposter.artifacts import RunContext
 from shitposter.clients.text_to_text import PlaceholderCaptionProvider
 from shitposter.steps.base import Step
 
-
-class CaptionProvider(Protocol):
-    def generate(self, prompt: str) -> str: ...
-
-
-PROVIDERS: dict[str, type[CaptionProvider]] = {
+PROVIDERS = {
     "placeholder": PlaceholderCaptionProvider,
 }
 
@@ -22,16 +17,14 @@ class GenerateCaptionInput(BaseModel):
 
 
 class GenerateCaptionOutput(BaseModel):
-    caption: str
+    caption_text: str
 
 
 class GenerateCaptionStep(Step[GenerateCaptionInput, GenerateCaptionOutput]):
     def execute(self, ctx: RunContext, input: GenerateCaptionInput) -> GenerateCaptionOutput:
         provider_cls = PROVIDERS[input.provider]
         provider = provider_cls()
-        caption = provider.generate(input.prompt)
-        output = GenerateCaptionOutput(caption=caption)
-
-        ctx.caption_txt.write_text(output.caption)
-
+        caption_text = provider.generate(input.prompt)
+        output = GenerateCaptionOutput(caption_text=caption_text)
+        ctx.caption_json.write_text(json.dumps(output.model_dump(), indent=2))
         return output

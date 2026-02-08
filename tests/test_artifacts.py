@@ -4,9 +4,9 @@ from shitposter.artifacts import create_run_context
 
 
 def test_run_context_paths(run_ctx):
-    assert run_ctx.prompt_txt.name == "prompt.txt"
+    assert run_ctx.prompt_json.name == "prompt.json"
     assert run_ctx.image_path.name == "image.png"
-    assert run_ctx.caption_txt.name == "caption.txt"
+    assert run_ctx.caption_json.name == "caption.json"
     assert run_ctx.publish_json.name == "publish.json"
     assert run_ctx.summary_json.name == "summary.json"
 

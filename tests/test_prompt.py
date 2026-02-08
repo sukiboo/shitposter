@@ -15,8 +15,7 @@ def test_prompt_step_passes_through(run_ctx):
     )
 
     assert isinstance(result, ConstructPromptOutput)
-    assert result.prompt == "a cat wearing a business suit"
-    assert run_ctx.prompt_txt.read_text() == result.prompt
+    assert result.prompt == "an image of a cat wearing a business suit"
 
     saved = json.loads(run_ctx.prompt_json.read_text())
     assert saved["prompt"] == result.prompt

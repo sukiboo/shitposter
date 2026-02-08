@@ -1,15 +1,12 @@
 import json
 from pathlib import Path
-from typing import Protocol
 
 from pydantic import BaseModel, model_validator
 
 from shitposter.artifacts import RunContext
+from shitposter.clients.telegram import TelegramClient
+from shitposter.config import EnvSettings
 from shitposter.steps.base import Step
-
-
-class Publisher(Protocol):
-    def publish(self, image_path: Path | None, caption: str | None) -> dict: ...
 
 
 class PublishPostInput(BaseModel):
@@ -30,12 +27,24 @@ class PublishPostOutput(BaseModel):
 
 
 class PublishPostStep(Step[PublishPostInput, PublishPostOutput]):
-    def __init__(self, publisher: Publisher, platform: str):
-        self.publisher = publisher
+    def __init__(self, env: EnvSettings, platform: str, publish: bool):
+        self.env = env
         self.platform = platform
+        self.publish = publish
 
     def execute(self, ctx: RunContext, input: PublishPostInput) -> PublishPostOutput:
-        raw = self.publisher.publish(input.image_path, input.caption)
+        if ctx.dry_run:
+            return PublishPostOutput(message_id="", platform=self.platform, raw_response={})
+
+        if self.publish:
+            bot_token = self.env.telegram_channel_bot_token
+            chat_id = self.env.telegram_channel_chat_id
+        else:
+            bot_token = self.env.telegram_debug_bot_token
+            chat_id = self.env.telegram_debug_chat_id
+
+        publisher = TelegramClient(bot_token=bot_token, chat_id=chat_id)
+        raw = publisher.publish(input.image_path, input.caption)
         output = PublishPostOutput(
             message_id=str(raw.get("message_id", raw.get("result", {}).get("message_id", ""))),
             platform=self.platform,

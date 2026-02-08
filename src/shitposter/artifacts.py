@@ -9,20 +9,32 @@ from pydantic import BaseModel
 RUN_ID_FORMAT = "%Y-%m-%d_%H-%M-%S"
 
 
-def create_run_context(artifact_root: Path, run_at: datetime | None = None) -> RunContext:
+def create_run_context(
+    artifact_root: Path,
+    run_at: datetime | None = None,
+    dry_run: bool = False,
+    force: bool = False,
+    publish: bool = False,
+) -> RunContext:
     run_id = (run_at or datetime.now()).strftime(RUN_ID_FORMAT)
     run_dir = artifact_root.joinpath(run_id)
     run_dir.mkdir(parents=True, exist_ok=True)
-    return RunContext(run_id=run_id, run_dir=run_dir)
+    return RunContext(
+        run_id=run_id,
+        run_dir=run_dir,
+        dry_run=dry_run,
+        force=force,
+        publish=publish,
+    )
 
 
-def write_summary(ctx: RunContext, config: dict, dry_run: bool):
+def write_summary(ctx: RunContext, config: dict):
     summary = {
         "run_id": ctx.run_id,
         "timestamp": datetime.now().isoformat(),
-        "dry_run": dry_run,
+        "dry_run": ctx.dry_run,
+        "published": ctx.publish and not ctx.dry_run,
         "config": config,
-        "published": ctx.is_published,
     }
     ctx.summary_json.write_text(json.dumps(summary, indent=2))
 
@@ -30,10 +42,9 @@ def write_summary(ctx: RunContext, config: dict, dry_run: bool):
 class RunContext(BaseModel):
     run_id: str
     run_dir: Path
-
-    @property
-    def prompt_txt(self) -> Path:
-        return self.run_dir.joinpath("prompt.txt")
+    dry_run: bool = False
+    force: bool = False
+    publish: bool = False
 
     @property
     def prompt_json(self) -> Path:
@@ -48,8 +59,8 @@ class RunContext(BaseModel):
         return self.run_dir.joinpath("image_meta.json")
 
     @property
-    def caption_txt(self) -> Path:
-        return self.run_dir.joinpath("caption.txt")
+    def caption_json(self) -> Path:
+        return self.run_dir.joinpath("caption.json")
 
     @property
     def publish_json(self) -> Path:
