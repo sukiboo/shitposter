@@ -1,3 +1,3 @@
-class TemplateCaptionProvider:
-    def generate(self, template: str, topic: str, prompt: str) -> str:
-        return template.format(topic=topic, prompt=prompt)
+class PlaceholderCaptionProvider:
+    def generate(self, prompt: str) -> str:
+        return "Placeholder caption"

@@ -1,8 +1,30 @@
+from __future__ import annotations
+
 import json
 from datetime import datetime
 from pathlib import Path
 
 from pydantic import BaseModel
+
+RUN_ID_FORMAT = "%Y-%m-%d_%H-%M-%S"
+
+
+def create_run_context(artifact_root: Path, run_at: datetime | None = None) -> RunContext:
+    run_id = (run_at or datetime.now()).strftime(RUN_ID_FORMAT)
+    run_dir = artifact_root.joinpath(run_id)
+    run_dir.mkdir(parents=True, exist_ok=True)
+    return RunContext(run_id=run_id, run_dir=run_dir)
+
+
+def write_summary(ctx: RunContext, config: dict, dry_run: bool):
+    summary = {
+        "run_id": ctx.run_id,
+        "timestamp": datetime.now().isoformat(),
+        "dry_run": dry_run,
+        "config": config,
+        "published": ctx.is_published,
+    }
+    ctx.summary_json.write_text(json.dumps(summary, indent=2))
 
 
 class RunContext(BaseModel):
@@ -34,29 +56,9 @@ class RunContext(BaseModel):
         return self.run_dir.joinpath("publish.json")
 
     @property
-    def manifest_json(self) -> Path:
-        return self.run_dir.joinpath("manifest.json")
+    def summary_json(self) -> Path:
+        return self.run_dir.joinpath("summary.json")
 
     @property
     def is_published(self) -> bool:
         return self.publish_json.exists()
-
-
-RUN_ID_FORMAT = "%Y-%m-%d_%H-%M-%S"
-
-
-def create_run_context(artifact_root: Path, run_at: datetime | None = None) -> RunContext:
-    run_id = (run_at or datetime.now()).strftime(RUN_ID_FORMAT)
-    run_dir = artifact_root.joinpath(run_id)
-    run_dir.mkdir(parents=True, exist_ok=True)
-    return RunContext(run_id=run_id, run_dir=run_dir)
-
-
-def write_manifest(ctx: RunContext, config: dict, dry_run: bool):
-    manifest = {
-        "run_id": ctx.run_id,
-        "dry_run": dry_run,
-        "config": config,
-        "published": ctx.is_published,
-    }
-    ctx.manifest_json.write_text(json.dumps(manifest, indent=2))

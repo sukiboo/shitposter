@@ -1,7 +1,7 @@
 import pytest
 
 from shitposter.artifacts import RunContext
-from shitposter.config import AppConfig, EnvSettings, Settings
+from shitposter.config import EnvSettings, RunConfig, Settings
 
 
 @pytest.fixture
@@ -21,5 +21,12 @@ def settings(tmp_path):
             telegram_debug_chat_id="fake-debug-chat",
             artifacts_path=tmp_path,
         ),
-        app=AppConfig(),
+        run=RunConfig.model_validate(
+            {
+                "prompt": {"prompt": "a cat wearing a business suit"},
+                "image": {"provider": "placeholder"},
+                "caption": {"provider": "placeholder"},
+                "publish": {"platform": "telegram"},
+            }
+        ),
     )

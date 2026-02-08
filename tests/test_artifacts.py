@@ -8,7 +8,7 @@ def test_run_context_paths(run_ctx):
     assert run_ctx.image_path.name == "image.png"
     assert run_ctx.caption_txt.name == "caption.txt"
     assert run_ctx.publish_json.name == "publish.json"
-    assert run_ctx.manifest_json.name == "manifest.json"
+    assert run_ctx.summary_json.name == "summary.json"
 
 
 def test_is_published_false_by_default(run_ctx):

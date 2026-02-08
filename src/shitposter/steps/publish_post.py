@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Protocol, Self
+from typing import Protocol
 
 from pydantic import BaseModel, model_validator
 
@@ -12,31 +12,31 @@ class Publisher(Protocol):
     def publish(self, image_path: Path | None, caption: str | None) -> dict: ...
 
 
-class PublishInput(BaseModel):
+class PublishPostInput(BaseModel):
     image_path: Path | None = None
     caption: str | None = None
 
     @model_validator(mode="after")
-    def at_least_one(self) -> Self:
+    def at_least_one(self) -> "PublishPostInput":
         if self.image_path is None and self.caption is None:
             raise ValueError("need at least `image_path` or `caption`")
         return self
 
 
-class PublishOutput(BaseModel):
+class PublishPostOutput(BaseModel):
     message_id: str
     platform: str
     raw_response: dict
 
 
-class PublishStep(Step[PublishInput, PublishOutput]):
+class PublishPostStep(Step[PublishPostInput, PublishPostOutput]):
     def __init__(self, publisher: Publisher, platform: str):
         self.publisher = publisher
         self.platform = platform
 
-    def execute(self, ctx: RunContext, input: PublishInput) -> PublishOutput:
+    def execute(self, ctx: RunContext, input: PublishPostInput) -> PublishPostOutput:
         raw = self.publisher.publish(input.image_path, input.caption)
-        output = PublishOutput(
+        output = PublishPostOutput(
             message_id=str(raw.get("message_id", raw.get("result", {}).get("message_id", ""))),
             platform=self.platform,
             raw_response=raw,

@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from shitposter.artifacts import create_run_context, write_manifest
+from shitposter.artifacts import create_run_context, write_summary
 from shitposter.clients.telegram import TelegramClient
 from shitposter.config import Settings
-from shitposter.steps.caption import CaptionInput, CaptionStep
-from shitposter.steps.image import ImageInput, ImageStep
-from shitposter.steps.prompt import PromptInput, PromptStep
-from shitposter.steps.publish import PublishInput, PublishStep
+from shitposter.steps.construct_prompt import ConstructPromptInput, ConstructPromptStep
+from shitposter.steps.generate_caption import GenerateCaptionInput, GenerateCaptionStep
+from shitposter.steps.generate_image import GenerateImageInput, GenerateImageStep
+from shitposter.steps.publish_post import PublishPostInput, PublishPostStep
 
 
 def execute(
@@ -23,14 +23,13 @@ def execute(
         print(f"Already published for {ctx.run_id}. Use --force to re-run.")
         return
 
-    # step 1: pick a random topic and expand it into an image-generation prompt
-    #  input: template string, topic list
-    # output: prompt text, chosen topic
-    prompt_out = PromptStep().execute(
+    # step 1: construct the image-generation prompt
+    #  input: prompt string
+    # output: prompt text
+    prompt_out = ConstructPromptStep().execute(
         ctx,
-        PromptInput(
-            template=settings.app.prompt.template,
-            topics=settings.app.prompt.topics,
+        ConstructPromptInput(
+            prompt=settings.run.prompt.prompt,
         ),
     )
     print(f"Prompt: {prompt_out.prompt}")
@@ -38,25 +37,23 @@ def execute(
     # step 2: generate an image from the prompt (provider-dependent)
     #  input: prompt text, provider name, dimensions
     # output: image file path, provider metadata
-    image_out = ImageStep().execute(
+    image_out = GenerateImageStep().execute(
         ctx,
-        ImageInput(
+        GenerateImageInput(
             prompt=prompt_out.prompt,
-            provider=settings.app.image.provider,
+            provider=settings.run.image.provider,
         ),
     )
     print(f"Image: {image_out.image_path}")
 
-    # step 3: build the post caption from the prompt, topic, and image metadata
-    #  input: prompt text, topic, template, image metadata
+    # step 3: generate the post caption
+    #  input: prompt text, provider name
     # output: caption text
-    caption_out = CaptionStep().execute(
+    caption_out = GenerateCaptionStep().execute(
         ctx,
-        CaptionInput(
+        GenerateCaptionInput(
             prompt=prompt_out.prompt,
-            topic=prompt_out.topic,
-            template=settings.app.caption.template,
-            image_metadata=image_out.metadata,
+            provider=settings.run.caption.provider,
         ),
     )
     print(f"Caption: {caption_out.caption}")
@@ -75,15 +72,15 @@ def execute(
             chat_id = settings.env.telegram_debug_chat_id
 
         publisher = TelegramClient(bot_token=bot_token, chat_id=chat_id)
-        PublishStep(publisher=publisher, platform=settings.app.publish.platform).execute(
+        PublishPostStep(publisher=publisher, platform=settings.run.publish.platform).execute(
             ctx,
-            PublishInput(
+            PublishPostInput(
                 image_path=image_out.image_path,
                 caption=caption_out.caption,
             ),
         )
-        target = settings.app.publish.platform if publish else "debug DM"
+        target = settings.run.publish.platform if publish else "debug DM"
         print(f"Published to {target}.")
 
     # step 5: write a summary of the run (config, run_id, dry_run flag, publish status)
-    write_manifest(ctx, settings.app.model_dump(), dry_run)
+    write_summary(ctx, settings.run.model_dump(), dry_run)

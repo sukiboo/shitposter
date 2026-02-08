@@ -18,21 +18,21 @@ PROVIDERS: dict[str, type[ImageProvider]] = {
 }
 
 
-class ImageInput(BaseModel):
+class GenerateImageInput(BaseModel):
     prompt: str
     provider: str = "placeholder"
     width: int = 512
     height: int = 512
 
 
-class ImageOutput(BaseModel):
+class GenerateImageOutput(BaseModel):
     image_path: Path
     provider: str
     metadata: dict
 
 
-class ImageStep(Step[ImageInput, ImageOutput]):
-    def execute(self, ctx: RunContext, input: ImageInput) -> ImageOutput:
+class GenerateImageStep(Step[GenerateImageInput, GenerateImageOutput]):
+    def execute(self, ctx: RunContext, input: GenerateImageInput) -> GenerateImageOutput:
         provider_cls = PROVIDERS[input.provider]
         provider = provider_cls()
         image_data = provider.generate(input.prompt, input.width, input.height)
@@ -40,7 +40,7 @@ class ImageStep(Step[ImageInput, ImageOutput]):
         ctx.image_path.write_bytes(image_data)
 
         metadata = {"provider": input.provider, "prompt": input.prompt}
-        output = ImageOutput(
+        output = GenerateImageOutput(
             image_path=ctx.image_path,
             provider=input.provider,
             metadata=metadata,

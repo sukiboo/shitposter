@@ -15,12 +15,12 @@ def test_dry_run_creates_artifacts(settings):
     assert run_dir.joinpath("image.png").exists()
     assert run_dir.joinpath("image_meta.json").exists()
     assert run_dir.joinpath("caption.txt").exists()
-    assert run_dir.joinpath("manifest.json").exists()
+    assert run_dir.joinpath("summary.json").exists()
     assert not run_dir.joinpath("publish.json").exists()
 
-    manifest = json.loads(run_dir.joinpath("manifest.json").read_text())
-    assert manifest["dry_run"] is True
-    assert manifest["published"] is False
+    summary = json.loads(run_dir.joinpath("summary.json").read_text())
+    assert summary["dry_run"] is True
+    assert summary["published"] is False
 
 
 def test_idempotency_skips_published(settings):

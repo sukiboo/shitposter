@@ -1,27 +1,22 @@
 import json
 
-import pytest
-from pydantic import ValidationError
+from shitposter.steps.construct_prompt import (
+    ConstructPromptInput,
+    ConstructPromptOutput,
+    ConstructPromptStep,
+)
 
-from shitposter.steps.prompt import PromptInput, PromptOutput, PromptStep
 
-
-def test_prompt_step_generates_prompt(run_ctx):
-    step = PromptStep()
+def test_prompt_step_passes_through(run_ctx):
+    step = ConstructPromptStep()
     result = step.execute(
         run_ctx,
-        PromptInput(template="Draw a {topic}", topics=["cat", "dog"]),
+        ConstructPromptInput(prompt="a cat wearing a business suit"),
     )
 
-    assert isinstance(result, PromptOutput)
-    assert result.topic in ("cat", "dog")
-    assert result.topic in result.prompt
+    assert isinstance(result, ConstructPromptOutput)
+    assert result.prompt == "a cat wearing a business suit"
     assert run_ctx.prompt_txt.read_text() == result.prompt
 
     saved = json.loads(run_ctx.prompt_json.read_text())
-    assert saved["topic"] == result.topic
-
-
-def test_prompt_input_requires_topics():
-    with pytest.raises(ValidationError):
-        PromptInput(template="Draw a {topic}", topics=[])
+    assert saved["prompt"] == result.prompt

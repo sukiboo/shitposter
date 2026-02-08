@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import yaml
@@ -5,51 +7,48 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def load_settings() -> Settings:
+    return Settings(env=EnvSettings(), run=load_run_config())
+
+
+def load_run_config(path: Path = Path("settings.yaml")) -> RunConfig:
+    data = yaml.safe_load(path.read_text())
+    return RunConfig.model_validate(data)
+
+
 class EnvSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    telegram_channel_bot_token: str = ""
-    telegram_channel_chat_id: str = ""
+    artifacts_path: Path = Path("artifacts")
     telegram_debug_bot_token: str = ""
     telegram_debug_chat_id: str = ""
-    artifacts_path: Path = Path("artifacts")
-
-
-class PromptConfig(BaseModel):
-    template: str = "A surreal digital painting of {topic}"
-    topics: list[str] = ["a cat"]
-
-
-class ImageConfig(BaseModel):
-    provider: str = "placeholder"
-
-
-class CaptionConfig(BaseModel):
-    template: str = "{topic}"
-
-
-class PublishConfig(BaseModel):
-    platform: str = "telegram"
-
-
-class AppConfig(BaseModel):
-    prompt: PromptConfig = PromptConfig()
-    image: ImageConfig = ImageConfig()
-    caption: CaptionConfig = CaptionConfig()
-    publish: PublishConfig = PublishConfig()
+    telegram_channel_bot_token: str = ""
+    telegram_channel_chat_id: str = ""
 
 
 class Settings(BaseModel):
     env: EnvSettings
-    app: AppConfig
+    run: RunConfig
 
 
-def load_app_config(path: Path = Path("settings.yaml")) -> AppConfig:
-    if path.exists():
-        data = yaml.safe_load(path.read_text())
-        return AppConfig.model_validate(data or {})
-    return AppConfig()
+class RunConfig(BaseModel):
+    prompt: PromptConfig
+    image: ImageConfig
+    caption: CaptionConfig
+    publish: PublishConfig
 
 
-def load_settings() -> Settings:
-    return Settings(env=EnvSettings(), app=load_app_config())
+class PromptConfig(BaseModel):
+    prompt: str
+
+
+class ImageConfig(BaseModel):
+    provider: str
+
+
+class CaptionConfig(BaseModel):
+    provider: str
+
+
+class PublishConfig(BaseModel):
+    platform: str

@@ -1,18 +1,11 @@
 prompt:
-  template: "A surreal digital painting of {topic}, vibrant colors, dreamlike atmosphere"
-  topics:
-    - "a cat wearing a business suit"
-    - "a frog contemplating existence"
-    - "a raccoon doing taxes"
-    - "a pigeon running a startup"
+  prompt: "a cat wearing a business suit"
 
 image:
   provider: placeholder
-  width: 1024
-  height: 1024
 
 caption:
-  template: "{topic} | AI-generated art"
+  provider: placeholder
 
 publish:
   platform: telegram
