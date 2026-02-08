@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from shitposter.artifacts import RunContext, create_run_context
+from shitposter.artifacts import create_run_context
 
 
 def test_run_context_paths(run_ctx):

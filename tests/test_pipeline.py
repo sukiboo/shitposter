@@ -43,7 +43,7 @@ def test_force_reruns(settings):
     run_dir = run_dirs[0]
     run_dir.joinpath("publish.json").write_text("{}")
 
-    first_prompt = run_dir.joinpath("prompt.txt").read_text()
+    _ = run_dir.joinpath("prompt.txt").read_text()
 
     execute(settings, dry_run=True, force=True)
 
