@@ -4,11 +4,11 @@ Automated content generation and posting pipeline. Generates images, builds capt
 
 ## Pipeline
 
-1. **Prompt** — picks a random topic from a configured list and expands it into an image-generation prompt
+1. **Prompt** — prepends "an image of" to the configured prompt
 2. **Image** — generates an image from the prompt (placeholder provider for now, real provider TBD)
-3. **Caption** — builds a post caption from the topic and a template
+3. **Caption** — generates a post caption from the prompt (placeholder provider for now)
 4. **Publish** — sends the image + caption to Telegram
-5. **Manifest** — writes a run summary (config snapshot, run ID, publish status)
+5. **Summary** — writes a run summary (config snapshot, run ID, publish status)
 
 Each step has pydantic-validated I/O models. Artifacts are written to a per-run directory under the configured artifact root.
 
@@ -16,22 +16,22 @@ Each step has pydantic-validated I/O models. Artifacts are written to a per-run 
 
 ```
 src/shitposter/
-  cli.py              # typer CLI
-  pipeline.py         # orchestrates steps in sequence
-  config.py           # EnvSettings (.env) + AppConfig (settings.yaml)
-  artifacts.py        # RunContext model + file I/O helpers
+  cli.py                  # typer CLI
+  pipeline.py             # orchestrates steps in sequence
+  config.py               # EnvSettings (.env) + RunConfig (settings.yaml)
+  artifacts.py            # RunContext model + file I/O helpers
 
   steps/
-    base.py           # Step[TInput, TOutput] ABC
-    prompt.py         # PromptStep
-    image.py          # ImageStep + image provider protocol
-    caption.py        # CaptionStep
-    publish.py        # PublishStep + publisher protocol
+    base.py               # Step[TInput, TOutput] ABC
+    construct_prompt.py   # ConstructPromptStep
+    generate_image.py     # GenerateImageStep
+    generate_caption.py   # GenerateCaptionStep
+    publish_post.py       # PublishPostStep
 
   clients/
-    telegram.py       # httpx wrapper for Telegram Bot API
-    text_to_image.py  # placeholder image provider (Pillow)
-    text_to_text.py   # template caption provider
+    telegram.py           # httpx wrapper for Telegram Bot API
+    text_to_image.py      # placeholder image provider (Pillow)
+    text_to_text.py       # placeholder caption provider
 
 tests/
   conftest.py
@@ -71,18 +71,13 @@ TELEGRAM_CHANNEL_CHAT_ID=your-channel-chat-id
 
 ```yaml
 prompt:
-  template: "A surreal digital painting of {topic}, vibrant colors, dreamlike atmosphere"
-  topics:
-    - "a cat wearing a business suit"
-    - "a frog contemplating existence"
+  prompt: "a cat wearing a business suit"
 
 image:
   provider: placeholder
-  width: 1024
-  height: 1024
 
 caption:
-  template: "{topic} | AI-generated art"
+  provider: placeholder
 
 publish:
   platform: telegram
@@ -113,13 +108,12 @@ Each run creates a directory under `<artifacts_path>/<run_id>/`:
 
 ```
 2026-02-08_09-00-00/
-  prompt.txt
   prompt.json
   image.png
   image_meta.json
-  caption.txt
+  caption.json
   publish.json      # only if published
-  manifest.json
+  summary.json
 ```
 
 ## Tests
