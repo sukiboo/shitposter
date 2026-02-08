@@ -15,8 +15,10 @@ def run_ctx(tmp_path):
 def settings(tmp_path):
     return Settings(
         env=EnvSettings(
-            telegram_bot_token="fake-token",
-            telegram_chat_id="fake-chat",
+            telegram_channel_bot_token="fake-channel-token",
+            telegram_channel_chat_id="fake-channel-chat",
+            telegram_debug_bot_token="fake-debug-token",
+            telegram_debug_chat_id="fake-debug-chat",
             artifacts_path=tmp_path,
         ),
         app=AppConfig(),

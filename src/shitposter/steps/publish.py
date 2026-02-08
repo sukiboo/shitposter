@@ -19,7 +19,7 @@ class PublishInput(BaseModel):
     @model_validator(mode="after")
     def at_least_one(self) -> Self:
         if self.image_path is None and self.caption is None:
-            raise ValueError("need at least image_path or caption")
+            raise ValueError("need at least `image_path` or `caption`")
         return self
 
 

@@ -22,6 +22,10 @@ def run(
         bool,
         typer.Option("--force", help="Force re-run even if already published."),
     ] = False,
+    publish: Annotated[
+        bool,
+        typer.Option("--publish", help="Publish to channel instead of debug DM."),
+    ] = False,
 ):
     from shitposter.artifacts import RUN_ID_FORMAT
     from shitposter.config import load_settings
@@ -29,4 +33,4 @@ def run(
 
     run_at = datetime.strptime(at, RUN_ID_FORMAT) if at else None
     settings = load_settings()
-    execute(settings, run_at=run_at, dry_run=dry_run, force=force)
+    execute(settings, run_at=run_at, dry_run=dry_run, force=force, publish=publish)

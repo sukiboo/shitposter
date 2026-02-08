@@ -8,8 +8,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class EnvSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    telegram_bot_token: str = ""
-    telegram_chat_id: str = ""
+    telegram_channel_bot_token: str = ""
+    telegram_channel_chat_id: str = ""
+    telegram_debug_bot_token: str = ""
+    telegram_debug_chat_id: str = ""
     artifacts_path: Path = Path("artifacts")
 
 

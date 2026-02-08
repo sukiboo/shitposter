@@ -58,9 +58,13 @@ cp settings.example.yaml settings.yaml
 ### `.env`
 
 ```
-TELEGRAM_BOT_TOKEN=your-bot-token
-TELEGRAM_CHAT_ID=your-chat-id
 ARTIFACTS_PATH=./artifacts
+
+TELEGRAM_DEBUG_BOT_TOKEN=your-debug-bot-token
+TELEGRAM_DEBUG_CHAT_ID=your-debug-chat-id
+
+TELEGRAM_CHANNEL_BOT_TOKEN=your-channel-bot-token
+TELEGRAM_CHANNEL_CHAT_ID=your-channel-chat-id
 ```
 
 ### `settings.yaml`
@@ -90,8 +94,11 @@ publish:
 # dry run (generates artifacts, skips publishing)
 uv run shitposter run --dry-run
 
-# publish to telegram
+# default: generates + sends to debug DM
 uv run shitposter run
+
+# publish to channel for real
+uv run shitposter run --publish
 
 # run for a specific timestamp
 uv run shitposter run --at 2026-02-08_09-00-00

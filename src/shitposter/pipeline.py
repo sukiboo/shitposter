@@ -14,6 +14,7 @@ def execute(
     run_at: datetime | None = None,
     dry_run: bool = False,
     force: bool = False,
+    publish: bool = False,
 ):
     ctx = create_run_context(settings.env.artifacts_path, run_at)
     print(f"Run {ctx.run_id} → {ctx.run_dir}")
@@ -66,10 +67,14 @@ def execute(
     if dry_run:
         print("Dry run — skipping publish.")
     else:
-        publisher = TelegramClient(
-            bot_token=settings.env.telegram_bot_token,
-            chat_id=settings.env.telegram_chat_id,
-        )
+        if publish:
+            bot_token = settings.env.telegram_channel_bot_token
+            chat_id = settings.env.telegram_channel_chat_id
+        else:
+            bot_token = settings.env.telegram_debug_bot_token
+            chat_id = settings.env.telegram_debug_chat_id
+
+        publisher = TelegramClient(bot_token=bot_token, chat_id=chat_id)
         PublishStep(publisher=publisher, platform=settings.app.publish.platform).execute(
             ctx,
             PublishInput(
@@ -77,7 +82,8 @@ def execute(
                 caption=caption_out.caption,
             ),
         )
-        print(f"Published to {settings.app.publish.platform}.")
+        target = settings.app.publish.platform if publish else "debug DM"
+        print(f"Published to {target}.")
 
     # step 5: write a summary of the run (config, run_id, dry_run flag, publish status)
     write_manifest(ctx, settings.app.model_dump(), dry_run)
