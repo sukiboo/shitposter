@@ -24,6 +24,9 @@ class RandomImageProvider:
 
 
 class OpenAIImageProvider:
+    ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}
+    ALLOWED_MODELS = {"gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"}
+
     def __init__(self, **kwargs):
         from openai import OpenAI
 
@@ -32,6 +35,17 @@ class OpenAIImageProvider:
         self.width = kwargs.get("width") or 1024
         self.height = kwargs.get("height") or 1024
         self.quality = kwargs.get("quality") or "medium"
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+            )
+        if (self.width, self.height) not in self.ALLOWED_SIZES:
+            raise ValueError(
+                f"OpenAI does not support {self.width}x{self.height}. "
+                f"Allowed sizes: {', '.join(f'{w}x{h}' for w, h in sorted(self.ALLOWED_SIZES))}"
+            )
 
     def generate(self, prompt: str) -> bytes:
         size: Any = f"{self.width}x{self.height}"
