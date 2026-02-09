@@ -28,13 +28,20 @@ class GenerateImageStep(Step[ImageConfig, GenerateImageOutput]):
 
         ctx.image_path.write_bytes(image_data)
 
-        metadata = {"provider": input.provider, "prompt": ctx.prompt}
+        metadata = {
+            "provider": input.provider,
+            "model": input.model,
+            "width": provider.width,
+            "height": provider.height,
+            "quality": input.quality,
+            "prompt": ctx.prompt,
+        }
         output = GenerateImageOutput(
             image_path=ctx.image_path,
             provider=input.provider,
             metadata=metadata,
         )
 
-        ctx.image_meta_json.write_text(json.dumps(metadata, indent=2))
+        ctx.image_metadata_json.write_text(json.dumps(metadata, indent=2))
 
         return output

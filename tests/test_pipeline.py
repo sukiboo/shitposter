@@ -10,7 +10,8 @@ def test_dry_run_creates_artifacts(settings):
 
     assert ctx.run_dir.joinpath("prompt.json").exists()
     assert ctx.run_dir.joinpath("image.png").exists()
-    assert ctx.run_dir.joinpath("image_meta.json").exists()
+    assert ctx.run_dir.joinpath("image_metadata.json").exists()
+    assert ctx.run_dir.joinpath("caption_metadata.json").exists()
     assert ctx.run_dir.joinpath("caption.json").exists()
     assert ctx.run_dir.joinpath("summary.json").exists()
     assert not ctx.run_dir.joinpath("publish.json").exists()

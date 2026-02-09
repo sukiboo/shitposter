@@ -28,4 +28,12 @@ class GenerateCaptionStep(Step[CaptionConfig, GenerateCaptionOutput]):
         ctx.caption = caption_text
         output = GenerateCaptionOutput(caption_text=caption_text)
         ctx.caption_json.write_text(json.dumps(output.model_dump(), indent=2))
+
+        metadata = {
+            "provider": input.provider,
+            "model": input.model,
+            "prompt": ctx.prompt,
+        }
+        ctx.caption_metadata_json.write_text(json.dumps(metadata, indent=2))
+
         return output

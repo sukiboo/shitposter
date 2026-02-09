@@ -61,12 +61,16 @@ class RunContext(BaseModel):
         return self.run_dir.joinpath("image.png")
 
     @property
-    def image_meta_json(self) -> Path:
-        return self.run_dir.joinpath("image_meta.json")
+    def image_metadata_json(self) -> Path:
+        return self.run_dir.joinpath("image_metadata.json")
 
     @property
     def caption_json(self) -> Path:
         return self.run_dir.joinpath("caption.json")
+
+    @property
+    def caption_metadata_json(self) -> Path:
+        return self.run_dir.joinpath("caption_metadata.json")
 
     @property
     def publish_json(self) -> Path:
