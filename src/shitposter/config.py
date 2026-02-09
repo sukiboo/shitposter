@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -43,17 +43,31 @@ class PromptConfig(BaseModel):
     prompt: str
 
 
-class ImageConfig(BaseModel):
+class ProviderConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
     provider: str
-    model: str = ""
-    width: int = 0
-    height: int = 0
-    quality: str = ""
 
 
-class CaptionConfig(BaseModel):
-    provider: str
-    model: str = ""
+class ImageConfig(ProviderConfig):
+    @field_validator("provider")
+    @classmethod
+    def _check_provider(cls, v: str) -> str:
+        from shitposter.clients.text_to_image import PROVIDERS
+
+        if v not in PROVIDERS:
+            raise ValueError(f"Unknown provider '{v}'. Allowed: {sorted(PROVIDERS)}")
+        return v
+
+
+class CaptionConfig(ProviderConfig):
+    @field_validator("provider")
+    @classmethod
+    def _check_provider(cls, v: str) -> str:
+        from shitposter.clients.text_to_text import PROVIDERS
+
+        if v not in PROVIDERS:
+            raise ValueError(f"Unknown provider '{v}'. Allowed: {sorted(PROVIDERS)}")
+        return v
 
 
 class PublishConfig(BaseModel):

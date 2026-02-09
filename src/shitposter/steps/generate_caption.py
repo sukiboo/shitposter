@@ -3,17 +3,9 @@ import json
 from pydantic import BaseModel
 
 from shitposter.artifacts import RunContext
-from shitposter.clients.text_to_text import (
-    OpenAICaptionProvider,
-    PlaceholderCaptionProvider,
-)
+from shitposter.clients.text_to_text import PROVIDERS
 from shitposter.config import CaptionConfig
 from shitposter.steps.base import Step
-
-PROVIDERS: dict[str, type[PlaceholderCaptionProvider | OpenAICaptionProvider]] = {
-    "placeholder": PlaceholderCaptionProvider,
-    "openai": OpenAICaptionProvider,
-}
 
 
 class GenerateCaptionOutput(BaseModel):
@@ -29,11 +21,7 @@ class GenerateCaptionStep(Step[CaptionConfig, GenerateCaptionOutput]):
         output = GenerateCaptionOutput(caption_text=caption_text)
         ctx.caption_json.write_text(json.dumps(output.model_dump(), indent=2))
 
-        metadata = {
-            "provider": input.provider,
-            "model": input.model,
-            "prompt": ctx.prompt,
-        }
+        metadata = {"provider": input.provider, "prompt": ctx.prompt, **provider.metadata()}
         ctx.caption_metadata_json.write_text(json.dumps(metadata, indent=2))
 
         return output

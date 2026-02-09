@@ -4,14 +4,9 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from shitposter.artifacts import RunContext
-from shitposter.clients.text_to_image import OpenAIImageProvider, RandomImageProvider
+from shitposter.clients.text_to_image import PROVIDERS
 from shitposter.config import ImageConfig
 from shitposter.steps.base import Step
-
-PROVIDERS: dict[str, type[RandomImageProvider | OpenAIImageProvider]] = {
-    "placeholder": RandomImageProvider,
-    "openai": OpenAIImageProvider,
-}
 
 
 class GenerateImageOutput(BaseModel):
@@ -28,14 +23,7 @@ class GenerateImageStep(Step[ImageConfig, GenerateImageOutput]):
 
         ctx.image_path.write_bytes(image_data)
 
-        metadata = {
-            "provider": input.provider,
-            "model": input.model,
-            "width": provider.width,
-            "height": provider.height,
-            "quality": input.quality,
-            "prompt": ctx.prompt,
-        }
+        metadata = {"provider": input.provider, "prompt": ctx.prompt, **provider.metadata()}
         output = GenerateImageOutput(
             image_path=ctx.image_path,
             provider=input.provider,

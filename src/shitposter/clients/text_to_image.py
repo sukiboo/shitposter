@@ -11,6 +11,9 @@ class RandomImageProvider:
         self.width = kwargs.get("width") or 512
         self.height = kwargs.get("height") or 512
 
+    def metadata(self) -> dict:
+        return {"width": self.width, "height": self.height}
+
     def generate(self, prompt: str) -> bytes:
         img = Image.new("RGB", (self.width, self.height))
         pixels = [
@@ -31,10 +34,10 @@ class OpenAIImageProvider:
         from openai import OpenAI
 
         self.client = OpenAI()
-        self.model = kwargs.get("model") or "gpt-image-1-mini"
-        self.width = kwargs.get("width") or 1024
-        self.height = kwargs.get("height") or 1024
-        self.quality = kwargs.get("quality") or "medium"
+        self.model = kwargs.get("model", "gpt-image-1-mini")
+        self.width = kwargs.get("width", 1024)
+        self.height = kwargs.get("height", 1024)
+        self.quality = kwargs.get("quality", "medium")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
@@ -46,6 +49,14 @@ class OpenAIImageProvider:
                 f"OpenAI does not support {self.width}x{self.height}. "
                 f"Allowed sizes: {', '.join(f'{w}x{h}' for w, h in sorted(self.ALLOWED_SIZES))}"
             )
+
+    def metadata(self) -> dict:
+        return {
+            "model": self.model,
+            "width": self.width,
+            "height": self.height,
+            "quality": self.quality,
+        }
 
     def generate(self, prompt: str) -> bytes:
         size: Any = f"{self.width}x{self.height}"
@@ -61,3 +72,11 @@ class OpenAIImageProvider:
         if not b64:
             raise RuntimeError("OpenAI returned no image data")
         return base64.b64decode(b64)
+
+
+from shitposter.clients.base import ImageProvider
+
+PROVIDERS: dict[str, type[ImageProvider]] = {
+    "placeholder": RandomImageProvider,
+    "openai": OpenAIImageProvider,
+}

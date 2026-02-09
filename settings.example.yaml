@@ -5,7 +5,7 @@ image:
   provider: placeholder  # or "openai" (defaults: gpt-image-1-mini, 1024x1024, medium quality)
 
 caption:
-  provider: placeholder  # or "openai" (default: gpt-4o-mini)
+  provider: placeholder  # or "openai" (default: gpt-5-nano, temperature=1.0)
 
 publish:
   platform: telegram
