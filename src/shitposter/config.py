@@ -46,8 +46,9 @@ class PromptConfig(BaseModel):
 class ImageConfig(BaseModel):
     provider: str
     model: str = ""
-    width: int = 512
-    height: int = 512
+    width: int = 0
+    height: int = 0
+    quality: str = ""
 
 
 class CaptionConfig(BaseModel):

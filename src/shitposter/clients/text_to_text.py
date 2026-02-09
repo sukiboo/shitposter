@@ -7,11 +7,11 @@ class PlaceholderCaptionProvider:
 
 
 class OpenAICaptionProvider:
-    def __init__(self, model: str = "gpt-4o-mini", **kwargs):
+    def __init__(self, **kwargs):
         from openai import OpenAI
 
         self.client = OpenAI()
-        self.model = model
+        self.model = kwargs.get("model") or "gpt-4o-mini"
 
     def generate(self, prompt: str) -> str:
         response = self.client.chat.completions.create(

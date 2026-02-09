@@ -8,7 +8,7 @@ from shitposter.clients.text_to_image import OpenAIImageProvider, RandomImagePro
 from shitposter.config import ImageConfig
 from shitposter.steps.base import Step
 
-PROVIDERS = {
+PROVIDERS: dict[str, type[RandomImageProvider | OpenAIImageProvider]] = {
     "placeholder": RandomImageProvider,
     "openai": OpenAIImageProvider,
 }
@@ -23,8 +23,8 @@ class GenerateImageOutput(BaseModel):
 class GenerateImageStep(Step[ImageConfig, GenerateImageOutput]):
     def execute(self, ctx: RunContext, input: ImageConfig) -> GenerateImageOutput:
         provider_cls = PROVIDERS[input.provider]
-        provider = provider_cls(model=input.model)
-        image_data = provider.generate(ctx.prompt, input.width, input.height)
+        provider = provider_cls(**input.model_dump(exclude={"provider"}))
+        image_data = provider.generate(ctx.prompt)
 
         ctx.image_path.write_bytes(image_data)
 
