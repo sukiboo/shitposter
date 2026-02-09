@@ -2,10 +2,14 @@ prompt:
   prompt: "a cat wearing a business suit"
 
 image:
-  provider: placeholder
+  provider: placeholder  # or "openai"
+  model: ""              # e.g. "dall-e-3" for openai provider
+  width: 1024
+  height: 1024
 
 caption:
-  provider: placeholder
+  provider: placeholder  # or "openai"
+  model: ""              # e.g. "gpt-4o-mini" for openai provider
 
 publish:
   platform: telegram

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from shitposter.artifacts import create_run_context
+from shitposter.config import EnvSettings
 
 
 def test_run_context_paths(run_ctx):
@@ -21,7 +22,8 @@ def test_is_published_true_when_file_exists(run_ctx):
 
 
 def test_create_run_context(tmp_path):
-    ctx = create_run_context(tmp_path, datetime(2026, 3, 15, 14, 30, 0))
+    env = EnvSettings(artifacts_path=tmp_path)
+    ctx = create_run_context(env, datetime(2026, 3, 15, 14, 30, 0))
     assert ctx.run_id == "2026-03-15_14-30-00"
     assert ctx.run_dir.exists()
     assert ctx.run_dir == tmp_path.joinpath("2026-03-15_14-30-00")

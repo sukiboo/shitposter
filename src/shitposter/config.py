@@ -24,6 +24,7 @@ class EnvSettings(BaseSettings):
     telegram_debug_chat_id: str = ""
     telegram_channel_bot_token: str = ""
     telegram_channel_chat_id: str = ""
+    openai_api_key: str = ""
 
 
 class Settings(BaseModel):
@@ -44,10 +45,14 @@ class PromptConfig(BaseModel):
 
 class ImageConfig(BaseModel):
     provider: str
+    model: str = ""
+    width: int = 512
+    height: int = 512
 
 
 class CaptionConfig(BaseModel):
     provider: str
+    model: str = ""
 
 
 class PublishConfig(BaseModel):

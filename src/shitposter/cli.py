@@ -34,7 +34,7 @@ def run(
     run_at = datetime.strptime(at, RUN_ID_FORMAT) if at else None
     settings = load_settings()
     ctx = create_run_context(
-        settings.env.artifacts_path,
+        settings.env,
         run_at,
         dry_run=dry_run,
         force=force,
