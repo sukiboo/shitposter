@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -29,7 +28,5 @@ class GenerateImageStep(Step[ImageConfig, GenerateImageOutput]):
             provider=input.provider,
             metadata=metadata,
         )
-
-        ctx.image_metadata_json.write_text(json.dumps(metadata, indent=2))
 
         return output

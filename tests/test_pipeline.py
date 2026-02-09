@@ -10,8 +10,6 @@ def test_dry_run_creates_artifacts(settings):
 
     assert ctx.run_dir.joinpath("prompt.json").exists()
     assert ctx.run_dir.joinpath("image.png").exists()
-    assert ctx.run_dir.joinpath("image_metadata.json").exists()
-    assert ctx.run_dir.joinpath("caption_metadata.json").exists()
     assert ctx.run_dir.joinpath("caption.json").exists()
     assert ctx.run_dir.joinpath("summary.json").exists()
     assert not ctx.run_dir.joinpath("publish.json").exists()
@@ -19,6 +17,11 @@ def test_dry_run_creates_artifacts(settings):
     summary = json.loads(ctx.run_dir.joinpath("summary.json").read_text())
     assert summary["dry_run"] is True
     assert summary["published"] is False
+    steps = summary["steps"]
+    assert "prompt" in steps
+    assert "image" in steps
+    assert "caption" in steps
+    assert "publish" in steps
 
 
 def test_idempotency_skips_published(settings):

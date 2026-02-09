@@ -10,6 +10,7 @@ from shitposter.steps.base import Step
 
 class GenerateCaptionOutput(BaseModel):
     caption_text: str
+    metadata: dict
 
 
 class GenerateCaptionStep(Step[CaptionConfig, GenerateCaptionOutput]):
@@ -18,10 +19,9 @@ class GenerateCaptionStep(Step[CaptionConfig, GenerateCaptionOutput]):
         provider = provider_cls(**input.model_dump(exclude={"provider"}))
         caption_text = provider.generate(ctx.prompt)
         ctx.caption = caption_text
-        output = GenerateCaptionOutput(caption_text=caption_text)
-        ctx.caption_json.write_text(json.dumps(output.model_dump(), indent=2))
 
         metadata = {"provider": input.provider, "prompt": ctx.prompt, **provider.metadata()}
-        ctx.caption_metadata_json.write_text(json.dumps(metadata, indent=2))
+        output = GenerateCaptionOutput(caption_text=caption_text, metadata=metadata)
+        ctx.caption_json.write_text(json.dumps(output.model_dump(), indent=2))
 
         return output

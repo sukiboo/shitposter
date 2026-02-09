@@ -22,11 +22,11 @@ def execute(settings: Settings, ctx: RunContext):
     print(f"Step 2: {image.image_path=}")
 
     # step 3: generate the post caption
-    GenerateCaptionStep().execute(ctx, settings.run.caption)
+    caption = GenerateCaptionStep().execute(ctx, settings.run.caption)
     print(f"Step 3: {ctx.caption=}")
 
     # step 4: publish post to the configured platforms
-    PublishPostStep().execute(ctx, settings.run.publish)
+    publish = PublishPostStep().execute(ctx, settings.run.publish)
     if ctx.dry_run:
         print("Step 4: dry run -- skipping publish")
     else:
@@ -34,5 +34,13 @@ def execute(settings: Settings, ctx: RunContext):
         print(f"Step 4: published to {target}")
 
     # step 5: write a summary of the run
-    write_summary(ctx, settings.run.model_dump())
+    write_summary(
+        ctx,
+        {
+            "prompt": settings.run.prompt.prompt,
+            "image": image.metadata,
+            "caption": caption.metadata,
+            "publish": {"platform": publish.platform, "message_id": publish.message_id},
+        },
+    )
     print(f"Step 5: run summary saved to `{ctx.run_dir}`")

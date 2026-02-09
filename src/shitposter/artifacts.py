@@ -31,13 +31,13 @@ def create_run_context(
     )
 
 
-def write_summary(ctx: RunContext, config: dict):
+def write_summary(ctx: RunContext, steps: dict):
     summary = {
         "run_id": ctx.run_id,
         "timestamp": datetime.now().isoformat(),
         "dry_run": ctx.dry_run,
         "published": ctx.publish and not ctx.dry_run,
-        "config": config,
+        "steps": steps,
     }
     ctx.summary_json.write_text(json.dumps(summary, indent=2))
 
@@ -61,16 +61,8 @@ class RunContext(BaseModel):
         return self.run_dir.joinpath("image.png")
 
     @property
-    def image_metadata_json(self) -> Path:
-        return self.run_dir.joinpath("image_metadata.json")
-
-    @property
     def caption_json(self) -> Path:
         return self.run_dir.joinpath("caption.json")
-
-    @property
-    def caption_metadata_json(self) -> Path:
-        return self.run_dir.joinpath("caption_metadata.json")
 
     @property
     def publish_json(self) -> Path:
