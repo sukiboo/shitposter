@@ -31,7 +31,7 @@ def create_run_context(
     )
 
 
-def write_summary(ctx: RunContext, steps: dict):
+def write_summary(ctx: RunContext, steps: dict) -> None:
     summary = {
         "run_id": ctx.run_id,
         "timestamp": datetime.now().isoformat(),
@@ -39,7 +39,7 @@ def write_summary(ctx: RunContext, steps: dict):
         "published": ctx.publish and not ctx.dry_run,
         "steps": steps,
     }
-    ctx.summary_json.write_text(json.dumps(summary, indent=2))
+    ctx.run_dir.joinpath("summary.json").write_text(json.dumps(summary, indent=2))
 
 
 class RunContext(BaseModel):
@@ -49,29 +49,8 @@ class RunContext(BaseModel):
     dry_run: bool = False
     force: bool = False
     publish: bool = False
-    prompt: str = ""
-    caption: str = ""
-
-    @property
-    def prompt_json(self) -> Path:
-        return self.run_dir.joinpath("prompt.json")
-
-    @property
-    def image_path(self) -> Path:
-        return self.run_dir.joinpath("image.png")
-
-    @property
-    def caption_json(self) -> Path:
-        return self.run_dir.joinpath("caption.json")
-
-    @property
-    def publish_json(self) -> Path:
-        return self.run_dir.joinpath("publish.json")
-
-    @property
-    def summary_json(self) -> Path:
-        return self.run_dir.joinpath("summary.json")
+    state: dict = {}
 
     @property
     def is_published(self) -> bool:
-        return self.publish_json.exists()
+        return self.run_dir.joinpath("summary.json").exists()

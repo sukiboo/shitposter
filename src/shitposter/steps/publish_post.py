@@ -1,55 +1,51 @@
 import json
 
-from pydantic import BaseModel
-
 from shitposter.artifacts import RunContext
 from shitposter.clients.publishers import PROVIDERS, TelegramPublisher
-from shitposter.config import PublishConfig
-from shitposter.steps.base import Step
+from shitposter.steps.base import Step, StepResult
 
 
-class PublishPostInput(BaseModel):
-    platforms: list[PublishConfig]
+class PublishPostStep(Step):
+    def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
+        platforms = config.get("platforms", [])
 
-
-class PublishResult(BaseModel):
-    provider: str
-    message_id: str
-    metadata: dict
-
-
-class PublishPostOutput(BaseModel):
-    results: list[PublishResult]
-
-
-class PublishPostStep(Step[PublishPostInput, PublishPostOutput]):
-    def execute(self, ctx: RunContext, input: PublishPostInput) -> PublishPostOutput:
         if not ctx.publish and not ctx.dry_run:
             publisher = TelegramPublisher(debug=True)
-            raw = publisher.publish(ctx.image_path, ctx.caption)
+            raw = publisher.publish(ctx.state.get("image_path"), ctx.state["caption"])
             results = [
-                PublishResult(
-                    provider="telegram",
-                    message_id=str(raw.get("result", {}).get("message_id", "")),
-                    metadata=publisher.metadata(),
-                )
+                {
+                    "provider": "telegram",
+                    "message_id": str(raw.get("result", {}).get("message_id", "")),
+                    "metadata": publisher.metadata(),
+                }
             ]
         else:
             results = []
-            for cfg in input.platforms:
-                pub = PROVIDERS[cfg.provider](**cfg.model_dump(exclude={"provider"}))
+            for name in platforms:
+                pub = PROVIDERS[name]()
                 if ctx.dry_run:
                     raw = {"result": {}}
                 else:
-                    raw = pub.publish(ctx.image_path, ctx.caption)
+                    raw = pub.publish(ctx.state.get("image_path"), ctx.state["caption"])
                 results.append(
-                    PublishResult(
-                        provider=cfg.provider,
-                        message_id=str(raw.get("result", {}).get("message_id", "")),
-                        metadata=pub.metadata(),
-                    )
+                    {
+                        "provider": name,
+                        "message_id": str(raw.get("result", {}).get("message_id", "")),
+                        "metadata": pub.metadata(),
+                    }
                 )
 
-        output = PublishPostOutput(results=results)
-        ctx.publish_json.write_text(json.dumps(output.model_dump(mode="json"), indent=2))
-        return output
+        ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps({"results": results}, indent=2))
+
+        providers = [str(r["provider"]) for r in results]
+        if ctx.dry_run:
+            summary = "dry run -- skipping publish"
+        elif not ctx.publish:
+            summary = "published to debug chat"
+        else:
+            summary = f"published to {', '.join(providers)}"
+
+        return StepResult(
+            metadata=[{"provider": r["provider"], "message_id": r["message_id"]} for r in results],
+            summary=summary,
+        )

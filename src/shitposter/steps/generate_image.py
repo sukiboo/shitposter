@@ -1,32 +1,18 @@
-from pathlib import Path
-
-from pydantic import BaseModel
-
 from shitposter.artifacts import RunContext
 from shitposter.clients.text_to_image import PROVIDERS
-from shitposter.config import ImageConfig
-from shitposter.steps.base import Step
+from shitposter.steps.base import ProviderConfig, Step, StepResult
 
 
-class GenerateImageOutput(BaseModel):
-    image_path: Path
-    provider: str
-    metadata: dict
+class GenerateImageStep(Step):
+    def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
+        cfg = ProviderConfig.model_validate(config)
+        provider_cls = PROVIDERS[cfg.provider]
+        provider = provider_cls(**cfg.model_dump(exclude={"provider"}))
+        image_data = provider.generate(ctx.state["prompt"])
 
+        image_path = ctx.run_dir.joinpath(f"{key}.png")
+        image_path.write_bytes(image_data)
+        ctx.state["image_path"] = str(image_path)
 
-class GenerateImageStep(Step[ImageConfig, GenerateImageOutput]):
-    def execute(self, ctx: RunContext, input: ImageConfig) -> GenerateImageOutput:
-        provider_cls = PROVIDERS[input.provider]
-        provider = provider_cls(**input.model_dump(exclude={"provider"}))
-        image_data = provider.generate(ctx.prompt)
-
-        ctx.image_path.write_bytes(image_data)
-
-        metadata = {"provider": input.provider, "prompt": ctx.prompt, **provider.metadata()}
-        output = GenerateImageOutput(
-            image_path=ctx.image_path,
-            provider=input.provider,
-            metadata=metadata,
-        )
-
-        return output
+        metadata = {"provider": cfg.provider, "prompt": ctx.state["prompt"], **provider.metadata()}
+        return StepResult(metadata=metadata, summary=f"image_path={image_path}")

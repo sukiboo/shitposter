@@ -13,8 +13,27 @@ def load_settings() -> Settings:
     return Settings(env=EnvSettings(), run=load_run_config())
 
 
-def load_run_config(path: Path = Path("settings.yaml")) -> RunConfig:
-    data = yaml.safe_load(path.read_text())
+class _NoDuplicateKeysLoader(yaml.SafeLoader):
+    pass
+
+
+def _check_duplicate_keys(loader: yaml.Loader, node: yaml.MappingNode) -> dict:
+    mapping: dict = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node)
+        if key in mapping:
+            raise ValueError(f"Duplicate key '{key}' in {node.start_mark}")
+        mapping[key] = loader.construct_object(value_node)
+    return mapping
+
+
+_NoDuplicateKeysLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _check_duplicate_keys
+)
+
+
+def load_run_config(path: Path = Path("steps.yaml")) -> RunConfig:
+    data = yaml.load(path.read_text(), _NoDuplicateKeysLoader)  # nosec B506
     return RunConfig.model_validate(data)
 
 
@@ -30,50 +49,19 @@ class Settings(BaseModel):
     run: RunConfig
 
 
-class RunConfig(BaseModel):
-    prompt: PromptConfig
-    image: ImageConfig
-    caption: CaptionConfig
-    publish: list[PublishConfig]
-
-
-class PromptConfig(BaseModel):
-    prompt: str
-
-
-class ProviderConfig(BaseModel):
+class StepConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
-    provider: str
+    type: str
 
-
-class ImageConfig(ProviderConfig):
-    @field_validator("provider")
+    @field_validator("type")
     @classmethod
-    def _check_provider(cls, v: str) -> str:
-        from shitposter.clients.text_to_image import PROVIDERS
+    def _check_type(cls, v: str) -> str:
+        from shitposter.steps import STEPS
 
-        if v not in PROVIDERS:
-            raise ValueError(f"Unknown provider '{v}'. Allowed: {sorted(PROVIDERS)}")
+        if v not in STEPS:
+            raise ValueError(f"Unknown step type '{v}'. Allowed: {sorted(STEPS)}")
         return v
 
 
-class CaptionConfig(ProviderConfig):
-    @field_validator("provider")
-    @classmethod
-    def _check_provider(cls, v: str) -> str:
-        from shitposter.clients.text_to_text import PROVIDERS
-
-        if v not in PROVIDERS:
-            raise ValueError(f"Unknown provider '{v}'. Allowed: {sorted(PROVIDERS)}")
-        return v
-
-
-class PublishConfig(ProviderConfig):
-    @field_validator("provider")
-    @classmethod
-    def _check_provider(cls, v: str) -> str:
-        from shitposter.clients.publishers import PROVIDERS
-
-        if v not in PROVIDERS:
-            raise ValueError(f"Unknown provider '{v}'. Allowed: {sorted(PROVIDERS)}")
-        return v
+class RunConfig(BaseModel):
+    steps: dict[str, StepConfig]

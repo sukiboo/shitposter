@@ -4,20 +4,12 @@ from shitposter.artifacts import create_run_context
 from shitposter.config import EnvSettings
 
 
-def test_run_context_paths(run_ctx):
-    assert run_ctx.prompt_json.name == "prompt.json"
-    assert run_ctx.image_path.name == "image.png"
-    assert run_ctx.caption_json.name == "caption.json"
-    assert run_ctx.publish_json.name == "publish.json"
-    assert run_ctx.summary_json.name == "summary.json"
-
-
 def test_is_published_false_by_default(run_ctx):
     assert not run_ctx.is_published
 
 
 def test_is_published_true_when_file_exists(run_ctx):
-    run_ctx.publish_json.write_text("{}")
+    run_ctx.run_dir.joinpath("summary.json").write_text("{}")
     assert run_ctx.is_published
 
 

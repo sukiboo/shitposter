@@ -1,19 +1,15 @@
 import json
 
-from shitposter.config import PromptConfig
-from shitposter.steps.construct_prompt import ConstructPromptOutput, ConstructPromptStep
+from shitposter.steps.construct_prompt import ConstructPromptStep
 
 
 def test_prompt_step_passes_through(run_ctx):
     step = ConstructPromptStep()
-    result = step.execute(
-        run_ctx,
-        PromptConfig(prompt="a cat wearing a business suit"),
-    )
+    result = step.execute(run_ctx, {"prompt": "a cat wearing a business suit"}, "setup")
 
-    assert isinstance(result, ConstructPromptOutput)
-    assert result.prompt == "an image of a cat wearing a business suit"
-    assert run_ctx.prompt == result.prompt
+    assert result.summary == "prompt='an image of a cat wearing a business suit'"
+    assert result.metadata["prompt"] == "an image of a cat wearing a business suit"
+    assert run_ctx.state["prompt"] == "an image of a cat wearing a business suit"
 
-    saved = json.loads(run_ctx.prompt_json.read_text())
-    assert saved["prompt"] == result.prompt
+    saved = json.loads(run_ctx.run_dir.joinpath("setup.json").read_text())
+    assert saved["prompt"] == "an image of a cat wearing a business suit"

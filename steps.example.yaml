@@ -1,0 +1,17 @@
+steps:
+  setup:
+    type: construct_prompt
+    prompt: "a cat wearing a business suit"
+
+  image:
+    type: generate_image
+    provider: placeholder  # or "openai" (defaults: gpt-image-1-mini, 1024x1024, medium quality)
+
+  caption:
+    type: generate_caption
+    provider: placeholder  # or "openai" (default: gpt-5-nano, temperature=1.0)
+
+  publish:
+    type: publish_post
+    platforms:
+      - placeholder  # or "telegram"

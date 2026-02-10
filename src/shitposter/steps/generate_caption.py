@@ -1,27 +1,20 @@
 import json
 
-from pydantic import BaseModel
-
 from shitposter.artifacts import RunContext
 from shitposter.clients.text_to_text import PROVIDERS
-from shitposter.config import CaptionConfig
-from shitposter.steps.base import Step
+from shitposter.steps.base import ProviderConfig, Step, StepResult
 
 
-class GenerateCaptionOutput(BaseModel):
-    caption_text: str
-    metadata: dict
+class GenerateCaptionStep(Step):
+    def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
+        cfg = ProviderConfig.model_validate(config)
+        provider_cls = PROVIDERS[cfg.provider]
+        provider = provider_cls(**cfg.model_dump(exclude={"provider"}))
+        caption_text = provider.generate(ctx.state["prompt"])
+        ctx.state["caption"] = caption_text
 
-
-class GenerateCaptionStep(Step[CaptionConfig, GenerateCaptionOutput]):
-    def execute(self, ctx: RunContext, input: CaptionConfig) -> GenerateCaptionOutput:
-        provider_cls = PROVIDERS[input.provider]
-        provider = provider_cls(**input.model_dump(exclude={"provider"}))
-        caption_text = provider.generate(ctx.prompt)
-        ctx.caption = caption_text
-
-        metadata = {"provider": input.provider, "prompt": ctx.prompt, **provider.metadata()}
-        output = GenerateCaptionOutput(caption_text=caption_text, metadata=metadata)
-        ctx.caption_json.write_text(json.dumps(output.model_dump(), indent=2))
-
-        return output
+        metadata = {"provider": cfg.provider, "prompt": ctx.state["prompt"], **provider.metadata()}
+        ctx.run_dir.joinpath(f"{key}.json").write_text(
+            json.dumps({"caption_text": caption_text, "metadata": metadata}, indent=2)
+        )
+        return StepResult(metadata=metadata, summary=f"caption={caption_text!r}")
