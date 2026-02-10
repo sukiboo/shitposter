@@ -1,15 +1,17 @@
 steps:
   prompt:
-    type: construct_prompt
-    provider: placeholder
+    type: set_prompt
+    prompt: "a cat wearing a business suit"
 
   image:
     type: generate_image
-    provider: placeholder
+    provider: openai
+    template: "an image of {prompt}"
 
   caption:
     type: generate_caption
-    provider: placeholder
+    provider: openai
+    template: "generate a funny caption for an image of {prompt}"
 
   publish:
     type: publish_post

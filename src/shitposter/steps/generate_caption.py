@@ -2,19 +2,21 @@ import json
 
 from shitposter.artifacts import RunContext
 from shitposter.clients.text_to_text import TEXT_PROVIDERS
-from shitposter.steps.base import ProviderConfig, Step, StepResult
+from shitposter.steps.base import Step, StepResult, setup_provider
 
 
 class GenerateCaptionStep(Step):
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
-        cfg = ProviderConfig.model_validate(config)
-        provider_cls = TEXT_PROVIDERS[cfg.provider]
-        provider = provider_cls(**cfg.model_dump(exclude={"provider"}))
-        caption_text = provider.generate(ctx.state["prompt"])
-        ctx.state["caption"] = caption_text
+        provider_name, provider = setup_provider(TEXT_PROVIDERS, config)
 
-        metadata = {"provider": cfg.provider, "prompt": ctx.state["prompt"], **provider.metadata()}
+        template = config.get("template")
+        prompt = template.format(**ctx.state) if template else ctx.state["prompt"]
+        caption = provider.generate(prompt)
+
+        ctx.state["caption"] = caption
+        metadata = {"provider": provider_name, "prompt": prompt, **provider.metadata()}
         ctx.run_dir.joinpath(f"{key}.json").write_text(
-            json.dumps({"caption_text": caption_text, "metadata": metadata}, indent=2)
+            json.dumps({"caption_text": caption, "metadata": metadata}, indent=2)
         )
-        return StepResult(metadata=metadata, summary=f"caption={caption_text!r}")
+
+        return StepResult(metadata=metadata, summary=f"caption={caption!r}")

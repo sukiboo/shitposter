@@ -23,7 +23,7 @@ src/shitposter/
 
   steps/
     base.py               # Step[TInput, TOutput] ABC
-    construct_prompt.py   # ConstructPromptStep
+    set_prompt.py         # SetPromptStep
     generate_image.py     # GenerateImageStep
     generate_caption.py   # GenerateCaptionStep
     publish_post.py       # PublishPostStep

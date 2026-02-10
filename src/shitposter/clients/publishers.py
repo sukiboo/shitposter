@@ -6,6 +6,17 @@ import httpx
 from shitposter.clients.base import PublishingProvider
 
 
+class PlaceholderPublisher(PublishingProvider):
+    def __init__(self, **kwargs):
+        pass
+
+    def metadata(self) -> dict:
+        return {"provider": "placeholder"}
+
+    def publish(self, image_path: str | None, caption: str | None) -> dict:
+        return {"ok": True, "result": {"message_id": 0}}
+
+
 class TelegramPublisher(PublishingProvider):
     def __init__(self, *, debug: bool = False, **kwargs):
         prefix = "TELEGRAM_DEBUG" if debug else "TELEGRAM_CHANNEL"
@@ -41,18 +52,7 @@ class TelegramPublisher(PublishingProvider):
         return resp.json()
 
 
-class PlaceholderPublisher(PublishingProvider):
-    def __init__(self, **kwargs):
-        pass
-
-    def metadata(self) -> dict:
-        return {"provider": "placeholder"}
-
-    def publish(self, image_path: str | None, caption: str | None) -> dict:
-        return {"ok": True, "result": {"message_id": 0}}
-
-
 PUBLISHERS: dict[str, type[PublishingProvider]] = {
-    "telegram": TelegramPublisher,
     "placeholder": PlaceholderPublisher,
+    "telegram": TelegramPublisher,
 }

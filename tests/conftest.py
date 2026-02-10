@@ -20,7 +20,7 @@ def settings(tmp_path):
         run=RunConfig.model_validate(
             {
                 "steps": {
-                    "setup": {"type": "construct_prompt", "provider": "placeholder"},
+                    "setup": {"type": "set_prompt", "provider": "placeholder"},
                     "image": {"type": "generate_image", "provider": "placeholder"},
                     "caption": {"type": "generate_caption", "provider": "placeholder"},
                     "publish": {"type": "publish_post", "platforms": ["placeholder"]},
