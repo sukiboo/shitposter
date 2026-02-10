@@ -12,7 +12,7 @@ def test_dry_run_creates_artifacts(settings):
     assert ctx.run_dir.joinpath("image.png").exists()
     assert ctx.run_dir.joinpath("caption.json").exists()
     assert ctx.run_dir.joinpath("summary.json").exists()
-    assert not ctx.run_dir.joinpath("publish.json").exists()
+    assert ctx.run_dir.joinpath("publish.json").exists()
 
     summary = json.loads(ctx.run_dir.joinpath("summary.json").read_text())
     assert summary["dry_run"] is True

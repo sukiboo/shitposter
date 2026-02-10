@@ -1,4 +1,7 @@
-class PlaceholderTextProvider:
+from shitposter.clients.base import TextProvider
+
+
+class PlaceholderTextProvider(TextProvider):
     def __init__(self, **kwargs):
         pass
 
@@ -9,7 +12,7 @@ class PlaceholderTextProvider:
         return "Placeholder caption"
 
 
-class OpenAITextProvider:
+class OpenAITextProvider(TextProvider):
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
 
     def __init__(self, **kwargs):
@@ -39,8 +42,6 @@ class OpenAITextProvider:
         )
         return response.choices[0].message.content or ""
 
-
-from shitposter.clients.base import TextProvider
 
 PROVIDERS: dict[str, type[TextProvider]] = {
     "placeholder": PlaceholderTextProvider,

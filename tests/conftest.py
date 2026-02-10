@@ -15,10 +15,6 @@ def run_ctx(tmp_path):
 def settings(tmp_path):
     return Settings(
         env=EnvSettings(
-            telegram_channel_bot_token="fake-channel-token",
-            telegram_channel_chat_id="fake-channel-chat",
-            telegram_debug_bot_token="fake-debug-token",
-            telegram_debug_chat_id="fake-debug-chat",
             artifacts_path=tmp_path,
         ),
         run=RunConfig.model_validate(
@@ -26,7 +22,7 @@ def settings(tmp_path):
                 "prompt": {"prompt": "a cat wearing a business suit"},
                 "image": {"provider": "placeholder"},
                 "caption": {"provider": "placeholder"},
-                "publish": {"platform": "telegram"},
+                "publish": [{"provider": "placeholder"}],
             }
         ),
     )

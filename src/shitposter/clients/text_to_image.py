@@ -5,8 +5,10 @@ from typing import Any
 
 from PIL import Image
 
+from shitposter.clients.base import ImageProvider
 
-class RandomImageProvider:
+
+class RandomImageProvider(ImageProvider):
     def __init__(self, **kwargs):
         self.width = kwargs.get("width") or 512
         self.height = kwargs.get("height") or 512
@@ -26,7 +28,7 @@ class RandomImageProvider:
         return buf.getvalue()
 
 
-class OpenAIImageProvider:
+class OpenAIImageProvider(ImageProvider):
     ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}
     ALLOWED_MODELS = {"gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"}
 
@@ -73,8 +75,6 @@ class OpenAIImageProvider:
             raise RuntimeError("OpenAI returned no image data")
         return base64.b64decode(b64)
 
-
-from shitposter.clients.base import ImageProvider
 
 PROVIDERS: dict[str, type[ImageProvider]] = {
     "placeholder": RandomImageProvider,

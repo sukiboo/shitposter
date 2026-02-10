@@ -8,4 +8,4 @@ caption:
   provider: placeholder  # or "openai" (default: gpt-5-nano, temperature=1.0)
 
 publish:
-  platform: telegram
+  - provider: placeholder  # or "telegram"

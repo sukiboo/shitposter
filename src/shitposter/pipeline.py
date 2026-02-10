@@ -3,7 +3,7 @@ from shitposter.config import Settings
 from shitposter.steps.construct_prompt import ConstructPromptStep
 from shitposter.steps.generate_caption import GenerateCaptionStep
 from shitposter.steps.generate_image import GenerateImageStep
-from shitposter.steps.publish_post import PublishPostStep
+from shitposter.steps.publish_post import PublishPostInput, PublishPostStep
 
 
 def execute(settings: Settings, ctx: RunContext):
@@ -26,12 +26,14 @@ def execute(settings: Settings, ctx: RunContext):
     print(f"Step 3: {ctx.caption=}")
 
     # step 4: publish post to the configured platforms
-    publish = PublishPostStep().execute(ctx, settings.run.publish)
+    publish = PublishPostStep().execute(ctx, PublishPostInput(platforms=settings.run.publish))
     if ctx.dry_run:
         print("Step 4: dry run -- skipping publish")
+    elif not ctx.publish:
+        print("Step 4: published to debug chat")
     else:
-        target = settings.run.publish.platform if ctx.publish else "debug chat"
-        print(f"Step 4: published to {target}")
+        providers = [r.provider for r in publish.results]
+        print(f"Step 4: published to {', '.join(providers)}")
 
     # step 5: write a summary of the run
     write_summary(
@@ -40,7 +42,9 @@ def execute(settings: Settings, ctx: RunContext):
             "prompt": settings.run.prompt.prompt,
             "image": image.metadata,
             "caption": caption.metadata,
-            "publish": {"platform": publish.platform, "message_id": publish.message_id},
+            "publish": [
+                {"provider": r.provider, "message_id": r.message_id} for r in publish.results
+            ],
         },
     )
     print(f"Step 5: run summary saved to `{ctx.run_dir}`")

@@ -1,13 +1,20 @@
+import os
 from pathlib import Path
 
 import httpx
 
+from shitposter.clients.base import PublishingProvider
 
-class TelegramClient:
-    def __init__(self, bot_token: str, chat_id: str):
-        self.bot_token = bot_token
-        self.chat_id = chat_id
-        self.base_url = f"https://api.telegram.org/bot{bot_token}"
+
+class TelegramPublisher(PublishingProvider):
+    def __init__(self, *, debug: bool = False, **kwargs):
+        prefix = "TELEGRAM_DEBUG" if debug else "TELEGRAM_CHANNEL"
+        self.bot_token = os.environ[f"{prefix}_BOT_TOKEN"]
+        self.chat_id = os.environ[f"{prefix}_CHAT_ID"]
+        self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
+
+    def metadata(self) -> dict:
+        return {"provider": "telegram", "chat_id": self.chat_id}
 
     def publish(self, image_path: Path | None, caption: str | None) -> dict:
         if image_path:
@@ -32,3 +39,20 @@ class TelegramClient:
         )
         resp.raise_for_status()
         return resp.json()
+
+
+class PlaceholderPublisher(PublishingProvider):
+    def __init__(self, **kwargs):
+        pass
+
+    def metadata(self) -> dict:
+        return {"provider": "placeholder"}
+
+    def publish(self, image_path: Path | None, caption: str | None) -> dict:
+        return {"ok": True, "result": {"message_id": 0}}
+
+
+PROVIDERS: dict[str, type[PublishingProvider]] = {
+    "telegram": TelegramPublisher,
+    "placeholder": PlaceholderPublisher,
+}

@@ -105,3 +105,19 @@ class TestProviderDefaults:
         provider = RandomImageProvider()
         assert provider.width == 512
         assert provider.height == 512
+
+
+class TestPlaceholderPublisher:
+    def test_publish_returns_ok(self):
+        from shitposter.clients.publishers import PlaceholderPublisher
+
+        publisher = PlaceholderPublisher()
+        result = publisher.publish(None, "test caption")
+        assert result["ok"] is True
+        assert result["result"]["message_id"] == 0
+
+    def test_metadata(self):
+        from shitposter.clients.publishers import PlaceholderPublisher
+
+        publisher = PlaceholderPublisher()
+        assert publisher.metadata() == {"provider": "placeholder"}
