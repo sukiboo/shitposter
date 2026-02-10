@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Protocol
 
 
@@ -14,4 +13,4 @@ class TextProvider(Protocol):
 
 class PublishingProvider(Protocol):
     def metadata(self) -> dict: ...
-    def publish(self, image_path: Path | None, caption: str | None) -> dict: ...
+    def publish(self, image_path: str | None, caption: str | None) -> dict: ...

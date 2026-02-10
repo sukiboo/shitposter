@@ -1,17 +1,18 @@
 import json
 
 from shitposter.artifacts import RunContext
-from shitposter.clients.publishers import PROVIDERS, TelegramPublisher
+from shitposter.clients.publishers import PUBLISHERS, TelegramPublisher
 from shitposter.steps.base import Step, StepResult
 
 
 class PublishPostStep(Step):
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
         platforms = config.get("platforms", [])
+        image_path = ctx.state.get("image_path")
 
         if not ctx.publish and not ctx.dry_run:
             publisher = TelegramPublisher(debug=True)
-            raw = publisher.publish(ctx.state.get("image_path"), ctx.state["caption"])
+            raw = publisher.publish(image_path, ctx.state["caption"])
             results = [
                 {
                     "provider": "telegram",
@@ -22,11 +23,11 @@ class PublishPostStep(Step):
         else:
             results = []
             for name in platforms:
-                pub = PROVIDERS[name]()
+                pub = PUBLISHERS[name]()
                 if ctx.dry_run:
                     raw = {"result": {}}
                 else:
-                    raw = pub.publish(ctx.state.get("image_path"), ctx.state["caption"])
+                    raw = pub.publish(image_path, ctx.state["caption"])
                 results.append(
                     {
                         "provider": name,

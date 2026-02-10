@@ -1,12 +1,18 @@
 import json
 
 from shitposter.artifacts import RunContext
-from shitposter.steps.base import Step, StepResult
+from shitposter.clients.text_to_text import TEXT_PROVIDERS
+from shitposter.steps.base import ProviderConfig, Step, StepResult
 
 
 class ConstructPromptStep(Step):
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
-        prompt = f"an image of {config['prompt']}"
+        cfg = ProviderConfig.model_validate(config)
+        provider_cls = TEXT_PROVIDERS[cfg.provider]
+        provider = provider_cls(**cfg.model_dump(exclude={"provider"}))
+        prompt = provider.generate("")
         ctx.state["prompt"] = prompt
+
+        metadata = {"provider": cfg.provider, "prompt": prompt, **provider.metadata()}
         ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps({"prompt": prompt}, indent=2))
-        return StepResult(metadata={"prompt": prompt}, summary=f"prompt={prompt!r}")
+        return StepResult(metadata=metadata, summary=f"prompt={prompt!r}")

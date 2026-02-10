@@ -1,7 +1,7 @@
 steps:
   setup:
     type: construct_prompt
-    prompt: "a cat wearing a business suit"
+    provider: placeholder  # returns "Placeholder text"
 
   image:
     type: generate_image

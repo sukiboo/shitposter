@@ -9,7 +9,7 @@ class PlaceholderTextProvider(TextProvider):
         return {}
 
     def generate(self, prompt: str) -> str:
-        return "Placeholder caption"
+        return "Placeholder text"
 
 
 class OpenAITextProvider(TextProvider):
@@ -43,7 +43,7 @@ class OpenAITextProvider(TextProvider):
         return response.choices[0].message.content or ""
 
 
-PROVIDERS: dict[str, type[TextProvider]] = {
+TEXT_PROVIDERS: dict[str, type[TextProvider]] = {
     "placeholder": PlaceholderTextProvider,
     "openai": OpenAITextProvider,
 }

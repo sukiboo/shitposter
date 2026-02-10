@@ -1,14 +1,14 @@
 import json
 
 from shitposter.artifacts import RunContext
-from shitposter.clients.text_to_text import PROVIDERS
+from shitposter.clients.text_to_text import TEXT_PROVIDERS
 from shitposter.steps.base import ProviderConfig, Step, StepResult
 
 
 class GenerateCaptionStep(Step):
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
         cfg = ProviderConfig.model_validate(config)
-        provider_cls = PROVIDERS[cfg.provider]
+        provider_cls = TEXT_PROVIDERS[cfg.provider]
         provider = provider_cls(**cfg.model_dump(exclude={"provider"}))
         caption_text = provider.generate(ctx.state["prompt"])
         ctx.state["caption"] = caption_text

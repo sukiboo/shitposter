@@ -76,7 +76,7 @@ class OpenAIImageProvider(ImageProvider):
         return base64.b64decode(b64)
 
 
-PROVIDERS: dict[str, type[ImageProvider]] = {
+IMAGE_PROVIDERS: dict[str, type[ImageProvider]] = {
     "placeholder": RandomImageProvider,
     "openai": OpenAIImageProvider,
 }

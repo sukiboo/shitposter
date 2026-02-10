@@ -20,10 +20,7 @@ def settings(tmp_path):
         run=RunConfig.model_validate(
             {
                 "steps": {
-                    "setup": {
-                        "type": "construct_prompt",
-                        "prompt": "a cat wearing a business suit",
-                    },
+                    "setup": {"type": "construct_prompt", "provider": "placeholder"},
                     "image": {"type": "generate_image", "provider": "placeholder"},
                     "caption": {"type": "generate_caption", "provider": "placeholder"},
                     "publish": {"type": "publish_post", "platforms": ["placeholder"]},

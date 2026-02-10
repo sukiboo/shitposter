@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+from pathlib import PurePath
 
 import httpx
 
@@ -16,14 +16,14 @@ class TelegramPublisher(PublishingProvider):
     def metadata(self) -> dict:
         return {"provider": "telegram", "chat_id": self.chat_id}
 
-    def publish(self, image_path: Path | None, caption: str | None) -> dict:
+    def publish(self, image_path: str | None, caption: str | None) -> dict:
         if image_path:
             return self._send_photo(image_path, caption)
         return self._send_message(caption)
 
-    def _send_photo(self, image_path: Path, caption: str | None) -> dict:
+    def _send_photo(self, image_path: str, caption: str | None) -> dict:
         with open(image_path, "rb") as f:
-            files = {"photo": (image_path.name, f, "image/png")}
+            files = {"photo": (PurePath(image_path).name, f, "image/png")}
             data: dict[str, str] = {"chat_id": self.chat_id}
             if caption:
                 data["caption"] = caption
@@ -48,11 +48,11 @@ class PlaceholderPublisher(PublishingProvider):
     def metadata(self) -> dict:
         return {"provider": "placeholder"}
 
-    def publish(self, image_path: Path | None, caption: str | None) -> dict:
+    def publish(self, image_path: str | None, caption: str | None) -> dict:
         return {"ok": True, "result": {"message_id": 0}}
 
 
-PROVIDERS: dict[str, type[PublishingProvider]] = {
+PUBLISHERS: dict[str, type[PublishingProvider]] = {
     "telegram": TelegramPublisher,
     "placeholder": PlaceholderPublisher,
 }

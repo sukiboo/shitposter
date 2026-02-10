@@ -1,12 +1,12 @@
 from shitposter.artifacts import RunContext
-from shitposter.clients.text_to_image import PROVIDERS
+from shitposter.clients.text_to_image import IMAGE_PROVIDERS
 from shitposter.steps.base import ProviderConfig, Step, StepResult
 
 
 class GenerateImageStep(Step):
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
         cfg = ProviderConfig.model_validate(config)
-        provider_cls = PROVIDERS[cfg.provider]
+        provider_cls = IMAGE_PROVIDERS[cfg.provider]
         provider = provider_cls(**cfg.model_dump(exclude={"provider"}))
         image_data = provider.generate(ctx.state["prompt"])
 
