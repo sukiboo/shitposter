@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
@@ -13,6 +14,12 @@ def run(
     at: Annotated[
         Optional[str],
         typer.Option("--at", help="Run timestamp (YYYY-MM-DD_HH-MM-SS). Defaults to now."),
+    ] = None,
+    steps: Annotated[
+        Optional[str],
+        typer.Option(
+            "-s", "--steps", help="Pipeline config name (from pipelines/). Default: steps"
+        ),
     ] = None,
     dry_run: Annotated[
         bool,
@@ -32,7 +39,8 @@ def run(
     from shitposter.pipeline import execute
 
     run_at = datetime.strptime(at, RUN_ID_FORMAT) if at else None
-    settings = load_settings()
+    steps_path = Path(f"pipelines/{steps}.yaml") if steps else Path("pipelines/steps.yaml")
+    settings = load_settings(steps_path)
     ctx = create_run_context(
         settings.env,
         run_at,

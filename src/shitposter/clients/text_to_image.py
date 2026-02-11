@@ -37,9 +37,9 @@ class OpenAIImageProvider(ImageProvider):
 
         self.client = OpenAI()
         self.model = kwargs.get("model", "gpt-image-1-mini")
+        self.quality = kwargs.get("quality", "medium")
         self.width = kwargs.get("width", 1024)
         self.height = kwargs.get("height", 1024)
-        self.quality = kwargs.get("quality", "medium")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(

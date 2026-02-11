@@ -1,0 +1,19 @@
+steps:
+  prompt:
+    type: set_prompt
+    prompt: "a cat wearing a business suit"
+
+  image:
+    type: generate_image
+    provider: openai
+    template: "Generate an image of {prompt}."
+
+  caption:
+    type: generate_caption
+    provider: openai
+    template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
+
+  publish:
+    type: publish_post
+    platforms:
+      - telegram

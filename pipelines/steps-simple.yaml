@@ -6,12 +6,12 @@ steps:
   image:
     type: generate_image
     provider: openai
-    template: "an image of {prompt}"
+    template: "Generate an image of {prompt}."
 
   caption:
     type: generate_caption
     provider: openai
-    template: "generate a funny caption for an image of {prompt}"
+    template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
 
   publish:
     type: publish_post
