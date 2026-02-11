@@ -6,6 +6,16 @@ from shitposter.steps.base import Step, StepResult, setup_provider
 
 
 class GenerateCaptionStep(Step):
+    @classmethod
+    def validate_config(cls, config: dict) -> None:
+        if "provider" not in config:
+            raise ValueError("generate_caption requires 'provider'")
+        if config["provider"] not in TEXT_PROVIDERS:
+            raise ValueError(
+                f"Unknown text provider '{config['provider']}'. "
+                f"Allowed: {sorted(TEXT_PROVIDERS)}"
+            )
+
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
         provider_name, provider = setup_provider(TEXT_PROVIDERS, config)
 

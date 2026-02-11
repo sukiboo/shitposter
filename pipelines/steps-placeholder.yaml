@@ -1,6 +1,6 @@
 steps:
   prompt:
-    type: set_prompt
+    type: construct_prompt
     provider: placeholder  # returns "Placeholder text"
 
   image:

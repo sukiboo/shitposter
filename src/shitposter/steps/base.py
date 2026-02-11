@@ -12,6 +12,10 @@ class StepResult(BaseModel):
 
 
 class Step(ABC):
+    @classmethod
+    def validate_config(cls, config: dict) -> None:
+        pass
+
     @abstractmethod
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult: ...
 

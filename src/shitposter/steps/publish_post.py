@@ -6,6 +6,15 @@ from shitposter.steps.base import Step, StepResult
 
 
 class PublishPostStep(Step):
+    @classmethod
+    def validate_config(cls, config: dict) -> None:
+        platforms = config.get("platforms")
+        if not platforms:
+            raise ValueError("publish_post requires 'platforms'")
+        for p in platforms:
+            if p not in PUBLISHERS:
+                raise ValueError(f"Unknown publisher '{p}'. Allowed: {sorted(PUBLISHERS)}")
+
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
         platforms = config.get("platforms", [])
         image_path = ctx.state.get("image_path")

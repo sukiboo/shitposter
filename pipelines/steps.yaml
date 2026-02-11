@@ -1,19 +1,24 @@
 steps:
+  context:
+    type: collect_context
+    provider: checkiday
+    date: 2026-02-11
+
   prompt:
-    type: set_prompt
+    type: construct_prompt
     prompt: "a cat wearing a business suit"
 
   image:
     type: generate_image
-    provider: openai
+    provider: placeholder
     template: "Generate an image of {prompt}."
 
   caption:
     type: generate_caption
-    provider: openai
+    provider: placeholder
     template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
 
   publish:
     type: publish_post
     platforms:
-      - telegram
+      - placeholder
