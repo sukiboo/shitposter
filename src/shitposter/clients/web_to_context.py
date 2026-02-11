@@ -28,7 +28,7 @@ class CheckiDayProvider(ContextProvider):
     @staticmethod
     def _parse(html: str) -> list[dict]:
         soup = BeautifulSoup(html, "html.parser")
-        grid = soup.find("div", id="magicGrid")
+        grid = soup.find(id="magicGrid")
         if not grid:
             return []
 
@@ -40,10 +40,13 @@ class CheckiDayProvider(ContextProvider):
 
             name = title_el.get_text(strip=True)
             href = title_el.get("href")
-            url = f"https://www.checkiday.com{href}" if href else None
+            url = href if href and href.startswith("http") else None
 
-            desc_el = card.select_one(".mdl-card__supporting-text p")
+            desc_el = card.select_one(".mdl-card__supporting-text")
             description = desc_el.get_text(strip=True) if desc_el else None
+
+            if name.lower() == "on this day in history":
+                continue
 
             holidays.append({"name": name, "url": url, "description": description})
 

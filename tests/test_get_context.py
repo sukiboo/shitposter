@@ -5,16 +5,20 @@ from shitposter.steps.collect_context import CollectContextStep
 
 SAMPLE_HTML = """
 <html><body>
-<div id="magicGrid">
+<section id="magicGrid">
   <div class="mdl-card">
-    <h2 class="mdl-card__title-text"><a href="/be-electrific-day">Be Electrific Day</a></h2>
-    <div class="mdl-card__supporting-text"><p>A day to be electrifying!</p></div>
+    <h2 class="mdl-card__title-text">
+      <a href="https://www.checkiday.com/be-electrific-day">Be Electrific Day</a>
+    </h2>
+    <div class="mdl-card__supporting-text">A day to be electrifying!</div>
   </div>
   <div class="mdl-card">
-    <h2 class="mdl-card__title-text"><a href="/guitar-day">Get Out Your Guitar Day</a></h2>
-    <div class="mdl-card__supporting-text"><p>Strum away.</p></div>
+    <h2 class="mdl-card__title-text">
+      <a href="https://www.checkiday.com/guitar-day">Get Out Your Guitar Day</a>
+    </h2>
+    <div class="mdl-card__supporting-text">Strum away.</div>
   </div>
-</div>
+</section>
 </body></html>
 """
 
@@ -26,6 +30,7 @@ def test_parse_holidays():
     assert len(holidays) == 2
     assert holidays[0]["name"] == "Be Electrific Day"
     assert holidays[0]["url"] == "https://www.checkiday.com/be-electrific-day"
+    assert holidays[1]["url"] == "https://www.checkiday.com/guitar-day"
     assert holidays[0]["description"] == "A day to be electrifying!"
     assert holidays[1]["name"] == "Get Out Your Guitar Day"
 

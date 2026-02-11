@@ -18,7 +18,14 @@ class CollectContextStep(Step):
             )
         if "date" in config:
             val = config["date"]
-            if not isinstance(val, (str, date)):
+            if isinstance(val, date):
+                pass
+            elif isinstance(val, str):
+                try:
+                    date.fromisoformat(val)
+                except ValueError:
+                    raise ValueError(f"Invalid date format: {val!r}")
+            else:
                 raise ValueError(f"'date' must be a string or date, got {type(val).__name__}")
 
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
