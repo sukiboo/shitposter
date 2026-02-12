@@ -4,9 +4,11 @@ steps:
     provider: checkiday
     date: 2026-02-11
 
-  # context:
-  #   type: choose_entry
-  #   provider: placeholder  # pick the first element
+  context:
+    type: choose_entry
+    provider: openai
+    template: "Pick the best one:"
+    entries_key: holidays
 
   prompt:
     type: construct_prompt

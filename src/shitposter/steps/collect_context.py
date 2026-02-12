@@ -33,13 +33,13 @@ class CollectContextStep(Step):
 
         records = provider.generate()
         holidays = self._format(records)
+        ctx.state["holidays"] = holidays
 
         metadata = {"provider": provider_name, **provider.metadata(), "count": len(holidays)}
-        ctx.state["holidays"] = holidays
         artifact = {**metadata, "holidays": holidays, "records": records}
         ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps(artifact, indent=2))
 
-        return StepResult(metadata=metadata, summary=f"{len(holidays)} holidays")
+        return StepResult(metadata=metadata, summary=f"retrieved {len(holidays)} holidays")
 
     @staticmethod
     def _format(records: list[dict]) -> list[str | None]:

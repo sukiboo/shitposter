@@ -20,9 +20,9 @@ class ConstructPromptStep(Step):
         provider_name, provider = setup_provider(TEXT_PROVIDERS, config)
 
         prompt = provider.generate(config.get("prompt", ""))
+        ctx.state["prompt"] = prompt
 
         metadata = {"provider": provider_name, **provider.metadata()}
-        ctx.state["prompt"] = prompt
         artifact = {**metadata, "prompt": prompt}
         ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps(artifact, indent=2))
 

@@ -22,9 +22,9 @@ class GenerateCaptionStep(Step):
         template = config.get("template")
         prompt = template.format(**ctx.state) if template else ctx.state["prompt"]
         caption = provider.generate(prompt)
+        ctx.state["caption"] = caption
 
         metadata = {"provider": provider_name, **provider.metadata(), "prompt": prompt}
-        ctx.state["caption"] = caption
         artifact = {**metadata, "caption": caption}
         ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps(artifact, indent=2))
 
