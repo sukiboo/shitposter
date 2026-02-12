@@ -9,9 +9,6 @@ class PlaceholderTextToIntProvider(TextToIntProvider):
     def __init__(self, **kwargs):
         pass
 
-    def metadata(self) -> dict:
-        return {}
-
     def generate(self, prompt: str, entries: list[str]) -> int:
         return 0
 
@@ -25,9 +22,6 @@ class OpenAITextToIntProvider(TextToIntProvider):
 
         self.client = OpenAI()
         self.model = kwargs.get("model", "gpt-5-nano")
-        temp = kwargs.get("temperature")
-        self.temperature = temp if temp is not None else 0.5
-        self._fallback = False
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
@@ -36,10 +30,7 @@ class OpenAITextToIntProvider(TextToIntProvider):
             )
 
     def metadata(self) -> dict:
-        meta: dict = {"model": self.model, "temperature": self.temperature}
-        if self._fallback:
-            meta["warning"] = "all retries failed, fell back to random"
-        return meta
+        return {"model": self.model, **super().metadata()}
 
     @staticmethod
     def _response_model(n: int) -> type[BaseModel]:
@@ -59,13 +50,13 @@ class OpenAITextToIntProvider(TextToIntProvider):
                     model=self.model,
                     messages=[{"role": "user", "content": full_prompt}],
                     response_format=response_format,
-                    temperature=self.temperature,
                 )
                 parsed = response.choices[0].message.parsed
                 return parsed.index - 1  # type: ignore[union-attr]
-            except Exception:
+            except Exception as e:
+                self._meta["errors"].append(str(e))
                 continue
-        self._fallback = True
+        self._meta["errors"].append("all retries failed, fell back to random")
         return random.randint(0, len(entries) - 1)
 
 

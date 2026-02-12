@@ -17,7 +17,7 @@ class CheckiDayProvider(ContextProvider):
             self._date = date.fromisoformat(str(date_val))
 
     def metadata(self) -> dict:
-        return {"date": self._date.isoformat()}
+        return {"date": self._date.isoformat(), **super().metadata()}
 
     def generate(self) -> list[dict]:
         url = f"https://www.checkiday.com/{self._date.strftime('%m/%d/%Y')}"

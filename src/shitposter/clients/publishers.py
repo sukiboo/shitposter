@@ -11,7 +11,7 @@ class PlaceholderPublisher(PublishingProvider):
         pass
 
     def metadata(self) -> dict:
-        return {"provider": "placeholder"}
+        return {"provider": "placeholder", **super().metadata()}
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         return {"ok": True, "result": {"message_id": 0}}
@@ -25,7 +25,7 @@ class TelegramPublisher(PublishingProvider):
         self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
 
     def metadata(self) -> dict:
-        return {"provider": "telegram", "chat_id": self.chat_id}
+        return {"provider": "telegram", "chat_id": self.chat_id, **super().metadata()}
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         if image_path:

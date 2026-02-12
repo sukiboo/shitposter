@@ -5,9 +5,6 @@ class PlaceholderTextProvider(TextProvider):
     def __init__(self, **kwargs):
         pass
 
-    def metadata(self) -> dict:
-        return {}
-
     def generate(self, prompt: str) -> str:
         return "Placeholder text"
 
@@ -15,9 +12,6 @@ class PlaceholderTextProvider(TextProvider):
 class ConstantTextProvider(TextProvider):
     def __init__(self, **kwargs):
         self.text = kwargs.get("prompt", "")
-
-    def metadata(self) -> dict:
-        return {}
 
     def generate(self, prompt: str) -> str:
         return self.text
@@ -41,7 +35,7 @@ class OpenAITextProvider(TextProvider):
             )
 
     def metadata(self) -> dict:
-        return {"model": self.model, "temperature": self.temperature}
+        return {"model": self.model, "temperature": self.temperature, **super().metadata()}
 
     def generate(self, prompt: str) -> str:
         response = self.client.chat.completions.create(

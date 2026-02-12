@@ -14,7 +14,7 @@ class RandomImageProvider(ImageProvider):
         self.height = kwargs.get("height") or 512
 
     def metadata(self) -> dict:
-        return {"width": self.width, "height": self.height}
+        return {"width": self.width, "height": self.height, **super().metadata()}
 
     def generate(self, prompt: str) -> bytes:
         img = Image.new("RGB", (self.width, self.height))
@@ -29,8 +29,8 @@ class RandomImageProvider(ImageProvider):
 
 
 class OpenAIImageProvider(ImageProvider):
-    ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}
     ALLOWED_MODELS = {"gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"}
+    ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}
 
     def __init__(self, **kwargs):
         from openai import OpenAI
@@ -49,15 +49,16 @@ class OpenAIImageProvider(ImageProvider):
         if (self.width, self.height) not in self.ALLOWED_SIZES:
             raise ValueError(
                 f"OpenAI does not support {self.width}x{self.height}. "
-                f"Allowed sizes: {', '.join(f'{w}x{h}' for w, h in sorted(self.ALLOWED_SIZES))}"
+                f"Allowed sizes: {', '.join(f'{w}x{h}' for w, h in self.ALLOWED_SIZES)}"
             )
 
     def metadata(self) -> dict:
         return {
             "model": self.model,
+            "quality": self.quality,
             "width": self.width,
             "height": self.height,
-            "quality": self.quality,
+            **super().metadata(),
         }
 
     def generate(self, prompt: str) -> bytes:
