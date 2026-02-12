@@ -45,8 +45,6 @@ class PublishPostStep(Step):
                     }
                 )
 
-        ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps({"results": results}, indent=2))
-
         providers = [str(r["provider"]) for r in results]
         if ctx.dry_run:
             summary = "dry run -- skipping publish"
@@ -54,8 +52,7 @@ class PublishPostStep(Step):
             summary = "published to debug chat"
         else:
             summary = f"published to {', '.join(providers)}"
+        metadata = [{"provider": r["provider"], "message_id": r["message_id"]} for r in results]
+        ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps(results, indent=2))
 
-        return StepResult(
-            metadata=[{"provider": r["provider"], "message_id": r["message_id"]} for r in results],
-            summary=summary,
-        )
+        return StepResult(metadata=metadata, summary=summary)

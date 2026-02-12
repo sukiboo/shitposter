@@ -30,21 +30,17 @@ class CollectContextStep(Step):
 
     def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
         provider_name, provider = setup_provider(CONTEXT_PROVIDERS, config)
-        holidays = provider.generate()
 
+        records = provider.generate()
+        holidays = self._format(records)
+
+        metadata = {"provider": provider_name, **provider.metadata(), "count": len(holidays)}
         ctx.state["holidays"] = holidays
-        ctx.state["context"] = self._format(holidays)
-
-        artifact = {"provider": provider_name, "holidays": holidays}
+        artifact = {**metadata, "holidays": holidays, "records": records}
         ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps(artifact, indent=2))
 
-        metadata = {"provider": provider_name, "count": len(holidays), **provider.metadata()}
         return StepResult(metadata=metadata, summary=f"{len(holidays)} holidays")
 
     @staticmethod
-    def _format(holidays: list[dict]) -> str:
-        if not holidays:
-            return "No holidays today."
-        lines = ["Today's holidays:"]
-        lines.extend(f"- {h['name']}" for h in holidays)
-        return "\n".join(lines)
+    def _format(records: list[dict]) -> list[str | None]:
+        return [record["name"] for record in records]

@@ -1,6 +1,7 @@
 steps:
   prompt:
     type: construct_prompt
+    provider: constant
     prompt: "a cat wearing a business suit"
 
   image:

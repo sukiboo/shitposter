@@ -1,11 +1,16 @@
 steps:
-  context:
+  holidays:
     type: collect_context
     provider: checkiday
     date: 2026-02-11
 
+  # context:
+  #   type: choose_entry
+  #   provider: placeholder  # pick the first element
+
   prompt:
     type: construct_prompt
+    provider: constant
     prompt: "a cat wearing a business suit"
 
   image:
@@ -22,3 +27,4 @@ steps:
     type: publish_post
     platforms:
       - placeholder
+      - telegram

@@ -21,10 +21,9 @@ class GenerateImageStep(Step):
         prompt = template.format(**ctx.state) if template else ctx.state["prompt"]
         image_data = provider.generate(prompt)
 
+        metadata = {"provider": provider_name, **provider.metadata(), "prompt": prompt}
         image_path = ctx.run_dir.joinpath(f"{key}.png")
         image_path.write_bytes(image_data)
-
         ctx.state["image_path"] = str(image_path)
-        metadata = {"provider": provider_name, "prompt": prompt, **provider.metadata()}
 
-        return StepResult(metadata=metadata, summary=f"image_path={image_path}")
+        return StepResult(metadata=metadata, summary=f"{image_path}")

@@ -32,7 +32,7 @@ class CheckiDayProvider(ContextProvider):
         if not grid:
             return []
 
-        holidays = []
+        records = []
         for card in grid.find_all(class_="mdl-card"):
             title_el = card.select_one("h2.mdl-card__title-text > a")
             if not title_el:
@@ -48,9 +48,9 @@ class CheckiDayProvider(ContextProvider):
             if name.lower() == "on this day in history":
                 continue
 
-            holidays.append({"name": name, "url": url, "description": description})
+            records.append({"name": name, "url": url, "description": description})
 
-        return holidays
+        return records
 
 
 CONTEXT_PROVIDERS: dict[str, type[ContextProvider]] = {
