@@ -1,30 +1,24 @@
-from shitposter.artifacts import RunContext
+import json
+
 from shitposter.clients.text_to_image import IMAGE_PROVIDERS
-from shitposter.steps.base import Step, StepResult, setup_provider
+from shitposter.steps.base import Step, StepResult
 
 
 class GenerateImageStep(Step):
-    @classmethod
-    def validate_config(cls, config: dict) -> None:
-        if "provider" not in config:
-            raise ValueError("generate_image requires 'provider'")
-        if config["provider"] not in IMAGE_PROVIDERS:
-            raise ValueError(
-                f"Unknown image provider '{config['provider']}'. "
-                f"Allowed: {sorted(IMAGE_PROVIDERS)}"
-            )
+    registry = IMAGE_PROVIDERS
 
-    def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
-        provider_name, provider = setup_provider(IMAGE_PROVIDERS, config)
+    def execute(self) -> StepResult:
+        input_values = self.inputs
+        template = self.config.get("template")
+        prompt = template.format(**input_values) if template else list(input_values.values())[0]
+        image_data = self.provider.generate(prompt)
 
-        template = config.get("template")
-        prompt = template.format(**ctx.state) if template else ctx.state["prompt"]
-        image_data = provider.generate(prompt)
-
-        image_path = ctx.run_dir.joinpath(f"{key}.png")
+        image_path = self.ctx.run_dir.joinpath(f"{self.name}.png")
         image_path.write_bytes(image_data)
-        ctx.state["image_path"] = str(image_path)
+        self.output = str(image_path)
 
-        metadata = {"provider": provider_name, **provider.metadata(), "prompt": prompt}
+        metadata = {"provider": self.provider_name, **self.provider.metadata(), "resolved": prompt}
+        artifact = {**metadata, self.name: self.output}
+        self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(artifact, indent=2))
 
         return StepResult(metadata=metadata, summary=f"{image_path}")

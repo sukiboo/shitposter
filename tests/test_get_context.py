@@ -42,20 +42,19 @@ def test_parse_empty():
 def test_format():
     holidays = [{"name": "Day A"}, {"name": "Day B"}]
     result = CollectContextStep._format(holidays)
-    assert result == "Today's holidays:\n- Day A\n- Day B"
+    assert result == ["Day A", "Day B"]
 
 
 def test_format_empty():
-    assert CollectContextStep._format([]) == "No holidays today."
+    assert CollectContextStep._format([]) == []
 
 
 def test_step_sets_state(run_ctx):
     holidays = [{"name": "Test Day", "url": None, "description": "A test"}]
 
     with patch.object(CheckiDayProvider, "generate", return_value=holidays):
-        result = CollectContextStep().execute(run_ctx, {"provider": "checkiday"}, "context")
+        result = CollectContextStep(run_ctx, {"provider": "checkiday"}, "context").execute()
 
-    assert run_ctx.state["holidays"] == holidays
-    assert "Test Day" in run_ctx.state["context"]
+    assert run_ctx.state["context"] == ["Test Day"]
     assert run_ctx.run_dir.joinpath("context.json").exists()
     assert result.metadata["count"] == 1

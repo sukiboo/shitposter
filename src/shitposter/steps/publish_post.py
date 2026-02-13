@@ -1,6 +1,5 @@
 import json
 
-from shitposter.artifacts import RunContext
 from shitposter.clients.publishers import PUBLISHERS, TelegramPublisher
 from shitposter.steps.base import Step, StepResult
 
@@ -8,6 +7,7 @@ from shitposter.steps.base import Step, StepResult
 class PublishPostStep(Step):
     @classmethod
     def validate_config(cls, config: dict) -> None:
+        super().validate_config(config)
         platforms = config.get("platforms")
         if not platforms:
             raise ValueError("publish_post requires 'platforms'")
@@ -15,13 +15,15 @@ class PublishPostStep(Step):
             if p not in PUBLISHERS:
                 raise ValueError(f"Unknown publisher '{p}'. Allowed: {sorted(PUBLISHERS)}")
 
-    def execute(self, ctx: RunContext, config: dict, key: str) -> StepResult:
-        platforms = config.get("platforms", [])
-        image_path = ctx.state.get("image_path")
+    def execute(self) -> StepResult:
+        platforms = self.config.get("platforms", [])
+        input_list = list(self.inputs.values())
+        image_path = input_list[0] if input_list else None
+        caption = input_list[1] if len(input_list) > 1 else ""
 
-        if not ctx.publish and not ctx.dry_run:
+        if not self.ctx.publish and not self.ctx.dry_run:
             publisher = TelegramPublisher(debug=True)
-            raw = publisher.publish(image_path, ctx.state["caption"])
+            raw = publisher.publish(image_path, caption)
             results = [
                 {
                     "provider": "telegram",
@@ -33,10 +35,10 @@ class PublishPostStep(Step):
             results = []
             for name in platforms:
                 pub = PUBLISHERS[name]()
-                if ctx.dry_run:
+                if self.ctx.dry_run:
                     raw = {"result": {}}
                 else:
-                    raw = pub.publish(image_path, ctx.state["caption"])
+                    raw = pub.publish(image_path, caption)
                 results.append(
                     {
                         "provider": name,
@@ -46,13 +48,13 @@ class PublishPostStep(Step):
                 )
 
         providers = [str(r["provider"]) for r in results]
-        if ctx.dry_run:
+        if self.ctx.dry_run:
             summary = "dry run -- skipping publish"
-        elif not ctx.publish:
+        elif not self.ctx.publish:
             summary = "published to debug chat"
         else:
             summary = f"published to {', '.join(providers)}"
         metadata = [{"provider": r["provider"], "message_id": r["message_id"]} for r in results]
-        ctx.run_dir.joinpath(f"{key}.json").write_text(json.dumps(results, indent=2))
+        self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(results, indent=2))
 
         return StepResult(metadata=metadata, summary=summary)

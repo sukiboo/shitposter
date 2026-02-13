@@ -11,12 +11,12 @@ def execute(settings: Settings, ctx: RunContext):
         return
 
     steps_metadata = {}
-    for key, entry in settings.run.steps.items():
-        step_cls = STEPS[entry.type]
-        step_config = entry.model_dump(exclude={"type"})
-        result = step_cls().execute(ctx, step_config, key)
-        steps_metadata[key] = result.metadata
-        print(f"{key:>12} >> {result.summary or 'done'}")
+    for name, params in settings.run.steps.items():
+        step_cls = STEPS[params.type]
+        step_config = params.model_dump(exclude={"type"})
+        result = step_cls(ctx, step_config, name).execute()
+        steps_metadata[name] = result.metadata
+        print(f"{name:>12} >> {result.summary}")
 
     write_summary(ctx, steps_metadata)
     print(f"Run summary saved to `{ctx.run_dir}`")

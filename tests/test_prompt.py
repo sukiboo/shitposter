@@ -4,26 +4,22 @@ from shitposter.steps.construct_prompt import ConstructPromptStep
 
 
 def test_prompt_step_passes_through(run_ctx):
-    step = ConstructPromptStep()
-    result = step.execute(run_ctx, {"provider": "placeholder"}, "setup")
+    result = ConstructPromptStep(run_ctx, {"provider": "placeholder"}, "setup").execute()
 
-    assert result.summary == "prompt='Placeholder text'"
-    assert result.metadata["prompt"] == "Placeholder text"
-    assert run_ctx.state["prompt"] == "Placeholder text"
+    assert result.summary == "'Placeholder text'"
+    assert run_ctx.state["setup"] == "Placeholder text"
 
     saved = json.loads(run_ctx.run_dir.joinpath("setup.json").read_text())
-    assert saved["prompt"] == "Placeholder text"
+    assert saved["setup"] == "Placeholder text"
 
 
 def test_prompt_step_fixed_string(run_ctx):
-    step = ConstructPromptStep()
-    result = step.execute(
+    result = ConstructPromptStep(
         run_ctx, {"provider": "constant", "prompt": "a cat wearing a business suit"}, "setup"
-    )
+    ).execute()
 
-    assert result.summary == "prompt='a cat wearing a business suit'"
-    assert result.metadata["prompt"] == "a cat wearing a business suit"
-    assert run_ctx.state["prompt"] == "a cat wearing a business suit"
+    assert result.summary == "'a cat wearing a business suit'"
+    assert run_ctx.state["setup"] == "a cat wearing a business suit"
 
     saved = json.loads(run_ctx.run_dir.joinpath("setup.json").read_text())
-    assert saved["prompt"] == "a cat wearing a business suit"
+    assert saved["setup"] == "a cat wearing a business suit"

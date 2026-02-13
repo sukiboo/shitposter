@@ -21,9 +21,21 @@ def settings(tmp_path):
             {
                 "steps": {
                     "setup": {"type": "construct_prompt", "provider": "placeholder"},
-                    "image": {"type": "generate_image", "provider": "placeholder"},
-                    "caption": {"type": "generate_caption", "provider": "placeholder"},
-                    "publish": {"type": "publish_post", "platforms": ["placeholder"]},
+                    "image": {
+                        "type": "generate_image",
+                        "provider": "placeholder",
+                        "inputs": ["setup"],
+                    },
+                    "caption": {
+                        "type": "generate_caption",
+                        "provider": "placeholder",
+                        "inputs": ["setup"],
+                    },
+                    "publish": {
+                        "type": "publish_post",
+                        "inputs": ["image", "caption"],
+                        "platforms": ["placeholder"],
+                    },
                 }
             }
         ),

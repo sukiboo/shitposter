@@ -4,29 +4,32 @@ steps:
     provider: checkiday
     date: 2026-02-11
 
-  context:
+  holiday:
     type: choose_entry
     provider: openai
-    template: "Pick the best one:"
-    entries_key: holidays
+    inputs: holidays
+    template: "Pick the best holiday:"
 
   prompt:
     type: construct_prompt
-    provider: constant
-    prompt: "a cat wearing a business suit"
+    provider: openai
+    inputs: holiday
+    template: "Generate a short image prompt about a cat during {holiday}"
 
   image:
     type: generate_image
-    provider: placeholder
-    template: "Generate an image of {prompt}."
+    provider: openai
+    inputs: holiday, prompt
+    template: "Generate an image of {prompt} during {holiday}."
 
   caption:
     type: generate_caption
-    provider: placeholder
-    template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
+    provider: openai
+    inputs: holiday, prompt
+    template: "Generate a funny caption (use emoji!) for an image of {prompt} during {holiday}. Your answer must be a single caption, nothing else."
 
   publish:
     type: publish_post
+    inputs: image, caption
     platforms:
-      - placeholder
       - telegram

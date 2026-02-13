@@ -52,6 +52,7 @@ class Settings(BaseModel):
 class StepConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
     type: str
+    inputs: list[str] = []
 
     @field_validator("type")
     @classmethod
@@ -62,14 +63,34 @@ class StepConfig(BaseModel):
             raise ValueError(f"Unknown step type '{v}'. Allowed: {sorted(STEPS)}")
         return v
 
+    @field_validator("inputs", mode="before")
+    @classmethod
+    def _parse_inputs(cls, v: str | list[str]) -> list[str]:
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
+
     @model_validator(mode="after")
     def _validate_step_config(self) -> "StepConfig":
         from shitposter.steps import STEPS
 
         step_cls = STEPS[self.type]
-        step_cls.validate_config(self.model_dump(exclude={"type"}))
+        step_cls.validate_config(self.model_dump(exclude={"type", "inputs"}))
         return self
 
 
 class RunConfig(BaseModel):
     steps: dict[str, StepConfig]
+
+    @model_validator(mode="after")
+    def _validate_input_refs(self) -> "RunConfig":
+        seen: set[str] = set()
+        for key, step in self.steps.items():
+            for inp in step.inputs:
+                if inp not in seen:
+                    raise ValueError(
+                        f"Step '{key}' references input '{inp}' "
+                        f"which is not a previously defined step"
+                    )
+            seen.add(key)
+        return self
