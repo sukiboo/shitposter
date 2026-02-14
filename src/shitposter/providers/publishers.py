@@ -78,9 +78,11 @@ class TwitterPublisher(PublishingProvider):
             access_token=access_token,
             access_token_secret=access_token_secret,
         )
+        me = self._client.get_me()
+        self._username: str = me.data.username if me.data else "unknown"  # type: ignore[union-attr]
 
     def metadata(self) -> dict:
-        return super().metadata()
+        return {"username": self._username, **super().metadata()}
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         media_ids = None
@@ -88,4 +90,4 @@ class TwitterPublisher(PublishingProvider):
             media = self._api.media_upload(image_path)
             media_ids = [media.media_id]
         response = self._client.create_tweet(text=caption or "", media_ids=media_ids)
-        return {"ok": True, "result": {"tweet_id": response.data["id"]}}
+        return {"ok": True, "result": {"message_id": response.data["id"]}}  # type: ignore[union-attr]

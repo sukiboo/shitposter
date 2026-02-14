@@ -1,6 +1,11 @@
-# [wip] shitposter
+# shitposter
 
 Automated content generation and posting pipeline. Generates images, builds captions, and posts to Telegram. Designed to run on a VPS with cron.
+
+Currently posting to
+- Telegram: [Cat Slop Daily](https://t.me/catslopdaily)
+- Twitter/X: [@CatSlopDaily](https://x.com/CatSlopDaily)
+
 
 ## Pipeline
 
