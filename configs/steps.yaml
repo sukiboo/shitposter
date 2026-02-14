@@ -37,3 +37,4 @@ steps:
     inputs: image, caption
     platforms:
       - telegram
+      - twitter

@@ -2,6 +2,7 @@ import os
 from pathlib import PurePath
 
 import httpx
+import tweepy
 
 from shitposter.providers.base import PublishingProvider
 
@@ -54,3 +55,37 @@ class TelegramPublisher(PublishingProvider):
         )
         resp.raise_for_status()
         return resp.json()
+
+
+class TwitterPublisher(PublishingProvider):
+    name = "twitter"
+
+    def __init__(self, **kwargs):
+        consumer_key = os.environ["TWITTER_CONSUMER_KEY"]
+        consumer_secret = os.environ["TWITTER_CONSUMER_SECRET"]
+        access_token = os.environ["TWITTER_ACCESS_TOKEN"]
+        access_token_secret = os.environ["TWITTER_ACCESS_TOKEN_SECRET"]
+        auth = tweepy.OAuth1UserHandler(
+            consumer_key,
+            consumer_secret,
+            access_token,
+            access_token_secret,
+        )
+        self._api = tweepy.API(auth)
+        self._client = tweepy.Client(
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
+            access_token=access_token,
+            access_token_secret=access_token_secret,
+        )
+
+    def metadata(self) -> dict:
+        return super().metadata()
+
+    def publish(self, image_path: str | None, caption: str | None) -> dict:
+        media_ids = None
+        if image_path:
+            media = self._api.media_upload(image_path)
+            media_ids = [media.media_id]
+        response = self._client.create_tweet(text=caption or "", media_ids=media_ids)
+        return {"ok": True, "result": {"tweet_id": response.data["id"]}}

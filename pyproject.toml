@@ -16,6 +16,7 @@ dependencies = [
     "pillow>=11.0",
     "openai>=1.0",
     "beautifulsoup4>=4.12",
+    "tweepy>=4.14",
 ]
 
 [project.scripts]
