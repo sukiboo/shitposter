@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def load_settings(steps_path: Path = Path("pipelines/steps.yaml")) -> Settings:
+def load_settings(steps_path: Path = Path("configs/steps.yaml")) -> Settings:
     load_dotenv()
     return Settings(env=EnvSettings(), run=load_run_config(steps_path))
 
@@ -32,8 +32,20 @@ _NoDuplicateKeysLoader.add_constructor(
 )
 
 
-def load_run_config(path: Path = Path("pipelines/steps.yaml")) -> RunConfig:
-    data = yaml.load(path.read_text(), _NoDuplicateKeysLoader)  # nosec B506
+def _make_loader(config_dir: Path) -> type[yaml.SafeLoader]:
+    class _Loader(_NoDuplicateKeysLoader):
+        pass
+
+    def _file_constructor(loader: yaml.Loader, node: yaml.ScalarNode) -> str:
+        return (config_dir / loader.construct_scalar(node)).read_text().strip()
+
+    _Loader.add_constructor("!file", _file_constructor)
+    return _Loader
+
+
+def load_run_config(path: Path = Path("configs/steps.yaml")) -> RunConfig:
+    loader = _make_loader(path.parent)
+    data = yaml.load(path.read_text(), loader)  # nosec B506
     return RunConfig.model_validate(data)
 
 

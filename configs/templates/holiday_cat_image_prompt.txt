@@ -1,0 +1,25 @@
+Create a concise, vivid image generation prompt featuring a cat themed around {holiday}.
+
+Base scene:
+- A realistic cat in a clear, recognizable setting related to {holiday}.
+- One coherent scene, instantly readable at a glance.
+
+Unexpected twist:
+- Add exactly ONE humorous or absurd element.
+- The twist must be visual and fall into ONE category:
+  - an unusual action the cat is performing
+  - a visual mismatch of role or scale
+  - an everyday object used in an ironic way
+- Avoid repeated tropes (engagement rings, phones, written notes).
+
+Tone & constraints:
+- Whimsical, clever, lightly unhinged.
+- Funny because it’s unexpected, not random.
+- No horror, no distortion, no additional characters.
+
+Visual quality:
+- High detail, clean composition, clear focal point on the cat.
+- Limit camera/lighting jargon to at most two brief phrases.
+
+Output:
+- A single, compact image prompt describing one frozen moment.

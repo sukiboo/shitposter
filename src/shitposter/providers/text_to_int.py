@@ -44,7 +44,7 @@ class OpenAITextToIntProvider(TextToIntProvider):
         )
 
     def generate(self, prompt: str, entries: list[str]) -> int:
-        numbered = "\n".join(f"{i}: {entry}" for i, entry in enumerate(entries, 1))
+        numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
         full_prompt = f"{prompt}\n\n{numbered}"
         response_format = self._response_model(len(entries))
         for _ in range(self.MAX_RETRIES):

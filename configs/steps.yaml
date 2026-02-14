@@ -7,26 +7,30 @@ steps:
   holiday:
     type: choose_holiday
     provider: openai
+    model: gpt-5-nano
     inputs: holidays
-    template: "Pick the best holiday:"
+    template: !file ./templates/holiday_selection_prompt.txt
 
   prompt:
     type: construct_prompt
     provider: openai
+    model: gpt-5-mini
     inputs: holiday
-    template: "Generate a short image prompt about a cat during {holiday}"
+    template: !file ./templates/holiday_cat_image_prompt.txt
 
   image:
     type: generate_image
     provider: openai
-    inputs: holiday, prompt
-    template: "Generate an image of {prompt} during {holiday}."
+    model: gpt-image-1.5
+    inputs: prompt
+    template: "{prompt}"
 
   caption:
     type: generate_caption
     provider: openai
+    model: gpt-5.2
     inputs: holiday, prompt
-    template: "Generate a funny caption (use emoji!) for an image of {prompt} during {holiday}. Your answer must be a single caption, nothing else."
+    template: !file ./templates/holiday_cat_caption_prompt.txt
 
   publish:
     type: publish_post

@@ -33,7 +33,7 @@ class CheckiDayProvider(ContextProvider):
 
             name = title_el.get_text(strip=True)
             href = title_el.get("href")
-            url = href if href and href.startswith("http") else None
+            url = href if isinstance(href, str) and href.startswith("http") else None
 
             desc_el = card.select_one(".mdl-card__supporting-text")
             description = desc_el.get_text(strip=True) if desc_el else None

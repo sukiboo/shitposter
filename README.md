@@ -12,7 +12,7 @@ Automated content generation and posting pipeline. Generates images, builds capt
 6. **Publish** — sends the image + caption to configured platforms
 7. **Summary** — writes a run summary (config snapshot, run ID, publish status)
 
-Step order and config are defined in a pipeline YAML file under `pipelines/`. Artifacts are written to a per-run directory under the configured artifact root.
+Step order and config are defined in a pipeline YAML file under `configs/`. Artifacts are written to a per-run directory under the configured artifact root.
 
 ## Steps and providers
 
@@ -30,7 +30,7 @@ Step order and config are defined in a pipeline YAML file under `pipelines/`. Ar
 ## Project structure
 
 ```
-pipelines/
+configs/
   steps.yaml              # default pipeline config
   steps-simple.yaml       # simple config (no holiday scraping)
   steps-placeholder.yaml  # all-placeholder config for testing
@@ -90,7 +90,7 @@ TELEGRAM_CHANNEL_CHAT_ID=your-channel-chat-id
 
 ### Pipeline config
 
-Pipeline configs live in `pipelines/`. Example (`pipelines/steps-simple.yaml`):
+Pipeline configs live in `configs/`. Example (`configs/steps-simple.yaml`):
 
 ```yaml
 steps:
@@ -130,7 +130,7 @@ uv run shitposter run
 # publish to specified platforms
 uv run shitposter run --publish
 
-# use a different pipeline config (loads pipelines/steps-new.yaml)
+# use a different pipeline config (loads configs/steps-new.yaml)
 uv run shitposter run -s steps-new
 
 # run for a specific timestamp

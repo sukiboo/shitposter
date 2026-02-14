@@ -32,7 +32,7 @@ class RandomImageProvider(ImageProvider):
 
 class OpenAIImageProvider(ImageProvider):
     name = "openai"
-    ALLOWED_MODELS = {"gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"}
+    ALLOWED_MODELS = {"gpt-image-1-mini", "gpt-image-1", "gpt-image-1.5"}
     ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}
 
     def __init__(self, **kwargs):

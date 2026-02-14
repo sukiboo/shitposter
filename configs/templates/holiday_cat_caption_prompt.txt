@@ -1,0 +1,26 @@
+Write a single, punchy caption for a social media post.
+
+Context:
+- Holiday: {holiday}
+- Image description: {image_prompt}
+
+Caption requirements:
+- Clearly relate to BOTH the holiday and the specific visual joke.
+- React to the image rather than describing it.
+- Express a clear attitude (amused, resigned, impressed, mildly alarmed).
+- Avoid generic holiday phrasing.
+
+Style constraints:
+- One sentence only.
+- Under 20 words.
+- Casual, internet-native tone.
+- Use 1–3 emojis, not at the beginning.
+- No hashtags, no quotes.
+
+Avoid:
+- Starting with the holiday name or “my cat.”
+- Explaining the joke.
+- Obvious puns or filler phrases.
+
+Output:
+- Return ONLY the caption text.

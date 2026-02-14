@@ -6,10 +6,11 @@ from shitposter.steps.base import Step, StepResult
 
 class ChooseHolidayStep(Step):
     registry = TextToIntProvider._registry
+    default_prompt = "Pick one of the following entries:"
 
     def execute(self) -> StepResult:
         entries = list(self.inputs.values())[0]
-        prompt = (self.template or "Pick one of the following entries:").format(**self.inputs)
+        prompt = (self.template or self.default_prompt).format(**self.inputs)
         index = self.provider.generate(prompt, entries)
         self.output = entries[index]
 
