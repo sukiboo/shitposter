@@ -1,11 +1,11 @@
 import json
 
-from shitposter.clients.text_to_text import TEXT_PROVIDERS
+from shitposter.clients.text_to_text import TextProvider
 from shitposter.steps.base import Step, StepResult
 
 
 class ConstructPromptStep(Step):
-    registry = TEXT_PROVIDERS
+    registry = TextProvider._registry
 
     def execute(self) -> StepResult:
         template = self.config.get("template")
@@ -13,7 +13,7 @@ class ConstructPromptStep(Step):
         prompt = self.provider.generate(text)
         self.output = prompt
 
-        metadata = {"provider": self.provider_name, **self.provider.metadata()}
+        metadata = {**self.provider.metadata()}
         artifact = {**metadata, self.name: prompt}
         self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(artifact, indent=2))
 

@@ -1,6 +1,6 @@
 import json
 
-from shitposter.clients.publishers import PUBLISHERS, TelegramPublisher
+from shitposter.clients.publishers import PublishingProvider, TelegramPublisher
 from shitposter.steps.base import Step, StepResult
 
 
@@ -12,8 +12,10 @@ class PublishPostStep(Step):
         if not platforms:
             raise ValueError("publish_post requires 'platforms'")
         for p in platforms:
-            if p not in PUBLISHERS:
-                raise ValueError(f"Unknown publisher '{p}'. Allowed: {sorted(PUBLISHERS)}")
+            if p not in PublishingProvider._registry:
+                raise ValueError(
+                    f"Unknown publisher '{p}'. Allowed: {sorted(PublishingProvider._registry)}"
+                )
 
     def execute(self) -> StepResult:
         platforms = self.config.get("platforms", [])
@@ -34,7 +36,7 @@ class PublishPostStep(Step):
         else:
             results = []
             for name in platforms:
-                pub = PUBLISHERS[name]()
+                pub = PublishingProvider._registry[name]()
                 if self.ctx.dry_run:
                     raw = {"result": {}}
                 else:

@@ -7,17 +7,21 @@ from shitposter.clients.base import PublishingProvider
 
 
 class PlaceholderPublisher(PublishingProvider):
+    name = "placeholder"
+
     def __init__(self, **kwargs):
         pass
 
     def metadata(self) -> dict:
-        return {"provider": "placeholder", **super().metadata()}
+        return super().metadata()
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         return {"ok": True, "result": {"message_id": 0}}
 
 
 class TelegramPublisher(PublishingProvider):
+    name = "telegram"
+
     def __init__(self, *, debug: bool = False, **kwargs):
         prefix = "TELEGRAM_DEBUG" if debug else "TELEGRAM_CHANNEL"
         self.bot_token = os.environ[f"{prefix}_BOT_TOKEN"]
@@ -25,7 +29,7 @@ class TelegramPublisher(PublishingProvider):
         self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
 
     def metadata(self) -> dict:
-        return {"provider": "telegram", "chat_id": self.chat_id, **super().metadata()}
+        return {"chat_id": self.chat_id, **super().metadata()}
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         if image_path:
@@ -50,9 +54,3 @@ class TelegramPublisher(PublishingProvider):
         )
         resp.raise_for_status()
         return resp.json()
-
-
-PUBLISHERS: dict[str, type[PublishingProvider]] = {
-    "placeholder": PlaceholderPublisher,
-    "telegram": TelegramPublisher,
-}

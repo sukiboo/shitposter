@@ -1,11 +1,11 @@
 import json
 
-from shitposter.clients.text_to_image import IMAGE_PROVIDERS
+from shitposter.clients.text_to_image import ImageProvider
 from shitposter.steps.base import Step, StepResult
 
 
 class GenerateImageStep(Step):
-    registry = IMAGE_PROVIDERS
+    registry = ImageProvider._registry
 
     def execute(self) -> StepResult:
         input_values = self.inputs
@@ -17,7 +17,7 @@ class GenerateImageStep(Step):
         image_path.write_bytes(image_data)
         self.output = str(image_path)
 
-        metadata = {"provider": self.provider_name, **self.provider.metadata(), "resolved": prompt}
+        metadata = {**self.provider.metadata(), "resolved": prompt}
         artifact = {**metadata, self.name: self.output}
         self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(artifact, indent=2))
 

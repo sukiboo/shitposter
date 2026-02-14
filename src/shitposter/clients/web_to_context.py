@@ -7,6 +7,8 @@ from shitposter.clients.base import ContextProvider
 
 
 class CheckiDayProvider(ContextProvider):
+    name = "checkiday"
+
     def __init__(self, **kwargs):
         date_val = kwargs.get("date")
         if date_val is None:
@@ -51,8 +53,3 @@ class CheckiDayProvider(ContextProvider):
             records.append({"name": name, "url": url, "description": description})
 
         return records
-
-
-CONTEXT_PROVIDERS: dict[str, type[ContextProvider]] = {
-    "checkiday": CheckiDayProvider,
-}

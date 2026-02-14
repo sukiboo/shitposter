@@ -9,6 +9,8 @@ from shitposter.clients.base import ImageProvider
 
 
 class RandomImageProvider(ImageProvider):
+    name = "placeholder"
+
     def __init__(self, **kwargs):
         self.width = kwargs.get("width") or 512
         self.height = kwargs.get("height") or 512
@@ -29,6 +31,7 @@ class RandomImageProvider(ImageProvider):
 
 
 class OpenAIImageProvider(ImageProvider):
+    name = "openai"
     ALLOWED_MODELS = {"gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"}
     ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}
 
@@ -75,9 +78,3 @@ class OpenAIImageProvider(ImageProvider):
         if not b64:
             raise RuntimeError("OpenAI returned no image data")
         return base64.b64decode(b64)
-
-
-IMAGE_PROVIDERS: dict[str, type[ImageProvider]] = {
-    "placeholder": RandomImageProvider,
-    "openai": OpenAIImageProvider,
-}

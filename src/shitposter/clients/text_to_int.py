@@ -6,6 +6,8 @@ from shitposter.clients.base import TextToIntProvider
 
 
 class PlaceholderTextToIntProvider(TextToIntProvider):
+    name = "placeholder"
+
     def __init__(self, **kwargs):
         pass
 
@@ -14,6 +16,7 @@ class PlaceholderTextToIntProvider(TextToIntProvider):
 
 
 class OpenAITextToIntProvider(TextToIntProvider):
+    name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
     MAX_RETRIES = 3
 
@@ -58,9 +61,3 @@ class OpenAITextToIntProvider(TextToIntProvider):
                 continue
         self._meta["errors"].append("all retries failed, fell back to random")
         return random.randint(0, len(entries) - 1)
-
-
-TEXT_TO_INT_PROVIDERS: dict[str, type[TextToIntProvider]] = {
-    "placeholder": PlaceholderTextToIntProvider,
-    "openai": OpenAITextToIntProvider,
-}

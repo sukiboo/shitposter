@@ -1,11 +1,11 @@
 import json
 
-from shitposter.clients.text_to_int import TEXT_TO_INT_PROVIDERS
+from shitposter.clients.text_to_int import TextToIntProvider
 from shitposter.steps.base import Step, StepResult
 
 
 class ChooseEntryStep(Step):
-    registry = TEXT_TO_INT_PROVIDERS
+    registry = TextToIntProvider._registry
 
     def execute(self) -> StepResult:
         entries_key, entries = list(self.inputs.items())[0]
@@ -14,7 +14,7 @@ class ChooseEntryStep(Step):
         index = self.provider.generate(prompt, entries)
         self.output = entries[index]
 
-        metadata = {"provider": self.provider_name, **self.provider.metadata(), **self.inputs}
+        metadata = {**self.provider.metadata(), **self.inputs}
         artifact = {
             **metadata,
             self.name: self.output,

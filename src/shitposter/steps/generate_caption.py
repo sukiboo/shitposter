@@ -1,11 +1,11 @@
 import json
 
-from shitposter.clients.text_to_text import TEXT_PROVIDERS
+from shitposter.clients.text_to_text import TextProvider
 from shitposter.steps.base import Step, StepResult
 
 
 class GenerateCaptionStep(Step):
-    registry = TEXT_PROVIDERS
+    registry = TextProvider._registry
 
     def execute(self) -> StepResult:
         input_values = self.inputs
@@ -14,7 +14,7 @@ class GenerateCaptionStep(Step):
         caption = self.provider.generate(prompt)
         self.output = caption
 
-        metadata = {"provider": self.provider_name, **self.provider.metadata(), "resolved": prompt}
+        metadata = {**self.provider.metadata(), "resolved": prompt}
         artifact = {**metadata, self.name: caption}
         self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(artifact, indent=2))
 

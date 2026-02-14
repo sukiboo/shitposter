@@ -1,12 +1,12 @@
 import json
 from datetime import date
 
-from shitposter.clients.web_to_context import CONTEXT_PROVIDERS
+from shitposter.clients.web_to_context import ContextProvider
 from shitposter.steps.base import Step, StepResult
 
 
 class CollectContextStep(Step):
-    registry = CONTEXT_PROVIDERS
+    registry = ContextProvider._registry
 
     @classmethod
     def validate_config(cls, config: dict) -> None:
@@ -28,7 +28,7 @@ class CollectContextStep(Step):
         entries = self._format(records)
         self.output = entries
 
-        metadata = {"provider": self.provider_name, **self.provider.metadata(), **self.inputs}
+        metadata = {**self.provider.metadata(), **self.inputs}
         artifact = {**metadata, self.name: self.output, "records": records}
         self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(artifact, indent=2))
 

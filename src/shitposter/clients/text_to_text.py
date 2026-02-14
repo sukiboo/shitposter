@@ -2,6 +2,8 @@ from shitposter.clients.base import TextProvider
 
 
 class PlaceholderTextProvider(TextProvider):
+    name = "placeholder"
+
     def __init__(self, **kwargs):
         pass
 
@@ -10,6 +12,8 @@ class PlaceholderTextProvider(TextProvider):
 
 
 class ConstantTextProvider(TextProvider):
+    name = "constant"
+
     def __init__(self, **kwargs):
         self.text = kwargs.get("prompt", "")
 
@@ -18,6 +22,7 @@ class ConstantTextProvider(TextProvider):
 
 
 class OpenAITextProvider(TextProvider):
+    name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
 
     def __init__(self, **kwargs):
@@ -46,10 +51,3 @@ class OpenAITextProvider(TextProvider):
             temperature=self.temperature,
         )
         return response.choices[0].message.content or ""
-
-
-TEXT_PROVIDERS: dict[str, type[TextProvider]] = {
-    "placeholder": PlaceholderTextProvider,
-    "constant": ConstantTextProvider,
-    "openai": OpenAITextProvider,
-}

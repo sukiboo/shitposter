@@ -20,12 +20,10 @@ class Step(ABC):
         self.name = name
 
         if self.registry is not None:
-            provider_name = config["provider"]
             kwargs = {
                 k: v for k, v in config.items() if k not in ("provider", "inputs", "template")
             }
-            self.provider_name = provider_name
-            self.provider = self.registry[provider_name](**kwargs)
+            self.provider = self.registry[config["provider"]](**kwargs)
 
     @classmethod
     def validate_config(cls, config: dict) -> None:
