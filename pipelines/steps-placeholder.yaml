@@ -13,5 +13,6 @@ steps:
 
   publish:
     type: publish_post
+    inputs: image, caption
     platforms:
       - placeholder  # or "telegram"

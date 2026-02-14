@@ -11,8 +11,8 @@ class ScrapeHolidaysStep(Step):
     @classmethod
     def validate_config(cls, config: dict) -> None:
         super().validate_config(config)
-        if "date" in config:
-            val = config["date"]
+        val = config.get("date")
+        if val is not None:
             if isinstance(val, date):
                 pass
             elif isinstance(val, str):

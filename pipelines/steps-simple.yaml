@@ -7,14 +7,17 @@ steps:
   image:
     type: generate_image
     provider: openai
+    inputs: prompt
     template: "Generate an image of {prompt}."
 
   caption:
     type: generate_caption
     provider: openai
+    inputs: prompt
     template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
 
   publish:
     type: publish_post
+    inputs: image, caption
     platforms:
       - telegram

@@ -2,7 +2,7 @@ steps:
   holidays:
     type: scrape_holidays
     provider: checkiday
-    date: 2026-02-11
+    date: null
 
   holiday:
     type: choose_holiday

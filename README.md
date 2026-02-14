@@ -1,14 +1,16 @@
-# shitposter
+# [wip] shitposter
 
 Automated content generation and posting pipeline. Generates images, builds captions, and posts to Telegram. Designed to run on a VPS with cron.
 
 ## Pipeline
 
-1. **Prompt** — sets the prompt (literal string or generated via a text provider)
-2. **Image** — generates an image from the prompt
-3. **Caption** — generates a post caption from the prompt
-4. **Publish** — sends the image + caption to configured platforms
-5. **Summary** — writes a run summary (config snapshot, run ID, publish status)
+1. **Scrape holidays** — fetches holidays from the web
+2. **Choose holiday** — selects one entry from the list
+3. **Prompt** — constructs the image prompt (literal string or generated via a text provider)
+4. **Image** — generates an image from the prompt
+5. **Caption** — generates a post caption from the prompt
+6. **Publish** — sends the image + caption to configured platforms
+7. **Summary** — writes a run summary (config snapshot, run ID, publish status)
 
 Step order and config are defined in a pipeline YAML file under `pipelines/`. Artifacts are written to a per-run directory under the configured artifact root.
 
@@ -16,19 +18,22 @@ Step order and config are defined in a pipeline YAML file under `pipelines/`. Ar
 
 | Step | Type | Providers | Config |
 |---|---|---|---|
-| Prompt | `set_prompt` | `placeholder`, `openai` | `prompt` (literal) or `provider` + `template` |
-| Image | `generate_image` | `placeholder` (random pixels), `openai` (gpt-image-1-mini/1/1.5) | `provider`, `template` |
-| Caption | `generate_caption` | `placeholder`, `openai` (gpt-5-nano/mini/5/5.1/5.2) | `provider`, `template` |
-| Publish | `publish_post` | `placeholder`, `telegram` | `platforms` (list) |
+| Scrape holidays | `scrape_holidays` | `checkiday` | `provider`, `date` |
+| Choose holiday | `choose_holiday` | `placeholder`, `openai` | `provider`, `inputs`, `template` |
+| Prompt | `construct_prompt` | `placeholder`, `constant`, `openai` | `prompt` (literal) or `provider` + `template` |
+| Image | `generate_image` | `placeholder` (random pixels), `openai` (gpt-image-1-mini/1/1.5) | `provider`, `inputs`, `template` |
+| Caption | `generate_caption` | `placeholder`, `openai` (gpt-5-nano/mini/5/5.1/5.2) | `provider`, `inputs`, `template` |
+| Publish | `publish_post` | `placeholder`, `telegram` | `inputs`, `platforms` (list) |
 
-Templates support `{prompt}` interpolation (and any other keys in the run context state).
+`inputs` declares which prior step outputs this step reads from (list or comma-separated string). Templates use `{step_name}` placeholders resolved from declared inputs only.
 
 ## Project structure
 
 ```
 pipelines/
   steps.yaml              # default pipeline config
-  steps-placeholder.yaml  # example config (placeholder providers)
+  steps-simple.yaml       # simple config (no holiday scraping)
+  steps-placeholder.yaml  # all-placeholder config for testing
 
 src/shitposter/
   cli.py                  # typer CLI
@@ -38,14 +43,18 @@ src/shitposter/
 
   steps/
     base.py               # Step ABC + StepResult
-    set_prompt.py         # SetPromptStep
+    scrape_holidays.py    # ScrapeHolidaysStep
+    choose_holiday.py     # ChooseHolidayStep
+    construct_prompt.py   # ConstructPromptStep
     generate_image.py     # GenerateImageStep
     generate_caption.py   # GenerateCaptionStep
     publish_post.py       # PublishPostStep
 
-  clients/
-    base.py               # provider ABCs
-    text_to_text.py       # text providers (placeholder, openai)
+  providers/
+    base.py               # provider ABCs + auto-registration via __init_subclass__
+    web_to_context.py     # context providers (checkiday)
+    text_to_int.py        # text-to-int providers (placeholder, openai)
+    text_to_text.py       # text providers (placeholder, constant, openai)
     text_to_image.py      # image providers (placeholder, openai)
     publishers.py         # publishing providers (placeholder, telegram)
 
@@ -60,11 +69,10 @@ Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 uv sync
 ```
 
-Copy the example files and fill in your values:
+Copy the example `.env` and fill in your values:
 
 ```bash
 cp .env.example .env
-cp pipelines/steps.example.yaml pipelines/steps.yaml
 ```
 
 ### `.env`
@@ -82,26 +90,30 @@ TELEGRAM_CHANNEL_CHAT_ID=your-channel-chat-id
 
 ### Pipeline config
 
-Pipeline configs live in `pipelines/`. Example (`pipelines/steps.yaml`):
+Pipeline configs live in `pipelines/`. Example (`pipelines/steps-simple.yaml`):
 
 ```yaml
 steps:
   prompt:
-    type: set_prompt
+    type: construct_prompt
+    provider: constant
     prompt: "a cat wearing a business suit"
 
   image:
     type: generate_image
     provider: openai
+    inputs: prompt
     template: "Generate an image of {prompt}."
 
   caption:
     type: generate_caption
     provider: openai
-    template: "Generate a funny caption for an image of {prompt}."
+    inputs: prompt
+    template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
 
   publish:
     type: publish_post
+    inputs: image, caption
     platforms:
       - telegram
 ```
@@ -134,10 +146,13 @@ Each run creates a directory under `<artifacts_path>/<run_id>/`:
 
 ```
 2026-02-08_09-00-00/
-  prompt.json
+  0_holidays.json
+  1_holiday.json
+  2_prompt.json
   image.png
-  caption.json
-  publish.json      # only if published
+  3_image.json
+  4_caption.json
+  5_publish.json
   summary.json
 ```
 
@@ -153,7 +168,6 @@ uv run pytest
 git clone <repo> /opt/shitposter
 cd /opt/shitposter && uv sync
 cp .env.example .env
-cp pipelines/steps.example.yaml pipelines/steps.yaml
 ```
 
 ```cron
