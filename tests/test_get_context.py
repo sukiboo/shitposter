@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
-from shitposter.clients.web_to_context import CheckiDayProvider
-from shitposter.steps.collect_context import CollectContextStep
+from shitposter.providers.web_to_context import CheckiDayProvider
+from shitposter.steps.scrape_holidays import ScrapeHolidaysStep
 
 SAMPLE_HTML = """
 <html><body>
@@ -41,20 +41,20 @@ def test_parse_empty():
 
 def test_format():
     holidays = [{"name": "Day A"}, {"name": "Day B"}]
-    result = CollectContextStep._format(holidays)
+    result = ScrapeHolidaysStep._format(holidays)
     assert result == ["Day A", "Day B"]
 
 
 def test_format_empty():
-    assert CollectContextStep._format([]) == []
+    assert ScrapeHolidaysStep._format([]) == []
 
 
 def test_step_sets_state(run_ctx):
     holidays = [{"name": "Test Day", "url": None, "description": "A test"}]
 
-    with patch.object(CheckiDayProvider, "generate", return_value=holidays):
-        result = CollectContextStep(run_ctx, {"provider": "checkiday"}, "context").execute()
+    with patch.object(CheckiDayProvider, "generate", side_effect=lambda target_date: holidays):
+        result = ScrapeHolidaysStep(run_ctx, {"provider": "checkiday"}, "context", 0).execute()
 
     assert run_ctx.state["context"] == ["Test Day"]
-    assert run_ctx.run_dir.joinpath("context.json").exists()
-    assert result.metadata["count"] == 1
+    assert run_ctx.run_dir.joinpath("0_context.json").exists()
+    assert result.metadata["provider"] == "checkiday"

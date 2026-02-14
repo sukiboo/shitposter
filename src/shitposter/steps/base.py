@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, ClassVar
 
 from pydantic import BaseModel
@@ -14,10 +15,11 @@ class StepResult(BaseModel):
 class Step(ABC):
     registry: ClassVar[dict[str, type] | None] = None
 
-    def __init__(self, ctx: RunContext, config: dict, name: str):
+    def __init__(self, ctx: RunContext, config: dict, name: str, idx: int):
         self.ctx = ctx
         self.config = config
         self.name = name
+        self.idx = idx
 
         if self.registry is not None:
             kwargs = {
@@ -46,6 +48,13 @@ class Step(ABC):
     @output.setter
     def output(self, value: Any) -> None:
         self.ctx.state[self.name] = value
+
+    def artifact_path(self, ext: str = "json") -> Path:
+        return self.ctx.run_dir / f"{self.idx}_{self.name}.{ext}"
+
+    @property
+    def template(self) -> str:
+        return self.config.get("template", "")
 
     @abstractmethod
     def execute(self) -> StepResult: ...

@@ -1,11 +1,11 @@
 import json
 from datetime import date
 
-from shitposter.clients.web_to_context import ContextProvider
+from shitposter.providers.web_to_context import ContextProvider
 from shitposter.steps.base import Step, StepResult
 
 
-class CollectContextStep(Step):
+class ScrapeHolidaysStep(Step):
     registry = ContextProvider._registry
 
     @classmethod
@@ -23,16 +23,23 @@ class CollectContextStep(Step):
             else:
                 raise ValueError(f"'date' must be a string or date, got {type(val).__name__}")
 
+    def _resolve_date(self) -> date:
+        val = self.config.get("date")
+        if val is None:
+            return date.today()
+        return val if isinstance(val, date) else date.fromisoformat(str(val))
+
     def execute(self) -> StepResult:
-        records = self.provider.generate()
+        target_date = self._resolve_date()
+        records = self.provider.generate(target_date)
         entries = self._format(records)
         self.output = entries
 
-        metadata = {**self.provider.metadata(), **self.inputs}
+        metadata = {**self.provider.metadata(), "date": target_date.isoformat(), **self.inputs}
         artifact = {**metadata, self.name: self.output, "records": records}
-        self.ctx.run_dir.joinpath(f"{self.name}.json").write_text(json.dumps(artifact, indent=2))
+        self.artifact_path().write_text(json.dumps(artifact, indent=2))
 
-        return StepResult(metadata=metadata, summary=f"retrieved {len(entries)} holidays")
+        return StepResult(metadata=metadata, summary=f"scraped {len(entries)} holidays")
 
     @staticmethod
     def _format(records: list[dict]) -> list[str | None]:

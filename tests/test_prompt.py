@@ -4,22 +4,22 @@ from shitposter.steps.construct_prompt import ConstructPromptStep
 
 
 def test_prompt_step_passes_through(run_ctx):
-    result = ConstructPromptStep(run_ctx, {"provider": "placeholder"}, "setup").execute()
+    result = ConstructPromptStep(run_ctx, {"provider": "placeholder"}, "setup", 0).execute()
 
     assert result.summary == "'Placeholder text'"
     assert run_ctx.state["setup"] == "Placeholder text"
 
-    saved = json.loads(run_ctx.run_dir.joinpath("setup.json").read_text())
+    saved = json.loads(run_ctx.run_dir.joinpath("0_setup.json").read_text())
     assert saved["setup"] == "Placeholder text"
 
 
 def test_prompt_step_fixed_string(run_ctx):
     result = ConstructPromptStep(
-        run_ctx, {"provider": "constant", "prompt": "a cat wearing a business suit"}, "setup"
+        run_ctx, {"provider": "constant", "prompt": "a cat wearing a business suit"}, "setup", 0
     ).execute()
 
     assert result.summary == "'a cat wearing a business suit'"
     assert run_ctx.state["setup"] == "a cat wearing a business suit"
 
-    saved = json.loads(run_ctx.run_dir.joinpath("setup.json").read_text())
+    saved = json.loads(run_ctx.run_dir.joinpath("0_setup.json").read_text())
     assert saved["setup"] == "a cat wearing a business suit"

@@ -8,11 +8,12 @@ def test_dry_run_creates_artifacts(settings):
     ctx = create_run_context(settings.env, dry_run=True)
     execute(settings, ctx)
 
-    assert ctx.run_dir.joinpath("setup.json").exists()
+    assert ctx.run_dir.joinpath("0_setup.json").exists()
+    assert ctx.run_dir.joinpath("1_image.json").exists()
     assert ctx.run_dir.joinpath("image.png").exists()
-    assert ctx.run_dir.joinpath("caption.json").exists()
+    assert ctx.run_dir.joinpath("2_caption.json").exists()
+    assert ctx.run_dir.joinpath("3_publish.json").exists()
     assert ctx.run_dir.joinpath("summary.json").exists()
-    assert ctx.run_dir.joinpath("publish.json").exists()
 
     summary = json.loads(ctx.run_dir.joinpath("summary.json").read_text())
     assert summary["dry_run"] is True
@@ -36,9 +37,9 @@ def test_force_reruns(settings):
     ctx = create_run_context(settings.env, dry_run=True)
     execute(settings, ctx)
 
-    _ = ctx.run_dir.joinpath("setup.json").read_text()
+    _ = ctx.run_dir.joinpath("0_setup.json").read_text()
 
     ctx_force = create_run_context(settings.env, dry_run=True, force=True)
     execute(settings, ctx_force)
 
-    assert ctx.run_dir.joinpath("setup.json").exists()
+    assert ctx.run_dir.joinpath("0_setup.json").exists()

@@ -11,10 +11,10 @@ def execute(settings: Settings, ctx: RunContext):
         return
 
     steps_metadata = {}
-    for name, params in settings.run.steps.items():
+    for idx, (name, params) in enumerate(settings.run.steps.items()):
         step_cls = STEPS[params.type]
         step_config = params.model_dump(exclude={"type"})
-        result = step_cls(ctx, step_config, name).execute()
+        result = step_cls(ctx, step_config, name, idx).execute()
         steps_metadata[name] = result.metadata
         print(f"{name:>12} >> {result.summary}")
 

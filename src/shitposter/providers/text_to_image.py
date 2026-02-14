@@ -5,7 +5,7 @@ from typing import Any
 
 from PIL import Image
 
-from shitposter.clients.base import ImageProvider
+from shitposter.providers.base import ImageProvider
 
 
 class RandomImageProvider(ImageProvider):

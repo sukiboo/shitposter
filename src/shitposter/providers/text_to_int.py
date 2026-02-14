@@ -2,7 +2,7 @@ import random
 
 from pydantic import BaseModel, Field
 
-from shitposter.clients.base import TextToIntProvider
+from shitposter.providers.base import TextToIntProvider
 
 
 class PlaceholderTextToIntProvider(TextToIntProvider):

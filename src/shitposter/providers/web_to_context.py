@@ -3,26 +3,17 @@ from datetime import date
 import httpx
 from bs4 import BeautifulSoup
 
-from shitposter.clients.base import ContextProvider
+from shitposter.providers.base import ContextProvider
 
 
 class CheckiDayProvider(ContextProvider):
     name = "checkiday"
 
     def __init__(self, **kwargs):
-        date_val = kwargs.get("date")
-        if date_val is None:
-            self._date = date.today()
-        elif isinstance(date_val, date):
-            self._date = date_val
-        else:
-            self._date = date.fromisoformat(str(date_val))
+        pass
 
-    def metadata(self) -> dict:
-        return {"date": self._date.isoformat(), **super().metadata()}
-
-    def generate(self) -> list[dict]:
-        url = f"https://www.checkiday.com/{self._date.strftime('%m/%d/%Y')}"
+    def generate(self, target_date: date) -> list[dict]:
+        url = f"https://www.checkiday.com/{target_date.strftime('%m/%d/%Y')}"
         resp = httpx.get(url, follow_redirects=True, timeout=15)
         resp.raise_for_status()
         return self._parse(resp.text)

@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 import pytest
 
-from shitposter.clients.text_to_image import OpenAIImageProvider, RandomImageProvider
-from shitposter.clients.text_to_text import OpenAITextProvider
+from shitposter.providers.text_to_image import OpenAIImageProvider, RandomImageProvider
+from shitposter.providers.text_to_text import OpenAITextProvider
 
 IMAGE_DEFAULTS = {"model": "gpt-image-1-mini", "width": 1024, "height": 1024, "quality": "medium"}
 CAPTION_DEFAULTS = {"model": "gpt-5-nano", "temperature": 1.0}
@@ -109,7 +109,7 @@ class TestProviderDefaults:
 
 class TestPlaceholderPublisher:
     def test_publish_returns_ok(self):
-        from shitposter.clients.publishers import PlaceholderPublisher
+        from shitposter.providers.publishers import PlaceholderPublisher
 
         publisher = PlaceholderPublisher()
         result = publisher.publish(None, "test caption")
@@ -117,7 +117,7 @@ class TestPlaceholderPublisher:
         assert result["result"]["message_id"] == 0
 
     def test_metadata(self):
-        from shitposter.clients.publishers import PlaceholderPublisher
+        from shitposter.providers.publishers import PlaceholderPublisher
 
         publisher = PlaceholderPublisher()
         assert publisher.metadata() == {"provider": "placeholder"}

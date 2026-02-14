@@ -1,11 +1,11 @@
 steps:
   holidays:
-    type: collect_context
+    type: scrape_holidays
     provider: checkiday
     date: 2026-02-11
 
   holiday:
-    type: choose_entry
+    type: choose_holiday
     provider: openai
     inputs: holidays
     template: "Pick the best holiday:"

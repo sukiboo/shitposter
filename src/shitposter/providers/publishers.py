@@ -3,7 +3,7 @@ from pathlib import PurePath
 
 import httpx
 
-from shitposter.clients.base import PublishingProvider
+from shitposter.providers.base import PublishingProvider
 
 
 class PlaceholderPublisher(PublishingProvider):

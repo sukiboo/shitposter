@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from datetime import date
 from typing import ClassVar
 
 
@@ -42,7 +43,7 @@ class ContextProvider(ProviderBase):
     _registry: ClassVar[dict[str, type["ContextProvider"]]] = {}
 
     @abstractmethod
-    def generate(self) -> list[dict]: ...
+    def generate(self, target_date: date) -> list[dict]: ...
 
 
 class TextToIntProvider(ProviderBase):

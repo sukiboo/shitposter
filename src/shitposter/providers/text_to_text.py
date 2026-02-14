@@ -1,4 +1,4 @@
-from shitposter.clients.base import TextProvider
+from shitposter.providers.base import TextProvider
 
 
 class PlaceholderTextProvider(TextProvider):
