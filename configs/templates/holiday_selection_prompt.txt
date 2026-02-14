@@ -1,14 +1,24 @@
-Below is the list of holidays.
+Select one holiday from the list of holidays provided below via the selection rules (in order):
 
-Select ONE holiday that is:
-- Recognizable to a broad audience
-- Easy to create a clear, visual joke about
-- Not the most obvious mainstream choice unless it strongly dominates the date
-- Not extremely obscure or difficult to understand
+1. Dominant-holiday rule:
+If the list contains a holiday that is the clear, mainstream, culturally dominant holiday for this date
+(i.e., most people would immediately associate this date with that holiday), select that one.
+This rule overrides all others.
 
-Prefer holidays that:
-- Have strong visual symbols
-- Allow playful or ironic interpretations
-- Work well with absurd cat humor
+2. Otherwise (no dominant holiday present):
+Select ONE holiday that best fits these criteria:
+- Broadly understandable without explanation
+- Strong visual symbols or situations (easy to imagine as an image)
+- Comedically “playable” for absurd cat content
+- Not extremely niche or awkward
+
+3. Avoid if possible:
+- Heavy/serious observances (political, tragedy, medical, awareness campaigns)
+- Holidays that are hard to visualize
+- Holidays whose name requires too much explanation to be funny
+
+Tie-breakers (only if needed):
+- Prefer holidays with concrete objects/activities (food, books, movies, rides, parties) over abstract themes.
+- Prefer mid-tier recognizable holidays over the most generic “major” ones, unless rule (1) applies.
 
 List of holidays:

@@ -2,7 +2,7 @@ Write a single, punchy caption for a social media post.
 
 Context:
 - Holiday: {holiday}
-- Image description: {image_prompt}
+- Image description: {prompt}
 
 Caption requirements:
 - Clearly relate to BOTH the holiday and the specific visual joke.
