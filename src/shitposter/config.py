@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def load_settings(steps_path: Path = Path("configs/steps.yaml")) -> Settings:
-    load_dotenv()
+    load_dotenv(override=True)
     return Settings(env=EnvSettings(), run=load_run_config(steps_path))
 
 
