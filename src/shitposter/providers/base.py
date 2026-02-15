@@ -60,6 +60,13 @@ class TextToEmojiProvider(ProviderBase):
     def generate(self, prompt: str) -> str: ...
 
 
+class TextToCaptionProvider(ProviderBase):
+    _registry: ClassVar[dict[str, type["TextToCaptionProvider"]]] = {}
+
+    @abstractmethod
+    def generate(self, prompt: str) -> str: ...
+
+
 class PublishingProvider(ProviderBase):
     _registry: ClassVar[dict[str, type["PublishingProvider"]]] = {}
 

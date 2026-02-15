@@ -4,7 +4,11 @@ from typing import Annotated
 import regex
 from pydantic import AfterValidator, BaseModel, Field
 
-from shitposter.providers.base import TextToEmojiProvider, TextToIntProvider
+from shitposter.providers.base import (
+    TextToCaptionProvider,
+    TextToEmojiProvider,
+    TextToIntProvider,
+)
 
 
 class PlaceholderTextToIntProvider(TextToIntProvider):
@@ -25,6 +29,16 @@ class PlaceholderTextToEmojiProvider(TextToEmojiProvider):
 
     def generate(self, prompt: str) -> str:
         return "\U0001f389"
+
+
+class PlaceholderTextToCaptionProvider(TextToCaptionProvider):
+    name = "placeholder"
+
+    def __init__(self, **kwargs):
+        pass
+
+    def generate(self, prompt: str) -> str:
+        return "Placeholder caption."
 
 
 class OpenAITextToIntProvider(TextToIntProvider):
@@ -58,15 +72,15 @@ class OpenAITextToIntProvider(TextToIntProvider):
     def generate(self, prompt: str, entries: list[str]) -> int:
         numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
         full_prompt = f"{prompt}\n\n{numbered}"
-        response_format = self._response_model(len(entries))
+        text_format = self._response_model(len(entries))
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.beta.chat.completions.parse(
+                response = self.client.responses.parse(
                     model=self.model,
-                    messages=[{"role": "user", "content": full_prompt}],
-                    response_format=response_format,
+                    input=full_prompt,
+                    text_format=text_format,
                 )
-                parsed = response.choices[0].message.parsed
+                parsed = response.output_parsed
                 return parsed.index - 1  # type: ignore[union-attr]
             except Exception as e:
                 self._meta["errors"].append(str(e))
@@ -118,18 +132,75 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
         )
 
     def generate(self, prompt: str) -> str:
-        response_format = self._response_model()
+        text_format = self._response_model()
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.beta.chat.completions.parse(
+                response = self.client.responses.parse(
                     model=self.model,
-                    messages=[{"role": "user", "content": prompt}],
-                    response_format=response_format,
+                    input=prompt,
+                    text_format=text_format,
                 )
-                parsed = response.choices[0].message.parsed
+                parsed = response.output_parsed
                 return "".join(parsed.emojis)  # type: ignore[union-attr]
             except Exception as e:
                 self._meta["errors"].append(str(e))
                 continue
         self._meta["errors"].append("all retries failed, fell back to placeholder")
         return "\U0001f389"
+
+
+class OpenAITextToCaptionProvider(TextToCaptionProvider):
+    name = "openai"
+    ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    MAX_RETRIES = 3
+
+    _CaptionResponse = type(
+        "CaptionResponse",
+        (BaseModel,),
+        {
+            "__annotations__": {"caption": str},
+            "caption": Field(
+                min_length=50,
+                max_length=350,
+                description=(
+                    "A concise, punchy social caption that makes the image feel "
+                    "funnier; witty, internet-native, not a literal description."
+                ),
+            ),
+        },
+    )
+
+    def __init__(self, **kwargs):
+        from openai import OpenAI
+
+        self.client = OpenAI()
+        self.model = kwargs.get("model", "gpt-5-nano")
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+            )
+
+    def metadata(self) -> dict:
+        return {"model": self.model, **super().metadata()}
+
+    def generate(self, prompt: str) -> str:
+        for _ in range(self.MAX_RETRIES):
+            try:
+                response = self.client.responses.parse(
+                    model=self.model,
+                    input=prompt,
+                    text_format=self._CaptionResponse,
+                )
+                parsed = response.output_parsed
+                return parsed.caption  # type: ignore[union-attr]
+            except Exception as e:
+                self._meta["errors"].append(str(e))
+                continue
+        self._meta["errors"].append("all retries failed, fell back to unstructured")
+        response = self.client.responses.create(
+            model=self.model,
+            input=prompt,
+        )
+        return response.output_text

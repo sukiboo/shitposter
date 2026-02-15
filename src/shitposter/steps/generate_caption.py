@@ -1,9 +1,9 @@
-from shitposter.providers.text_to_text import TextProvider
+from shitposter.providers.text_to_struct import TextToCaptionProvider
 from shitposter.steps.base import Step, StepResult
 
 
 class GenerateCaptionStep(Step):
-    registry = TextProvider._registry
+    registry = TextToCaptionProvider._registry
 
     def execute(self) -> StepResult:
         prompt = self.template.format(**self.inputs)
