@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import string
 from pathlib import Path
 
 import yaml
@@ -103,6 +104,17 @@ class RunConfig(BaseModel):
                     raise ValueError(
                         f"Step '{key}' references input '{inp}' "
                         f"which is not a previously defined step"
+                    )
+            template = step.model_extra.get("template", "") if step.model_extra else ""
+            if template:
+                placeholders = {
+                    fname for _, fname, _, _ in string.Formatter().parse(template) if fname
+                }
+                unknown = placeholders - set(step.inputs)
+                if unknown:
+                    raise ValueError(
+                        f"Step '{key}' template references {unknown} "
+                        f"but declared inputs are {step.inputs}"
                     )
             seen.add(key)
         return self
