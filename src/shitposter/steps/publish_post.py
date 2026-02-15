@@ -17,9 +17,6 @@ class PublishPostStep(Step):
 
     def execute(self) -> StepResult:
         platforms = self.config.get("platforms", [])
-        input_list = list(self.inputs.values())
-        image_path = input_list[0] if input_list else None
-        caption = input_list[1] if len(input_list) > 1 else ""
 
         results = []
         for name in platforms:
@@ -27,7 +24,7 @@ class PublishPostStep(Step):
             if self.ctx.dry_run:
                 raw: dict = {"result": {}}
             else:
-                raw = pub.publish(image_path, caption)
+                raw = pub.publish(self.inputs.get("image"), self.inputs.get("caption", ""))
             results.append(
                 {
                     "provider": name,
