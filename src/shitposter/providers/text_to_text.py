@@ -18,7 +18,7 @@ class ConstantTextProvider(TextProvider):
         self.text = kwargs.get("prompt", "")
 
     def generate(self, prompt: str) -> str:
-        return self.text
+        return self.text or prompt
 
 
 class OpenAITextProvider(TextProvider):

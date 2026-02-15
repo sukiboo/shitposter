@@ -39,7 +39,7 @@ def write_summary(ctx: RunContext, steps: dict) -> None:
         "published": ctx.publish and not ctx.dry_run,
         "steps": steps,
     }
-    ctx.run_dir.joinpath("summary.json").write_text(json.dumps(summary, indent=2))
+    ctx.run_dir.joinpath("summary.json").write_text(json.dumps(summary, indent=2, default=str))
 
 
 class RunContext(BaseModel):

@@ -1,3 +1,4 @@
+import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, ClassVar
@@ -51,6 +52,9 @@ class Step(ABC):
 
     def artifact_path(self, ext: str = "json") -> Path:
         return self.ctx.run_dir / f"{self.idx}_{self.name}.{ext}"
+
+    def write_artifact(self, data: Any) -> None:
+        self.artifact_path().write_text(json.dumps(data, indent=2, default=str))
 
     @property
     def template(self) -> str:

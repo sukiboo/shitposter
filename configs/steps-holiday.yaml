@@ -1,8 +1,12 @@
 steps:
+  date:
+    type: resolve_date
+    value: null
+
   holidays:
     type: scrape_holidays
     provider: checkiday
-    date: null
+    inputs: date
 
   holiday:
     type: choose_holiday
@@ -25,12 +29,25 @@ steps:
     inputs: prompt
     template: "{prompt}"
 
-  caption:
+  caption_header:
+    type: construct_header
+    provider: openai
+    model: gpt-5-mini
+    inputs: date, holiday
+    template: !file ./templates/holiday_emoji_prompt.txt
+
+  caption_body:
     type: generate_caption
     provider: openai
     model: gpt-5.2
     inputs: holiday, prompt
     template: !file ./templates/holiday_cat_caption_prompt.txt
+
+  caption:
+    type: construct_prompt
+    provider: constant
+    inputs: caption_header, caption_body
+    template: "{caption_header}\n{caption_body}"
 
   publish:
     type: publish_post

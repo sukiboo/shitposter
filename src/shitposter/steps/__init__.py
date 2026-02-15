@@ -5,11 +5,13 @@ from shitposter.steps.construct_prompt import ConstructPromptStep
 from shitposter.steps.generate_caption import GenerateCaptionStep
 from shitposter.steps.generate_image import GenerateImageStep
 from shitposter.steps.publish_post import PublishPostStep
+from shitposter.steps.resolve_date import ResolveDateStep
 from shitposter.steps.scrape_holidays import ScrapeHolidaysStep
 
 STEPS: dict[str, type[Step]] = {
     "choose_holiday": ChooseHolidayStep,
     "construct_header": ConstructHeaderStep,
+    "resolve_date": ResolveDateStep,
     "scrape_holidays": ScrapeHolidaysStep,
     "construct_prompt": ConstructPromptStep,
     "generate_image": GenerateImageStep,

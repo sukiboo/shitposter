@@ -83,9 +83,9 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
     MAX_COUNT = 3
     _EMOJI_RE = regex.compile(r"^\p{Extended_Pictographic}+$")
 
-    @classmethod
-    def _check_emoji(cls, v: str) -> str:
-        if not cls._EMOJI_RE.match(v):
+    @staticmethod
+    def _check_emoji(v: str) -> str:
+        if not OpenAITextToEmojiProvider._EMOJI_RE.match(v):
             raise ValueError(f"Not an emoji: {v!r}")
         return v
 

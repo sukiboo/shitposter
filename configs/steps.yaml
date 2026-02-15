@@ -1,29 +1,57 @@
 steps:
   date:
-    type: construct_prompt
-    provider: constant
-    prompt: "2026-02-15"
+    type: resolve_date
+    value: null
 
-  # holidays:
-  #   type: scrape_holidays
-  #   provider: checkiday
-  #   date: 2026-02-15
+  holidays:
+    type: scrape_holidays
+    provider: checkiday
+    inputs: date
 
   holiday:
+    type: choose_holiday
+    provider: openai
+    model: gpt-5-nano
+    inputs: holidays
+    template: !file ./templates/holiday_selection_prompt.txt
+
+  prompt:
     type: construct_prompt
-    provider: constant
-    prompt: "National Hippo Day"
+    provider: openai
+    model: gpt-5-mini
+    inputs: holiday
+    template: !file ./templates/holiday_cat_image_prompt.txt
+
+  image:
+    type: generate_image
+    provider: openai
+    model: gpt-image-1.5
+    inputs: prompt
+    template: "{prompt}"
 
   caption_header:
     type: construct_header
-    provider: placeholder
+    provider: openai
+    model: gpt-5-mini
     inputs: date, holiday
     template: !file ./templates/holiday_emoji_prompt.txt
 
+  caption_body:
+    type: generate_caption
+    provider: openai
+    model: gpt-5.2
+    inputs: holiday, prompt
+    template: !file ./templates/holiday_cat_caption_prompt.txt
 
-  # caption_body:
-  #   type: generate_caption
-  #   provider: openai
-  #   model: gpt-5.2
-  #   inputs: holiday, prompt
-  #   template: !file ./templates/holiday_cat_caption_prompt.txt
+  caption:
+    type: construct_prompt
+    provider: constant
+    inputs: caption_header, caption_body
+    template: "{caption_header}\n{caption_body}"
+
+  publish:
+    type: publish_post
+    inputs: image, caption
+    platforms:
+      - telegram
+      - twitter

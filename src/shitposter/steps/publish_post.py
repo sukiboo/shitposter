@@ -1,5 +1,3 @@
-import json
-
 from shitposter.providers.publishers import PublishingProvider, TelegramPublisher
 from shitposter.steps.base import Step, StepResult
 
@@ -57,6 +55,6 @@ class PublishPostStep(Step):
         else:
             summary = f"published to {', '.join(providers)}"
         metadata = [{"provider": r["provider"], "message_id": r["message_id"]} for r in results]
-        self.artifact_path().write_text(json.dumps(results, indent=2))
+        self.write_artifact(results)
 
         return StepResult(metadata=metadata, summary=summary)

@@ -1,5 +1,3 @@
-import json
-
 from shitposter.providers.text_to_image import ImageProvider
 from shitposter.steps.base import Step, StepResult
 
@@ -17,6 +15,6 @@ class GenerateImageStep(Step):
 
         metadata = {**self.provider.metadata(), **self.inputs, "prompt": prompt}
         artifact = {**metadata, self.name: self.output}
-        self.artifact_path().write_text(json.dumps(artifact, indent=2))
+        self.write_artifact(artifact)
 
         return StepResult(metadata=metadata, summary=f"{self.output}")

@@ -1,3 +1,4 @@
+from datetime import date
 from unittest.mock import patch
 
 from shitposter.providers.web_to_context import CheckiDayProvider
@@ -51,9 +52,11 @@ def test_format_empty():
 
 def test_step_sets_state(run_ctx):
     holidays = [{"name": "Test Day", "url": None, "description": "A test"}]
+    run_ctx.state["date"] = date(2026, 1, 15)
 
     with patch.object(CheckiDayProvider, "generate", side_effect=lambda target_date: holidays):
-        result = ScrapeHolidaysStep(run_ctx, {"provider": "checkiday"}, "context", 0).execute()
+        config = {"provider": "checkiday", "inputs": ["date"]}
+        result = ScrapeHolidaysStep(run_ctx, config, "context", 0).execute()
 
     assert run_ctx.state["context"] == ["Test Day"]
     assert run_ctx.run_dir.joinpath("0_context.json").exists()

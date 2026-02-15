@@ -1,5 +1,3 @@
-import json
-
 from shitposter.providers.text_to_struct import TextToIntProvider
 from shitposter.steps.base import Step, StepResult
 
@@ -21,6 +19,6 @@ class ChooseHolidayStep(Step):
             "prompt": prompt,
             "index": index,
         }
-        self.artifact_path().write_text(json.dumps(artifact, indent=2))
+        self.write_artifact(artifact)
 
         return StepResult(metadata=metadata, summary=f"chose #{index}: '{self.output}'")
