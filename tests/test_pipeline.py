@@ -25,21 +25,11 @@ def test_dry_run_creates_artifacts(settings):
     assert "publish" in steps
 
 
-def test_idempotency_skips_published(settings):
+def test_rerun_overwrites(settings):
     ctx = create_run_context(settings.env, dry_run=True)
     execute(settings, ctx)
 
-    # First run creates summary.json, so second run should skip
+    # Second run on same context overwrites artifacts
     execute(settings, ctx)
 
-
-def test_force_reruns(settings):
-    ctx = create_run_context(settings.env, dry_run=True)
-    execute(settings, ctx)
-
-    _ = ctx.run_dir.joinpath("0_setup.json").read_text()
-
-    ctx_force = create_run_context(settings.env, dry_run=True, force=True)
-    execute(settings, ctx_force)
-
-    assert ctx.run_dir.joinpath("0_setup.json").exists()
+    assert ctx.run_dir.joinpath("summary.json").exists()

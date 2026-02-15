@@ -2,7 +2,7 @@ import os
 from pathlib import PurePath
 
 import httpx
-import tweepy
+import tweepy  # type: ignore[import-untyped]
 
 from shitposter.providers.base import PublishingProvider
 
@@ -22,11 +22,11 @@ class PlaceholderPublisher(PublishingProvider):
 
 class TelegramPublisher(PublishingProvider):
     name = "telegram"
+    env_prefix = "TELEGRAM_CHANNEL"
 
-    def __init__(self, *, debug: bool = False, **kwargs):
-        prefix = "TELEGRAM_DEBUG" if debug else "TELEGRAM_CHANNEL"
-        self.bot_token = os.environ[f"{prefix}_BOT_TOKEN"]
-        self.chat_id = os.environ[f"{prefix}_CHAT_ID"]
+    def __init__(self, **kwargs):
+        self.bot_token = os.environ[f"{self.env_prefix}_BOT_TOKEN"]
+        self.chat_id = os.environ[f"{self.env_prefix}_CHAT_ID"]
         self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
 
     def metadata(self) -> dict:
@@ -57,6 +57,11 @@ class TelegramPublisher(PublishingProvider):
         return resp.json()
 
 
+class TelegramDebugPublisher(TelegramPublisher):
+    name = "debug"
+    env_prefix = "TELEGRAM_DEBUG"
+
+
 class TwitterPublisher(PublishingProvider):
     name = "twitter"
 
@@ -79,7 +84,7 @@ class TwitterPublisher(PublishingProvider):
             access_token_secret=access_token_secret,
         )
         me = self._client.get_me()
-        self._username: str = me.data.username if me.data else "unknown"  # type: ignore[union-attr]
+        self._username: str = me.data.username if me.data else "unknown"  # type: ignore
 
     def metadata(self) -> dict:
         return {"username": self._username, **super().metadata()}

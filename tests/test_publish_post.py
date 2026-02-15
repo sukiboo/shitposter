@@ -5,7 +5,6 @@ from shitposter.steps.publish_post import PublishPostStep
 
 def test_dry_run_skips_publish(run_ctx):
     run_ctx.dry_run = True
-    run_ctx.publish = True
     run_ctx.state["image"] = "/tmp/test.png"
     run_ctx.state["caption"] = "test caption"
 
@@ -22,7 +21,6 @@ def test_dry_run_skips_publish(run_ctx):
 
 
 def test_placeholder_publish(run_ctx):
-    run_ctx.publish = True
     run_ctx.state["image"] = "/tmp/test.png"
     run_ctx.state["caption"] = "test caption"
 
