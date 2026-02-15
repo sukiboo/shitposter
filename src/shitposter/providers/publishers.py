@@ -90,4 +90,4 @@ class TwitterPublisher(PublishingProvider):
             media = self._api.media_upload(image_path)
             media_ids = [media.media_id]
         response = self._client.create_tweet(text=caption or "", media_ids=media_ids)
-        return {"ok": True, "result": {"message_id": response.data["id"]}}  # type: ignore[union-attr]
+        return {"ok": True, "result": {"message_id": response.data["id"]}}  # type: ignore

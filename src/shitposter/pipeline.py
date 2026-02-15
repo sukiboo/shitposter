@@ -16,7 +16,7 @@ def execute(settings: Settings, ctx: RunContext):
         step_config = params.model_dump(exclude={"type"})
         result = step_cls(ctx, step_config, name, idx).execute()
         steps_metadata[name] = result.metadata
-        print(f"{name:>12} >> {result.summary}")
+        print(f"{name:>16} >> {result.summary}")
 
     write_summary(ctx, steps_metadata)
     print(f"Run summary saved to `{ctx.run_dir}`")

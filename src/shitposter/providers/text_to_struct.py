@@ -1,0 +1,135 @@
+import random
+from typing import Annotated
+
+import regex
+from pydantic import AfterValidator, BaseModel, Field
+
+from shitposter.providers.base import TextToEmojiProvider, TextToIntProvider
+
+
+class PlaceholderTextToIntProvider(TextToIntProvider):
+    name = "placeholder"
+
+    def __init__(self, **kwargs):
+        pass
+
+    def generate(self, prompt: str, entries: list[str]) -> int:
+        return 0
+
+
+class PlaceholderTextToEmojiProvider(TextToEmojiProvider):
+    name = "placeholder"
+
+    def __init__(self, **kwargs):
+        pass
+
+    def generate(self, prompt: str) -> str:
+        return "\U0001f389"
+
+
+class OpenAITextToIntProvider(TextToIntProvider):
+    name = "openai"
+    ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    MAX_RETRIES = 3
+
+    def __init__(self, **kwargs):
+        from openai import OpenAI
+
+        self.client = OpenAI()
+        self.model = kwargs.get("model", "gpt-5-nano")
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+            )
+
+    def metadata(self) -> dict:
+        return {"model": self.model, **super().metadata()}
+
+    @staticmethod
+    def _response_model(n: int) -> type[BaseModel]:
+        return type(
+            "ChosenIndex",
+            (BaseModel,),
+            {"__annotations__": {"index": int}, "index": Field(ge=1, le=n)},
+        )
+
+    def generate(self, prompt: str, entries: list[str]) -> int:
+        numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
+        full_prompt = f"{prompt}\n\n{numbered}"
+        response_format = self._response_model(len(entries))
+        for _ in range(self.MAX_RETRIES):
+            try:
+                response = self.client.beta.chat.completions.parse(
+                    model=self.model,
+                    messages=[{"role": "user", "content": full_prompt}],
+                    response_format=response_format,
+                )
+                parsed = response.choices[0].message.parsed
+                return parsed.index - 1  # type: ignore[union-attr]
+            except Exception as e:
+                self._meta["errors"].append(str(e))
+                continue
+        self._meta["errors"].append("all retries failed, fell back to random")
+        return random.randint(0, len(entries) - 1)
+
+
+class OpenAITextToEmojiProvider(TextToEmojiProvider):
+    name = "openai"
+    ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    MAX_RETRIES = 3
+    MIN_COUNT = 1
+    MAX_COUNT = 3
+    _EMOJI_RE = regex.compile(r"^\p{Extended_Pictographic}+$")
+
+    @classmethod
+    def _check_emoji(cls, v: str) -> str:
+        if not cls._EMOJI_RE.match(v):
+            raise ValueError(f"Not an emoji: {v!r}")
+        return v
+
+    _Emoji = Annotated[str, AfterValidator(_check_emoji)]
+
+    def __init__(self, **kwargs):
+        from openai import OpenAI
+
+        self.client = OpenAI()
+        self.model = kwargs.get("model", "gpt-5-nano")
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+            )
+
+    def metadata(self) -> dict:
+        return {"model": self.model, **super().metadata()}
+
+    def _response_model(self) -> type[BaseModel]:
+        emoji_type = self._Emoji
+        return type(
+            "EmojiList",
+            (BaseModel,),
+            {
+                "__annotations__": {"emojis": list[emoji_type]},  # type: ignore[valid-type]
+                "emojis": Field(min_length=self.MIN_COUNT, max_length=self.MAX_COUNT),
+            },
+        )
+
+    def generate(self, prompt: str) -> str:
+        response_format = self._response_model()
+        for _ in range(self.MAX_RETRIES):
+            try:
+                response = self.client.beta.chat.completions.parse(
+                    model=self.model,
+                    messages=[{"role": "user", "content": prompt}],
+                    response_format=response_format,
+                )
+                parsed = response.choices[0].message.parsed
+                return "".join(parsed.emojis)  # type: ignore[union-attr]
+            except Exception as e:
+                self._meta["errors"].append(str(e))
+                continue
+        self._meta["errors"].append("all retries failed, fell back to placeholder")
+        return "\U0001f389"

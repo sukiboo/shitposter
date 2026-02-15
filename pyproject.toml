@@ -17,6 +17,7 @@ dependencies = [
     "openai>=1.0",
     "beautifulsoup4>=4.12",
     "tweepy>=4.14",
+    "regex>=2026.1.15",
 ]
 
 [project.scripts]

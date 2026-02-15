@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from shitposter.providers.text_to_int import (
+from shitposter.providers.text_to_struct import (
     OpenAITextToIntProvider,
     PlaceholderTextToIntProvider,
 )

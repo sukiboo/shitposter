@@ -1,0 +1,11 @@
+Choose 1–3 emojis that best represent the holiday: {holiday}.
+
+Guidelines:
+- Prefer concrete, literal symbols tied to the holiday name (animals/objects/activities).
+- If the holiday implies a specific setting or tradition, reflect that (e.g., books for reading/library, film for movie day).
+- Use at most ONE generic celebration emoji (🎉✨🎊) and only if it genuinely fits.
+- Avoid emojis that imply heavy/serious topics (medical, tragedy) unless the holiday explicitly requires it.
+- If the holiday is ambiguous, choose broadly understandable symbols rather than niche references.
+If multiple emoji sets are plausible, choose the one that feels most distinctive and meme-friendly.
+
+Return a short set of 1–3 emojis.
