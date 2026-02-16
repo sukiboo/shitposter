@@ -46,8 +46,7 @@ class OpenAIImageProvider(ImageProvider):
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
-                f"Unsupported model '{self.model}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
             )
         if (self.width, self.height) not in self.ALLOWED_SIZES:
             raise ValueError(

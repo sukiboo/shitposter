@@ -24,7 +24,7 @@ class PublishPostStep(Step):
             if self.ctx.dry_run:
                 raw: dict = {"result": {}}
             else:
-                raw = pub.publish(self.inputs.get("image"), self.inputs.get("caption", ""))
+                raw = pub.safe_publish(self.inputs.get("image"), self.inputs.get("caption", ""))
             results.append(
                 {
                     "provider": name,
@@ -39,6 +39,7 @@ class PublishPostStep(Step):
         else:
             summary = f"published to {', '.join(providers)}"
         metadata = [{"provider": r["provider"], "message_id": r["message_id"]} for r in results]
-        self.write_artifact(results)
+        artifact = {**self.inputs, "result": results}
+        self.write_artifact(artifact)
 
         return StepResult(metadata=metadata, summary=summary)

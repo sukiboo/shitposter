@@ -56,13 +56,12 @@ class OpenAITextToIntProvider(TextToIntProvider):
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
-                f"Unsupported model '{self.model}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
             )
         if self.effort not in self.ALLOWED_EFFORTS:
             raise ValueError(
                 f"Unsupported effort '{self.effort}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+                f"Allowed: {', '.join(self.ALLOWED_EFFORTS)}"
             )
 
     def metadata(self) -> dict:
@@ -123,13 +122,12 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
-                f"Unsupported model '{self.model}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
             )
         if self.effort not in self.ALLOWED_EFFORTS:
             raise ValueError(
                 f"Unsupported effort '{self.effort}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+                f"Allowed: {', '.join(self.ALLOWED_EFFORTS)}"
             )
 
     def metadata(self) -> dict:
@@ -196,13 +194,12 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
-                f"Unsupported model '{self.model}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
             )
         if self.effort not in self.ALLOWED_EFFORTS:
             raise ValueError(
                 f"Unsupported effort '{self.effort}'. "
-                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+                f"Allowed: {', '.join(self.ALLOWED_EFFORTS)}"
             )
 
     def metadata(self) -> dict:

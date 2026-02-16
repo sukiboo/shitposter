@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from datetime import date
@@ -72,3 +73,13 @@ class PublishingProvider(ProviderBase):
 
     @abstractmethod
     def publish(self, image_path: str | None, caption: str | None) -> dict: ...
+
+    def safe_publish(self, image_path: str | None, caption: str | None, retries: int = 5) -> dict:
+        for attempt in range(1, retries + 1):
+            try:
+                return self.publish(image_path, caption)
+            except Exception as e:
+                self._meta["errors"].append(f"attempt {attempt}: {e}")
+                if attempt < retries:
+                    time.sleep(2**attempt)
+        return {"ok": False, "result": {"message_id": -1}}
