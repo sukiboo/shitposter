@@ -21,6 +21,8 @@ class PlaceholderPublisher(PublishingProvider):
 
 
 class TelegramPublisher(PublishingProvider):
+    """Sends image + caption to a Telegram channel via the Bot API."""
+
     name = "telegram"
     env_prefix = "TELEGRAM_CHANNEL"
 
@@ -63,6 +65,8 @@ class TelegramDebugPublisher(TelegramPublisher):
 
 
 class TwitterPublisher(PublishingProvider):
+    """Posts image + caption to Twitter/X via the v2 API (tweepy)."""
+
     name = "twitter"
 
     def __init__(self, **kwargs):

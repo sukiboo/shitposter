@@ -31,6 +31,8 @@ class RandomImageProvider(ImageProvider):
 
 
 class OpenAIImageProvider(ImageProvider):
+    """Image generation via OpenAI images API. Returns raw PNG bytes."""
+
     name = "openai"
     ALLOWED_MODELS = {"gpt-image-1-mini", "gpt-image-1", "gpt-image-1.5"}
     ALLOWED_SIZES = {(1024, 1024), (1536, 1024), (1024, 1536)}

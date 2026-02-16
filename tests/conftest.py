@@ -20,14 +20,14 @@ def settings(tmp_path):
         run=RunConfig.model_validate(
             {
                 "steps": {
-                    "setup": {"type": "construct_prompt", "provider": "placeholder"},
+                    "setup": {"type": "generate_text", "provider": "placeholder"},
                     "image": {
                         "type": "generate_image",
                         "provider": "placeholder",
                         "inputs": ["setup"],
                     },
                     "caption": {
-                        "type": "generate_caption",
+                        "type": "generate_text",
                         "provider": "placeholder",
                         "inputs": ["setup"],
                     },

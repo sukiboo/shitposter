@@ -17,6 +17,8 @@ class PlaceholderTextToEmojiProvider(TextToEmojiProvider):
 
 
 class OpenAITextToEmojiProvider(TextToEmojiProvider):
+    """Generates 1-3 emoji via structured output, validated with a Unicode regex."""
+
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
     ALLOWED_EFFORTS = {"none", "low", "medium", "high"}

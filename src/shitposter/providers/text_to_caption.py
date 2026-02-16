@@ -14,6 +14,8 @@ class PlaceholderTextToCaptionProvider(TextToCaptionProvider):
 
 
 class OpenAITextToCaptionProvider(TextToCaptionProvider):
+    """Caption generation via structured output, enforcing 50-350 character length."""
+
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
     ALLOWED_EFFORTS = {"none", "low", "medium", "high"}

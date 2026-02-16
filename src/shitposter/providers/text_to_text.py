@@ -12,6 +12,8 @@ class PlaceholderTextProvider(TextProvider):
 
 
 class ConstantTextProvider(TextProvider):
+    """Returns a fixed string from the `prompt` config key, ignoring the template."""
+
     name = "constant"
 
     def __init__(self, **kwargs):
@@ -22,6 +24,8 @@ class ConstantTextProvider(TextProvider):
 
 
 class OpenAITextProvider(TextProvider):
+    """Free-form text generation via OpenAI responses API."""
+
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
     ALLOWED_EFFORTS = {"none", "low", "medium", "high"}

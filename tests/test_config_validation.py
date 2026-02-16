@@ -10,7 +10,7 @@ def _make_config(steps: dict) -> RunConfig:
 def test_valid_template_with_matching_inputs():
     _make_config(
         {
-            "setup": {"type": "construct_prompt", "provider": "placeholder"},
+            "setup": {"type": "generate_text", "provider": "placeholder"},
             "image": {
                 "type": "generate_image",
                 "provider": "placeholder",
@@ -25,7 +25,7 @@ def test_template_placeholder_not_in_inputs():
     with pytest.raises(Exception, match="template references.*{'typo'}"):
         _make_config(
             {
-                "setup": {"type": "construct_prompt", "provider": "placeholder"},
+                "setup": {"type": "generate_text", "provider": "placeholder"},
                 "image": {
                     "type": "generate_image",
                     "provider": "placeholder",
@@ -39,7 +39,7 @@ def test_template_placeholder_not_in_inputs():
 def test_inputs_without_template_passes():
     _make_config(
         {
-            "setup": {"type": "construct_prompt", "provider": "placeholder"},
+            "setup": {"type": "generate_text", "provider": "placeholder"},
             "image": {
                 "type": "generate_image",
                 "provider": "placeholder",
@@ -52,9 +52,9 @@ def test_inputs_without_template_passes():
 def test_unused_input_in_template_passes():
     _make_config(
         {
-            "setup": {"type": "construct_prompt", "provider": "placeholder"},
+            "setup": {"type": "generate_text", "provider": "placeholder"},
             "caption": {
-                "type": "generate_caption",
+                "type": "generate_text",
                 "provider": "placeholder",
                 "inputs": ["setup"],
                 "template": "A caption",

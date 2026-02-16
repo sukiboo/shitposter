@@ -4,6 +4,8 @@ from shitposter.providers.base import DateProvider as DateProviderBase
 
 
 class DateProvider(DateProviderBase):
+    """Resolves the target date for a pipeline run (today or a fixed override via `value`)."""
+
     name = "date"
 
     def __init__(self, **kwargs):

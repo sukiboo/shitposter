@@ -7,6 +7,8 @@ from shitposter.providers.base import ContextProvider
 
 
 class CheckiDayProvider(ContextProvider):
+    """Scrapes holiday listings from checkiday.com for a given date."""
+
     name = "checkiday"
 
     def __init__(self, **kwargs):

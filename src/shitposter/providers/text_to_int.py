@@ -16,7 +16,10 @@ class PlaceholderTextToIntProvider(TextToIntProvider):
 
 
 class OpenAITextToIntProvider(TextToIntProvider):
+    """Picks one entry from a numbered list via structured output (returns an int index)."""
+
     name = "openai"
+    default_prompt = "Pick one of the following entries:"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
     ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
     MAX_RETRIES = 3
@@ -51,7 +54,7 @@ class OpenAITextToIntProvider(TextToIntProvider):
 
     def generate(self, prompt: str, entries: list[str]) -> int:
         numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
-        full_prompt = f"{prompt}\n\n{numbered}"
+        full_prompt = f"{prompt or self.default_prompt}\n\n{numbered}"
         text_format = self._response_model(len(entries))
         for _ in range(self.MAX_RETRIES):
             try:

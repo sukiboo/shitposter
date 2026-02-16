@@ -1,10 +1,10 @@
 import json
 
-from shitposter.steps.generate_text import GenerateTextStep as ConstructPromptStep
+from shitposter.steps.generate_text import GenerateTextStep
 
 
 def test_prompt_step_passes_through(run_ctx):
-    result = ConstructPromptStep(run_ctx, {"provider": "placeholder"}, "setup", 0).execute()
+    result = GenerateTextStep(run_ctx, {"provider": "placeholder"}, "setup", 0).execute()
 
     assert result.summary == "'Placeholder text'"
     assert run_ctx.state["setup"] == "Placeholder text"
@@ -14,7 +14,7 @@ def test_prompt_step_passes_through(run_ctx):
 
 
 def test_prompt_step_fixed_string(run_ctx):
-    result = ConstructPromptStep(
+    result = GenerateTextStep(
         run_ctx, {"provider": "constant", "prompt": "a cat wearing a business suit"}, "setup", 0
     ).execute()
 

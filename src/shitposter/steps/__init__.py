@@ -12,8 +12,8 @@ STEPS: dict[str, type[Step]] = {
     "construct_header": ConstructHeaderStep,
     "resolve_date": ResolveDateStep,
     "scrape_holidays": ScrapeHolidaysStep,
-    "generate_image": GenerateImageStep,
-    "generate_caption": GenerateCaptionStep,
     "generate_text": GenerateTextStep,
+    "generate_caption": GenerateCaptionStep,
+    "generate_image": GenerateImageStep,
     "publish_post": PublishPostStep,
 }

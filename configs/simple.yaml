@@ -11,7 +11,7 @@ steps:
     template: "Generate an image of {prompt}."
 
   caption:
-    type: generate_text
+    type: generate_caption
     provider: openai
     inputs: prompt
     template: "Generate a funny caption (use emoji!) for an image of {prompt}."

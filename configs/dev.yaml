@@ -39,7 +39,7 @@ steps:
     template: !file ./templates/holiday_emoji_prompt.txt
 
   caption_body:
-    type: generate_text
+    type: generate_caption
     provider: openai
     model: gpt-5.2
     effort: high
