@@ -28,15 +28,15 @@ def test_step_sets_state(run_ctx):
 
     with (
         patch(
-            "shitposter.providers.text_to_struct.OpenAITextToIntProvider.__init__",
+            "shitposter.providers.text_to_int.OpenAITextToIntProvider.__init__",
             return_value=None,
         ),
         patch(
-            "shitposter.providers.text_to_struct.OpenAITextToIntProvider.generate",
+            "shitposter.providers.text_to_int.OpenAITextToIntProvider.generate",
             return_value=2,
         ),
         patch(
-            "shitposter.providers.text_to_struct.OpenAITextToIntProvider.metadata",
+            "shitposter.providers.text_to_int.OpenAITextToIntProvider.metadata",
             return_value={"provider": "openai", "model": "gpt-5-nano"},
         ),
     ):

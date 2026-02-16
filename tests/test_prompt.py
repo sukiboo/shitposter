@@ -1,6 +1,6 @@
 import json
 
-from shitposter.steps.construct_prompt import ConstructPromptStep
+from shitposter.steps.generate_text import GenerateTextStep as ConstructPromptStep
 
 
 def test_prompt_step_passes_through(run_ctx):

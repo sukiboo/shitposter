@@ -1,4 +1,4 @@
-from shitposter.providers.text_to_struct import TextToIntProvider
+from shitposter.providers.text_to_int import TextToIntProvider
 from shitposter.steps.base import Step, StepResult
 
 

@@ -11,12 +11,12 @@ steps:
   holiday:
     type: choose_holiday
     provider: openai
-    model: gpt-5-nano
+    model: gpt-5-mini
     inputs: holiday_list
     template: !file ./templates/holiday_selection_prompt.txt
 
   prompt:
-    type: construct_prompt
+    type: generate_text
     provider: openai
     model: gpt-5-mini
     effort: high
@@ -38,7 +38,7 @@ steps:
     template: !file ./templates/holiday_emoji_prompt.txt
 
   caption_body:
-    type: generate_caption
+    type: generate_text
     provider: openai
     model: gpt-5.2
     effort: high
@@ -46,7 +46,7 @@ steps:
     template: !file ./templates/holiday_cat_caption_prompt.txt
 
   caption:
-    type: construct_prompt
+    type: generate_text
     provider: constant
     inputs: caption_header, caption_body
     template: "{caption_header}\n{caption_body}"

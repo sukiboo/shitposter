@@ -1,4 +1,4 @@
-from shitposter.providers.text_to_struct import TextToEmojiProvider
+from shitposter.providers.text_to_emoji import TextToEmojiProvider
 from shitposter.steps.base import Step, StepResult
 
 

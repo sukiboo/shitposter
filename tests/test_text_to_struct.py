@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 import pytest
 
-from shitposter.providers.text_to_struct import (
-    OpenAITextToEmojiProvider,
+from shitposter.providers.text_to_emoji import OpenAITextToEmojiProvider
+from shitposter.providers.text_to_int import (
     OpenAITextToIntProvider,
     PlaceholderTextToIntProvider,
 )

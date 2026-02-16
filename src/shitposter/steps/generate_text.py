@@ -1,8 +1,9 @@
+from shitposter.providers.text_to_caption import TextToCaptionProvider
 from shitposter.providers.text_to_text import TextProvider
 from shitposter.steps.base import Step, StepResult
 
 
-class ConstructPromptStep(Step):
+class GenerateTextStep(Step):
     registry = TextProvider._registry
 
     def execute(self) -> StepResult:
@@ -13,3 +14,7 @@ class ConstructPromptStep(Step):
         self.write_artifact(artifact)
 
         return StepResult(metadata=self.metadata, summary=f"{self.output!r}")
+
+
+class GenerateCaptionStep(GenerateTextStep):
+    registry = TextToCaptionProvider._registry  # type: ignore[assignment]
