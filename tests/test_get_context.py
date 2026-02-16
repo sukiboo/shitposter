@@ -60,4 +60,4 @@ def test_step_sets_state(run_ctx):
 
     assert run_ctx.state["context"] == ["Test Day"]
     assert run_ctx.run_dir.joinpath("0_context.json").exists()
-    assert result.metadata["provider"] == "checkiday"
+    assert result.metadata["params"]["provider"] == "checkiday"

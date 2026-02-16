@@ -16,8 +16,8 @@ def test_dry_run_skips_publish(run_ctx):
     assert run_ctx.run_dir.joinpath("3_publish.json").exists()
 
     artifact = json.loads(run_ctx.run_dir.joinpath("3_publish.json").read_text())
-    assert artifact[0]["provider"] == "placeholder"
-    assert artifact[0]["message_id"] == ""
+    assert artifact["result"][0]["provider"] == "placeholder"
+    assert artifact["result"][0]["message_id"] == ""
 
 
 def test_placeholder_publish(run_ctx):
@@ -32,5 +32,5 @@ def test_placeholder_publish(run_ctx):
     assert run_ctx.run_dir.joinpath("3_publish.json").exists()
 
     artifact = json.loads(run_ctx.run_dir.joinpath("3_publish.json").read_text())
-    assert artifact[0]["provider"] == "placeholder"
-    assert artifact[0]["message_id"] == "0"
+    assert artifact["result"][0]["provider"] == "placeholder"
+    assert artifact["result"][0]["message_id"] == "0"

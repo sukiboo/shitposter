@@ -103,7 +103,9 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
     MAX_RETRIES = 3
     MIN_COUNT = 1
     MAX_COUNT = 3
-    _EMOJI_RE = regex.compile(r"^\p{Extended_Pictographic}+$")
+    _EMOJI_RE = regex.compile(
+        r"^[\p{Extended_Pictographic}\p{Emoji_Component}\u200d\ufe0f\ufe0e]+$"
+    )
 
     @staticmethod
     def _check_emoji(v: str) -> str:

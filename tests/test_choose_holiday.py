@@ -17,7 +17,7 @@ def test_placeholder_picks_first(run_ctx):
     assert run_ctx.state["holiday"] == "National Pizza Day"
 
     artifact = json.loads(run_ctx.run_dir.joinpath("1_holiday.json").read_text())
-    assert artifact["holiday"] == "National Pizza Day"
+    assert artifact["output"] == "National Pizza Day"
     assert artifact["index"] == 0
     assert result.summary == "chose #0: 'National Pizza Day'"
 

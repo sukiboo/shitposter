@@ -10,7 +10,7 @@ def test_prompt_step_passes_through(run_ctx):
     assert run_ctx.state["setup"] == "Placeholder text"
 
     saved = json.loads(run_ctx.run_dir.joinpath("0_setup.json").read_text())
-    assert saved["setup"] == "Placeholder text"
+    assert saved["output"] == "Placeholder text"
 
 
 def test_prompt_step_fixed_string(run_ctx):
@@ -22,4 +22,4 @@ def test_prompt_step_fixed_string(run_ctx):
     assert run_ctx.state["setup"] == "a cat wearing a business suit"
 
     saved = json.loads(run_ctx.run_dir.joinpath("0_setup.json").read_text())
-    assert saved["setup"] == "a cat wearing a business suit"
+    assert saved["output"] == "a cat wearing a business suit"
