@@ -18,9 +18,7 @@ Style constraints:
 - No hashtags, no quotes.
 
 Avoid:
-- Starting with the holiday name or “my cat.”
+- Starting with “apparently” or “my cat.”
 - Explaining the joke.
 - Obvious puns or filler phrases.
-
-Output:
-- Return ONLY the caption text.
+- Mentioning the holiday by name.

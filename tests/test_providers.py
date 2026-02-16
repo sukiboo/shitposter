@@ -74,18 +74,18 @@ class TestCaptionModelValidation:
             OpenAITextProvider(**{**CAPTION_DEFAULTS, "model": model})
 
 
-class TestCaptionTemperature:
-    def test_default_temperature(self):
+class TestCaptionEffort:
+    def test_default_effort(self):
         provider = OpenAITextProvider(**CAPTION_DEFAULTS)
-        assert provider.temperature == 1.0
+        assert provider.effort == "medium"
 
-    def test_custom_temperature(self):
-        provider = OpenAITextProvider(**{**CAPTION_DEFAULTS, "temperature": 0.5})
-        assert provider.temperature == 0.5
+    def test_custom_effort(self):
+        provider = OpenAITextProvider(**{**CAPTION_DEFAULTS, "effort": "low"})
+        assert provider.effort == "low"
 
-    def test_zero_temperature(self):
-        provider = OpenAITextProvider(**{**CAPTION_DEFAULTS, "temperature": 0.0})
-        assert provider.temperature == 0.0
+    def test_none_effort(self):
+        provider = OpenAITextProvider(**{**CAPTION_DEFAULTS, "effort": "none"})
+        assert provider.effort == "none"
 
 
 class TestProviderDefaults:
@@ -99,7 +99,7 @@ class TestProviderDefaults:
     def test_openai_caption_defaults_without_kwargs(self):
         provider = OpenAITextProvider()
         assert provider.model == "gpt-5-nano"
-        assert provider.temperature == 1.0
+        assert provider.effort == "medium"
 
     def test_random_image_default_size(self):
         provider = RandomImageProvider()

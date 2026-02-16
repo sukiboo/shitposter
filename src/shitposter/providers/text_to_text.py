@@ -24,30 +24,33 @@ class ConstantTextProvider(TextProvider):
 class OpenAITextProvider(TextProvider):
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
 
     def __init__(self, **kwargs):
         from openai import OpenAI
 
         self.client = OpenAI()
         self.model = kwargs.get("model", "gpt-5-nano")
-        temp = kwargs.get("temperature")
-        self.temperature = temp if temp is not None else 1.0
+        self.effort = kwargs.get("effort", "medium")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
                 f"Unsupported model '{self.model}'. "
                 f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
             )
+        if self.effort not in self.ALLOWED_EFFORTS:
+            raise ValueError(
+                f"Unsupported effort '{self.effort}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+            )
 
     def metadata(self) -> dict:
-        return {"model": self.model, "temperature": self.temperature, **super().metadata()}
+        return {"model": self.model, "effort": self.effort, **super().metadata()}
 
     def generate(self, prompt: str) -> str:
-        response = self.client.chat.completions.create(
+        response = self.client.responses.create(
             model=self.model,
-            messages=[
-                {"role": "user", "content": prompt},
-            ],
-            temperature=self.temperature,
+            input=prompt,
+            reasoning={"effort": self.effort},
         )
-        return response.choices[0].message.content or ""
+        return response.output_text

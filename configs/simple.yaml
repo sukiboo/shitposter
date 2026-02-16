@@ -14,7 +14,7 @@ steps:
     type: generate_caption
     provider: openai
     inputs: prompt
-    template: "Generate a funny caption (use emoji!) for an image of {prompt}. Your answer must be a single caption, nothing else."
+    template: "Generate a funny caption (use emoji!) for an image of {prompt}."
 
   publish:
     type: publish_post

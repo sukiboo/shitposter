@@ -44,6 +44,7 @@ class PlaceholderTextToCaptionProvider(TextToCaptionProvider):
 class OpenAITextToIntProvider(TextToIntProvider):
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
     MAX_RETRIES = 3
 
     def __init__(self, **kwargs):
@@ -51,15 +52,21 @@ class OpenAITextToIntProvider(TextToIntProvider):
 
         self.client = OpenAI()
         self.model = kwargs.get("model", "gpt-5-nano")
+        self.effort = kwargs.get("effort", "medium")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
                 f"Unsupported model '{self.model}'. "
                 f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
             )
+        if self.effort not in self.ALLOWED_EFFORTS:
+            raise ValueError(
+                f"Unsupported effort '{self.effort}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+            )
 
     def metadata(self) -> dict:
-        return {"model": self.model, **super().metadata()}
+        return {"model": self.model, "effort": self.effort, **super().metadata()}
 
     @staticmethod
     def _response_model(n: int) -> type[BaseModel]:
@@ -79,6 +86,7 @@ class OpenAITextToIntProvider(TextToIntProvider):
                     model=self.model,
                     input=full_prompt,
                     text_format=text_format,
+                    reasoning={"effort": self.effort},
                 )
                 parsed = response.output_parsed
                 return parsed.index - 1  # type: ignore[union-attr]
@@ -92,6 +100,7 @@ class OpenAITextToIntProvider(TextToIntProvider):
 class OpenAITextToEmojiProvider(TextToEmojiProvider):
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
     MAX_RETRIES = 3
     MIN_COUNT = 1
     MAX_COUNT = 3
@@ -110,15 +119,21 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
 
         self.client = OpenAI()
         self.model = kwargs.get("model", "gpt-5-nano")
+        self.effort = kwargs.get("effort", "medium")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
                 f"Unsupported model '{self.model}'. "
                 f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
             )
+        if self.effort not in self.ALLOWED_EFFORTS:
+            raise ValueError(
+                f"Unsupported effort '{self.effort}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+            )
 
     def metadata(self) -> dict:
-        return {"model": self.model, **super().metadata()}
+        return {"model": self.model, "effort": self.effort, **super().metadata()}
 
     def _response_model(self) -> type[BaseModel]:
         emoji_type = self._Emoji
@@ -139,6 +154,7 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
                     model=self.model,
                     input=prompt,
                     text_format=text_format,
+                    reasoning={"effort": self.effort},
                 )
                 parsed = response.output_parsed
                 return "".join(parsed.emojis)  # type: ignore[union-attr]
@@ -152,6 +168,7 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
 class OpenAITextToCaptionProvider(TextToCaptionProvider):
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
+    ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
     MAX_RETRIES = 3
 
     _CaptionResponse = type(
@@ -175,15 +192,21 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
 
         self.client = OpenAI()
         self.model = kwargs.get("model", "gpt-5-nano")
+        self.effort = kwargs.get("effort", "medium")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
                 f"Unsupported model '{self.model}'. "
                 f"Allowed: {', '.join(sorted(self.ALLOWED_MODELS))}"
             )
+        if self.effort not in self.ALLOWED_EFFORTS:
+            raise ValueError(
+                f"Unsupported effort '{self.effort}'. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_EFFORTS))}"
+            )
 
     def metadata(self) -> dict:
-        return {"model": self.model, **super().metadata()}
+        return {"model": self.model, "effort": self.effort, **super().metadata()}
 
     def generate(self, prompt: str) -> str:
         for _ in range(self.MAX_RETRIES):
@@ -192,6 +215,7 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
                     model=self.model,
                     input=prompt,
                     text_format=self._CaptionResponse,
+                    reasoning={"effort": self.effort},
                 )
                 parsed = response.output_parsed
                 return parsed.caption  # type: ignore[union-attr]
@@ -202,5 +226,6 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
         response = self.client.responses.create(
             model=self.model,
             input=prompt,
+            reasoning={"effort": self.effort},
         )
         return response.output_text

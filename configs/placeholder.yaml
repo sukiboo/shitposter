@@ -9,7 +9,7 @@ steps:
 
   caption:
     type: generate_caption
-    provider: placeholder  # or "openai" (default: gpt-5-nano, temperature=1.0)
+    provider: placeholder  # or "openai" (default: gpt-5-nano, effort=medium)
 
   publish:
     type: publish_post
