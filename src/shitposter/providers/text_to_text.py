@@ -44,7 +44,7 @@ class OpenAITextProvider(TextProvider):
             )
 
     def metadata(self) -> dict:
-        return {"model": self.model, "effort": self.effort, **super().metadata()}
+        return {**super().metadata(), "model": self.model, "effort": self.effort}
 
     def generate(self, prompt: str) -> str:
         response = self.client.responses.create(

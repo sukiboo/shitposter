@@ -14,7 +14,8 @@ class StepResult(BaseModel):
 
 
 class Step(ABC):
-    registry: ClassVar[dict[str, type] | None] = None
+    registry: ClassVar[dict[str, type] | None]
+    provider: Any = None
 
     def __init__(self, ctx: RunContext, config: dict, name: str, idx: int):
         self.ctx = ctx
@@ -55,6 +56,14 @@ class Step(ABC):
 
     def write_artifact(self, data: Any) -> None:
         self.artifact_path().write_text(json.dumps(data, indent=2, default=str))
+
+    @property
+    def metadata(self) -> dict:
+        return {
+            "params": self.provider.metadata() if self.provider else {},
+            "inputs": self.inputs,
+            "output": self.output,
+        }
 
     @property
     def template(self) -> str:

@@ -3,9 +3,10 @@ from shitposter.steps.base import Step, StepResult
 
 
 class PublishPostStep(Step):
+    registry = None
+
     @classmethod
     def validate_config(cls, config: dict) -> None:
-        super().validate_config(config)
         platforms = config.get("platforms")
         if not platforms:
             raise ValueError("publish_post requires 'platforms'")

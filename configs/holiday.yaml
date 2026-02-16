@@ -1,7 +1,7 @@
 steps:
   date:
     type: resolve_date
-    value: null
+    provider: date
 
   holiday_list:
     type: scrape_holidays

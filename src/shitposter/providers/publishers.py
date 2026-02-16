@@ -30,7 +30,7 @@ class TelegramPublisher(PublishingProvider):
         self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
 
     def metadata(self) -> dict:
-        return {"chat_id": self.chat_id, **super().metadata()}
+        return {**super().metadata(), "chat_id": self.chat_id}
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         if image_path:
@@ -87,7 +87,7 @@ class TwitterPublisher(PublishingProvider):
         self._username: str = me.data.username if me.data else "unknown"  # type: ignore
 
     def metadata(self) -> dict:
-        return {"username": self._username, **super().metadata()}
+        return {**super().metadata(), "username": self._username}
 
     def publish(self, image_path: str | None, caption: str | None) -> dict:
         media_ids = None

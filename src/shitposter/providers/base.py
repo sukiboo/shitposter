@@ -68,6 +68,13 @@ class TextToCaptionProvider(ProviderBase):
     def generate(self, prompt: str) -> str: ...
 
 
+class DateProvider(ProviderBase):
+    _registry: ClassVar[dict[str, type["DateProvider"]]] = {}
+
+    @abstractmethod
+    def generate(self) -> date: ...
+
+
 class PublishingProvider(ProviderBase):
     _registry: ClassVar[dict[str, type["PublishingProvider"]]] = {}
 

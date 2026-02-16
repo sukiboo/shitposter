@@ -2,7 +2,7 @@ steps:
   prompt:
     type: construct_prompt
     provider: constant
-    prompt: "a cat wearing a business suit"
+    prompt: "a black cat wearing a business suit"
 
   image:
     type: generate_image
@@ -20,4 +20,4 @@ steps:
     type: publish_post
     inputs: image, caption
     platforms:
-      - placeholder
+      - debug

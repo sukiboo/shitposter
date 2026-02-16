@@ -65,7 +65,7 @@ class OpenAITextToIntProvider(TextToIntProvider):
             )
 
     def metadata(self) -> dict:
-        return {"model": self.model, "effort": self.effort, **super().metadata()}
+        return {**super().metadata(), "model": self.model, "effort": self.effort}
 
     @staticmethod
     def _response_model(n: int) -> type[BaseModel]:
@@ -131,7 +131,7 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
             )
 
     def metadata(self) -> dict:
-        return {"model": self.model, "effort": self.effort, **super().metadata()}
+        return {**super().metadata(), "model": self.model, "effort": self.effort}
 
     def _response_model(self) -> type[BaseModel]:
         emoji_type = self._Emoji
@@ -203,7 +203,7 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
             )
 
     def metadata(self) -> dict:
-        return {"model": self.model, "effort": self.effort, **super().metadata()}
+        return {**super().metadata(), "model": self.model, "effort": self.effort}
 
     def generate(self, prompt: str) -> str:
         for _ in range(self.MAX_RETRIES):

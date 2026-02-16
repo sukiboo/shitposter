@@ -13,8 +13,7 @@ class GenerateImageStep(Step):
         image_path.write_bytes(image_data)
         self.output = str(image_path)
 
-        metadata = {**self.provider.metadata(), **self.inputs, "prompt": prompt}
-        artifact = {**metadata, self.name: self.output}
+        artifact = {**self.metadata, "prompt": prompt}
         self.write_artifact(artifact)
 
-        return StepResult(metadata=metadata, summary=f"{self.output}")
+        return StepResult(metadata=self.metadata, summary=f"{self.output}")

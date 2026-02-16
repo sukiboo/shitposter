@@ -9,8 +9,7 @@ class GenerateCaptionStep(Step):
         prompt = self.template.format(**self.inputs)
         self.output = self.provider.generate(prompt)
 
-        metadata = {**self.provider.metadata(), **self.inputs, "prompt": prompt}
-        artifact = {**metadata, self.name: self.output}
+        artifact = {**self.metadata, "prompt": prompt}
         self.write_artifact(artifact)
 
-        return StepResult(metadata=metadata, summary=f"{self.output!r}")
+        return StepResult(metadata=self.metadata, summary=f"{self.output!r}")

@@ -10,11 +10,10 @@ class ScrapeHolidaysStep(Step):
         entries = self._format(records)
         self.output = entries
 
-        metadata = {**self.provider.metadata(), **self.inputs}
-        artifact = {**metadata, self.name: self.output, "records": records}
+        artifact = {**self.metadata, "records": records}
         self.write_artifact(artifact)
 
-        return StepResult(metadata=metadata, summary=f"scraped {len(entries)} holidays")
+        return StepResult(metadata=self.metadata, summary=f"scraped {len(entries)} holidays")
 
     @staticmethod
     def _format(records: list[dict]) -> list[str | None]:

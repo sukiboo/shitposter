@@ -8,17 +8,15 @@ class ChooseHolidayStep(Step):
 
     def execute(self) -> StepResult:
         entries = list(self.inputs.values())[0]
-        prompt = (self.template or self.default_prompt).format(**self.inputs)
+        prompt = self.template.format(**self.inputs) or self.default_prompt
         index = self.provider.generate(prompt, entries)
         self.output = entries[index]
 
-        metadata = {**self.provider.metadata(), **self.inputs}
         artifact = {
-            **metadata,
-            self.name: self.output,
-            "prompt": prompt,
+            **self.metadata,
             "index": index,
+            "prompt": prompt,
         }
         self.write_artifact(artifact)
 
-        return StepResult(metadata=metadata, summary=f"chose #{index}: '{self.output}'")
+        return StepResult(metadata=self.metadata, summary=f"chose #{index}: '{self.output}'")

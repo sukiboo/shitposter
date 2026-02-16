@@ -11,8 +11,7 @@ class ConstructHeaderStep(Step):
         header = f"{self.inputs['date']:%B %-d} \u2014 {self.inputs['holiday']} {emojis}"
         self.output = header
 
-        metadata = {**self.provider.metadata(), **self.inputs}
-        artifact = {**metadata, self.name: self.output, "prompt": prompt}
+        artifact = {**self.metadata, "prompt": prompt}
         self.write_artifact(artifact)
 
-        return StepResult(metadata=metadata, summary=f"{self.output!r}")
+        return StepResult(metadata=self.metadata, summary=f"{self.output!r}")

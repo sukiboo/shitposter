@@ -16,7 +16,7 @@ class RandomImageProvider(ImageProvider):
         self.height = kwargs.get("height") or 512
 
     def metadata(self) -> dict:
-        return {"width": self.width, "height": self.height, **super().metadata()}
+        return {**super().metadata(), "width": self.width, "height": self.height}
 
     def generate(self, prompt: str) -> bytes:
         img = Image.new("RGB", (self.width, self.height))
@@ -56,11 +56,11 @@ class OpenAIImageProvider(ImageProvider):
 
     def metadata(self) -> dict:
         return {
+            **super().metadata(),
             "model": self.model,
             "quality": self.quality,
             "width": self.width,
             "height": self.height,
-            **super().metadata(),
         }
 
     def generate(self, prompt: str) -> bytes:
