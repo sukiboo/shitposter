@@ -6,7 +6,7 @@ class ChooseHolidayStep(Step):
     registry = TextToIntProvider._registry
 
     def execute(self) -> StepResult:
-        entries = list(self.inputs.values())[0]
+        (entries,) = self.inputs.values()
         prompt = self.template.format(**self.inputs)
         index = self.provider.generate(prompt, entries)
         self.output = entries[index]

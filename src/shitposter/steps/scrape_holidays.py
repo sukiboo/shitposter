@@ -6,7 +6,8 @@ class ScrapeHolidaysStep(Step):
     registry = ContextProvider._registry
 
     def execute(self) -> StepResult:
-        records = self.provider.generate(self.inputs["date"])
+        (date,) = self.inputs.values()
+        records = self.provider.generate(date)
         entries = self._format(records)
         self.output = entries
 

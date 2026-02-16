@@ -41,7 +41,9 @@ class Step(ABC):
 
     @property
     def inputs(self) -> dict[str, Any]:
-        return {k: self.ctx.state[k] for k in self.config.get("inputs", [])}
+        if not hasattr(self, "_inputs"):
+            self._inputs = {k: self.ctx.state[k] for k in self.config.get("inputs", [])}
+        return self._inputs
 
     @property
     def output(self) -> Any:

@@ -6,9 +6,10 @@ class ConstructHeaderStep(Step):
     registry = TextToEmojiProvider._registry
 
     def execute(self) -> StepResult:
+        date, holiday = self.inputs.values()
         prompt = self.template.format(**self.inputs)
         emojis = self.provider.generate(prompt)
-        header = f"{self.inputs['date']:%B %-d} \u2014 {self.inputs['holiday']} {emojis}"
+        header = f"{date:%B %-d} \u2014 {holiday} {emojis}"
         self.output = header
 
         artifact = {**self.metadata, "prompt": prompt}

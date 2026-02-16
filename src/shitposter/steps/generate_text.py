@@ -7,6 +7,8 @@ class GenerateTextStep(Step):
     registry = TextProvider._registry
 
     def execute(self) -> StepResult:
+        if "prompt" in self.config:
+            self.inputs["prompt"] = self.config["prompt"]
         prompt = self.template.format(**self.inputs)
         self.output = self.provider.generate(prompt)
 
