@@ -1,6 +1,6 @@
 # shitposter
 
-Automated content generation and posting pipeline. Generates images, builds captions, and posts to Telegram. Designed to run on a VPS with cron.
+Automated content generation and posting pipeline. Generates images, builds captions, and posts to Telegram. Designed to run on a VPS with a systemd timer.
 
 Currently posting to
 - Telegram: [Cat Slop Daily](https://t.me/catslopdaily)
@@ -92,19 +92,26 @@ cp .env.example .env
 ### `.env`
 
 ```
+# Deployment
+SERVER_USER=your-username
+SERVER_HOST=your-hostname
+SERVER_PATH=~/apps/shitposter
+REPO_URL=https://github.com/sukiboo/shitposter.git
+STEPS_CONFIG=dev
+RUN_SCHEDULE="*-*-* 08:00:00"
+RUN_TIMEZONE=America/New_York
+
+# Services
 ARTIFACTS_PATH=./artifacts
 OPENAI_API_KEY=your-openai-api-key
-
 TELEGRAM_DEBUG_BOT_TOKEN=your-debug-bot-token
 TELEGRAM_DEBUG_CHAT_ID=your-debug-chat-id
-
 TELEGRAM_CHANNEL_BOT_TOKEN=your-channel-bot-token
 TELEGRAM_CHANNEL_CHAT_ID=your-channel-chat-id
-
-TWITTER_CONSUMER_KEY=your-twitter-consumer-key-here
-TWITTER_CONSUMER_SECRET=your-twitter-consumer-secret-here
-TWITTER_ACCESS_TOKEN=your-twitter-access-token-here
-TWITTER_ACCESS_TOKEN_SECRET=your-twitter-access-token-secret-here
+TWITTER_CONSUMER_KEY=your-twitter-consumer-key
+TWITTER_CONSUMER_SECRET=your-twitter-consumer-secret
+TWITTER_ACCESS_TOKEN=your-twitter-access-token
+TWITTER_ACCESS_TOKEN_SECRET=your-twitter-access-token-secret
 ```
 
 ### Pipeline config
@@ -175,14 +182,26 @@ Each run creates a directory under `<artifacts_path>/<run_id>/`:
 uv run pytest
 ```
 
-## Deployment (VPS + cron)
+## Deployment
+
+The pipeline runs on a VPS via a systemd user timer. All deploy config is read from `.env`.
 
 ```bash
-git clone <repo> /opt/shitposter
-cd /opt/shitposter && uv sync
-cp .env.example .env
+# first-time setup + all subsequent deploys
+./deploy/run.sh
 ```
 
-```cron
-0 9 * * * cd /opt/shitposter && .venv/bin/shitposter run >> /var/log/shitposter.log 2>&1
+This will:
+- Install `uv` on the server if missing
+- Clone the repo (first run) or `git pull --ff-only` (subsequent runs)
+- Install dependencies (`uv sync --no-dev`)
+- Copy `.env` to the server
+- Install and enable the systemd timer
+
+### Checking status
+
+```bash
+ssh user@host 'systemctl --user status shitposter.timer'
+ssh user@host 'systemctl --user list-timers'
+ssh user@host 'journalctl --user -u shitposter.service -n 50'
 ```

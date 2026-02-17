@@ -1,0 +1,10 @@
+[Unit]
+Description=Shitposter pipeline run
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=SERVER_PATH
+ExecStart=%h/.local/bin/uv run shitposter run --steps STEPS_CONFIG
+Environment=HOME=%h

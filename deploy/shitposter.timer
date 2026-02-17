@@ -1,0 +1,9 @@
+[Unit]
+Description=Run shitposter daily
+
+[Timer]
+OnCalendar=RUN_SCHEDULE RUN_TIMEZONE
+Persistent=true
+
+[Install]
+WantedBy=timers.target
