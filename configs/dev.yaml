@@ -5,7 +5,7 @@ steps:
     value: 2026-02-14
 
   holiday_list:
-    type: scrape_holidays
+    type: retrieve_holidays
     provider: checkiday
     inputs: date
 

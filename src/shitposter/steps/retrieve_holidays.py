@@ -2,7 +2,7 @@ from shitposter.providers.web_to_context import ContextProvider
 from shitposter.steps.base import Step, StepResult
 
 
-class ScrapeHolidaysStep(Step):
+class RetrieveHolidaysStep(Step):
     registry = ContextProvider._registry
 
     def execute(self) -> StepResult:
@@ -14,7 +14,7 @@ class ScrapeHolidaysStep(Step):
         artifact = {**self.metadata, "records": records}
         self.write_artifact(artifact)
 
-        return StepResult(metadata=self.metadata, summary=f"scraped {len(entries)} holidays")
+        return StepResult(metadata=self.metadata, summary=f"retrieved {len(entries)} holidays")
 
     @staticmethod
     def _format(records: list[dict]) -> list[str | None]:

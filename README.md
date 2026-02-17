@@ -10,7 +10,7 @@ Currently posting to
 ## Pipeline
 
 1. **Resolve date** — determines the target date (today or override)
-2. **Scrape holidays** — fetches holidays from the web for that date
+2. **Retrieve holidays** — fetches holidays via API for that date
 3. **Choose holiday** — selects one entry from the list
 4. **Construct header** — builds a formatted header line with emoji
 5. **Generate prompt** — generates a relevant image prompt
@@ -26,7 +26,7 @@ Step order and config are defined in a pipeline YAML file under `configs/`. Arti
 | Step | Type | Providers | Config |
 |---|---|---|---|
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
-| Scrape holidays | `scrape_holidays` | `checkiday` | `provider`, `inputs` |
+| Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_scrape` | `provider`, `inputs` |
 | Choose holiday | `choose_holiday` | `placeholder`, `openai` | `provider`, `inputs`, `template` |
 | Construct header | `construct_header` | `placeholder`, `openai` | `provider`, `inputs`, `template` |
 | Generate text | `generate_text` | `placeholder`, `constant`, `openai` | `provider`, `inputs`, `template` |
@@ -54,7 +54,7 @@ src/shitposter/
   steps/
     base.py               # Step ABC + StepResult
     resolve_date.py       # ResolveDateStep
-    scrape_holidays.py    # ScrapeHolidaysStep
+    retrieve_holidays.py  # RetrieveHolidaysStep
     choose_holiday.py     # ChooseHolidayStep
     construct_header.py   # ConstructHeaderStep
     generate_text.py      # GenerateTextStep + GenerateCaptionStep
@@ -64,7 +64,7 @@ src/shitposter/
   providers/
     base.py               # provider ABCs + auto-registration via __init_subclass__
     text_to_date.py       # date providers (date)
-    web_to_context.py     # context providers (checkiday)
+    web_to_context.py     # context providers (checkiday API, checkiday_scrape)
     text_to_int.py        # text-to-int providers (placeholder, openai)
     text_to_emoji.py      # text-to-emoji providers (placeholder, openai)
     text_to_text.py       # text providers (placeholder, constant, openai)
@@ -103,6 +103,7 @@ RUN_TIMEZONE=America/New_York
 
 # Services
 ARTIFACTS_PATH=./artifacts
+CHECKIDAY_API_KEY=your-checkiday-api-key
 OPENAI_API_KEY=your-openai-api-key
 TELEGRAM_DEBUG_BOT_TOKEN=your-debug-bot-token
 TELEGRAM_DEBUG_CHAT_ID=your-debug-chat-id

@@ -4,8 +4,8 @@ steps:
     provider: date
 
   holiday_list:
-    type: scrape_holidays
-    provider: checkiday
+    type: retrieve_holidays
+    provider: checkiday_api
     inputs: date
 
   holiday:
