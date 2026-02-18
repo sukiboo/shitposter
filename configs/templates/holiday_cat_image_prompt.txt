@@ -4,6 +4,14 @@ Base scene:
 - A realistic cat in a clear, recognizable setting related to {holiday}.
 - One coherent scene, instantly readable at a glance.
 
+Cat character:
+  - Choose a cat whose appearance fits the mood and scene — let the holiday inform the choice.
+  - Age: anywhere from wobbly kitten to dignified senior, not always adult.
+  - Build: full range — tiny and scraggly to absolute chonk.
+  - Color/pattern: vary freely — solid black, solid white, tuxedo, ginger, tortoiseshell, grey, calico, etc. Avoid defaulting to orange tabby.
+  - The choice should feel motivated, not arbitrary (e.g. a round serious chonk for a food holiday; a scrappy kitten for something competitive; a sleek tuxedo cat for a formal occasion).
+  - Expression: give the cat a clear emotional state that fits the situation — pleased during a food holiday, wary on a spooky occasion, deeply focused mid-task, smug at an unexpected win, mildly alarmed when things have gone wrong.
+
 Unexpected twist:
 - Add exactly ONE humorous or absurd element.
 - The twist must be visual and fall into ONE category:

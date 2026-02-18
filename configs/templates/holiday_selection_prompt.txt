@@ -1,11 +1,9 @@
 Select one holiday from the list of holidays provided below via the selection rules (in order):
 
 1. Dominant-holiday rule:
-If the list contains a holiday that is the clear, mainstream, culturally dominant holiday for this date
-(i.e., most people would immediately associate this date with that holiday), select that one.
-This rule overrides all others.
+If the list contains a holiday that is the clear, mainstream, culturally dominant holiday for this date (e.g. Christmas, Thanksgiving, New Year, Valentine's Day, Halloween, Easter -- what most people would immediately associate this date with that holiday), select that one.
 
-2. Otherwise (no dominant holiday present):
+2. If no dominant holiday present:
 Select ONE holiday that best fits these criteria:
 - Broadly understandable without explanation
 - Strong visual symbols or situations (easy to imagine as an image)
@@ -14,7 +12,7 @@ Select ONE holiday that best fits these criteria:
 
 3. Avoid if possible:
 - Heavy/serious observances (political, tragedy, medical, awareness campaigns)
-- Holidays that are hard to visualize
+- Holidays that are hard to visualize or make a joke with
 - Holidays whose name requires too much explanation to be funny
 
 Tie-breakers (only if needed):

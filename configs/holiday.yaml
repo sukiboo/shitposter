@@ -11,14 +11,14 @@ steps:
   holiday:
     type: choose_holiday
     provider: openai
-    model: gpt-5-mini
+    model: gpt-5.2
     inputs: holiday_list
     template: !file ./templates/holiday_selection_prompt.txt
 
   prompt:
     type: generate_text
     provider: openai
-    model: gpt-5-mini
+    model: gpt-5.2
     effort: high
     inputs: holiday
     template: !file ./templates/holiday_cat_image_prompt.txt
@@ -55,5 +55,5 @@ steps:
     type: publish_post
     inputs: image, caption
     platforms:
-      - telegram
       - twitter
+      - telegram
