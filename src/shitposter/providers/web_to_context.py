@@ -1,10 +1,15 @@
 import os
+import time
 from datetime import date
 
 import httpx
 from bs4 import BeautifulSoup
 
 from shitposter.providers.base import ContextProvider
+
+HTTP_TIMEOUT = 30
+MAX_RETRIES = 5
+BACKOFF_BASE = 2
 
 
 class CheckiDayProviderAPI(ContextProvider):
@@ -15,30 +20,41 @@ class CheckiDayProviderAPI(ContextProvider):
         self.api_key = os.environ["CHECKIDAY_API_KEY"]
 
     def generate(self, target_date: date) -> list[dict]:
-        resp = httpx.get(
-            self.API_URL,
-            headers={"apikey": self.api_key},
-            timeout=15,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        return [
-            {"name": e["name"], "url": e.get("url"), "description": None}
-            for e in data.get("events", [])
-        ]
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                resp = httpx.get(
+                    self.API_URL,
+                    headers={"apikey": self.api_key},
+                    timeout=HTTP_TIMEOUT,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                return [
+                    {"name": e["name"], "url": e.get("url"), "description": None}
+                    for e in data.get("events", [])
+                ]
+            except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+                self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(BACKOFF_BASE**attempt)
+        raise
 
 
 class CheckiDayProviderScrape(ContextProvider):
     name = "checkiday_scrape"
 
-    def __init__(self, **kwargs):
-        pass
-
     def generate(self, target_date: date) -> list[dict]:
         url = f"https://www.checkiday.com/{target_date.strftime('%m/%d/%Y')}"
-        resp = httpx.get(url, follow_redirects=True, timeout=15)
-        resp.raise_for_status()
-        return self._parse(resp.text)
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                resp = httpx.get(url, follow_redirects=True, timeout=HTTP_TIMEOUT)
+                resp.raise_for_status()
+                return self._parse(resp.text)
+            except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+                self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
+                if attempt < MAX_RETRIES:
+                    time.sleep(BACKOFF_BASE**attempt)
+        raise
 
     @staticmethod
     def _parse(html: str) -> list[dict]:
@@ -88,7 +104,9 @@ class CheckiDayProvider(ContextProvider):
             return self._scrape.generate(target_date)
 
     def metadata(self) -> dict:
-        meta = {"provider": self._delegate.name}
+        meta: dict[str, object] = {"provider": self._delegate.name}
         if self._fallback_error:
             meta["fallback_error"] = self._fallback_error
+        if self._delegate._meta.get("errors"):
+            meta["errors"] = self._delegate._meta["errors"]
         return meta
