@@ -26,14 +26,16 @@ def create_run_context(
     )
 
 
-def write_summary(ctx: RunContext, steps: dict) -> None:
+def write_summary(ctx: RunContext, steps: dict, error: str | None = None) -> None:
     summary = {
         "run_id": ctx.run_id,
         "timestamp": datetime.now().isoformat(),
         "dry_run": ctx.dry_run,
-        "published": not ctx.dry_run,
+        "published": not ctx.dry_run and error is None,
         "steps": steps,
     }
+    if error is not None:
+        summary["error"] = error
     ctx.run_dir.joinpath("summary.json").write_text(json.dumps(summary, indent=2, default=str))
 
 
