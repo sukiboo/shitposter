@@ -5,7 +5,7 @@ steps:
 
   holiday_list:
     type: retrieve_holidays
-    provider: checkiday_api
+    provider: checkiday
     inputs: date
 
   holiday:

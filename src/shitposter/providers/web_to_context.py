@@ -20,6 +20,7 @@ class CheckiDayProviderAPI(ContextProvider):
         self.api_key = os.environ["CHECKIDAY_API_KEY"]
 
     def generate(self, target_date: date) -> list[dict]:
+        last_exc: Exception = RuntimeError("no retries attempted")
         for attempt in range(1, MAX_RETRIES + 1):
             try:
                 resp = httpx.get(
@@ -34,16 +35,18 @@ class CheckiDayProviderAPI(ContextProvider):
                     for e in data.get("events", [])
                 ]
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+                last_exc = e
                 self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
                 if attempt < MAX_RETRIES:
                     time.sleep(BACKOFF_BASE**attempt)
-        raise
+        raise last_exc
 
 
 class CheckiDayProviderScrape(ContextProvider):
     name = "checkiday_scrape"
 
     def generate(self, target_date: date) -> list[dict]:
+        last_exc: Exception = RuntimeError("no retries attempted")
         url = f"https://www.checkiday.com/{target_date.strftime('%m/%d/%Y')}"
         for attempt in range(1, MAX_RETRIES + 1):
             try:
@@ -51,10 +54,11 @@ class CheckiDayProviderScrape(ContextProvider):
                 resp.raise_for_status()
                 return self._parse(resp.text)
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+                last_exc = e
                 self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
                 if attempt < MAX_RETRIES:
                     time.sleep(BACKOFF_BASE**attempt)
-        raise
+        raise last_exc
 
     @staticmethod
     def _parse(html: str) -> list[dict]:
