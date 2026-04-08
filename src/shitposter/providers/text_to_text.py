@@ -57,3 +57,45 @@ class OpenAITextProvider(TextProvider):
             reasoning={"effort": self.effort},
         )
         return response.output_text
+
+
+class AnthropicTextProvider(TextProvider):
+
+    name = "anthropic"
+    ALLOWED_MODELS = {"claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"}
+
+    def __init__(self, **kwargs):
+        from anthropic import Anthropic
+
+        self.client = Anthropic()
+        self.model = kwargs.get("model", "claude-sonnet-4-6")
+        self.max_tokens = int(kwargs.get("max_tokens", 1024))
+        self.budget_tokens = int(kwargs["budget_tokens"]) if "budget_tokens" in kwargs else None
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
+            )
+        if self.budget_tokens is not None:
+            if self.budget_tokens < 1024:
+                raise ValueError("budget_tokens must be at least 1024")
+            if self.budget_tokens >= self.max_tokens:
+                raise ValueError("max_tokens must be greater than budget_tokens")
+
+    def metadata(self) -> dict:
+        meta = {**super().metadata(), "model": self.model, "max_tokens": self.max_tokens}
+        if self.budget_tokens is not None:
+            meta["budget_tokens"] = self.budget_tokens
+        return meta
+
+    def generate(self, prompt: str) -> str:
+        kwargs: dict = {
+            "model": self.model,
+            "max_tokens": self.max_tokens,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if self.budget_tokens is not None:
+            kwargs["thinking"] = {"type": "enabled", "budget_tokens": self.budget_tokens}
+        response = self.client.messages.create(**kwargs)
+        block = next(b for b in response.content if b.type == "text")
+        return block.text
