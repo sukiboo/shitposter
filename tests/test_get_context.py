@@ -53,7 +53,7 @@ def test_api_generate_holidays(mock_get):
 
     mock_get.assert_called_once()
     call_kwargs = mock_get.call_args
-    assert "params" not in call_kwargs.kwargs
+    assert call_kwargs.kwargs["params"] == {"date": "2026-02-11"}
     assert call_kwargs.kwargs["headers"] == {"apikey": "test-key"}
 
 

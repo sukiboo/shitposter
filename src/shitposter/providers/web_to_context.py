@@ -26,6 +26,7 @@ class CheckiDayProviderAPI(ContextProvider):
                 resp = httpx.get(
                     self.API_URL,
                     headers={"apikey": self.api_key},
+                    params={"date": target_date.isoformat()},
                     timeout=HTTP_TIMEOUT,
                 )
                 resp.raise_for_status()
