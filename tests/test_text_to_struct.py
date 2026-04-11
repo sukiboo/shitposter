@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from shitposter.providers.text_to_emoji import OpenAITextToEmojiProvider
+from shitposter.providers.text_to_emoji import EMOJI_RE
 from shitposter.providers.text_to_int import (
     OpenAITextToIntProvider,
     PlaceholderTextToIntProvider,
@@ -54,8 +54,8 @@ class TestEmojiValidation:
         ],
     )
     def test_accepts_valid_emoji(self, emoji):
-        assert OpenAITextToEmojiProvider._EMOJI_RE.match(emoji)
+        assert EMOJI_RE.match(emoji)
 
     @pytest.mark.parametrize("text", ["abc", "hello 🎉", " "])
     def test_rejects_non_emoji(self, text):
-        assert not OpenAITextToEmojiProvider._EMOJI_RE.match(text)
+        assert not EMOJI_RE.match(text)
