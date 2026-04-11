@@ -27,10 +27,10 @@ Step order and config are defined in a pipeline YAML file under `configs/`. Arti
 |---|---|---|---|
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
 | Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_scrape` | `provider`, `inputs` |
-| Choose holiday | `choose_holiday` | `placeholder`, `openai` | `provider`, `inputs`, `template` |
-| Construct header | `construct_header` | `placeholder`, `openai` | `provider`, `inputs`, `template` |
-| Generate text | `generate_text` | `placeholder`, `constant`, `openai` | `provider`, `inputs`, `template` |
-| Generate caption | `generate_caption` | `placeholder`, `openai` | `provider`, `inputs`, `template` |
+| Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
+| Construct header | `construct_header` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
+| Generate text | `generate_text` | `placeholder`, `constant`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
+| Generate caption | `generate_caption` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate image | `generate_image` | `placeholder` (random pixels), `openai` (gpt-image-1-mini/1/1.5) | `provider`, `inputs`, `template` |
 | Publish | `publish_post` | `placeholder`, `telegram`, `debug`, `twitter` | `inputs`, `platforms` (list) |
 
@@ -65,10 +65,10 @@ src/shitposter/
     base.py               # provider ABCs + auto-registration via __init_subclass__
     text_to_date.py       # date providers (date)
     web_to_context.py     # context providers (checkiday API, checkiday_scrape)
-    text_to_int.py        # text-to-int providers (placeholder, openai)
-    text_to_emoji.py      # text-to-emoji providers (placeholder, openai)
-    text_to_text.py       # text providers (placeholder, constant, openai)
-    text_to_caption.py    # caption providers (placeholder, openai) — structured output
+    text_to_int.py        # text-to-int providers (placeholder, openai, anthropic)
+    text_to_emoji.py      # text-to-emoji providers (placeholder, openai, anthropic)
+    text_to_text.py       # text providers (placeholder, constant, openai, anthropic)
+    text_to_caption.py    # caption providers (placeholder, openai, anthropic) — structured output
     text_to_image.py      # image providers (placeholder, openai)
     publishers.py         # publishing providers (placeholder, telegram, debug, twitter)
 
@@ -105,6 +105,7 @@ RUN_TIMEZONE=America/New_York
 ARTIFACTS_PATH=./artifacts
 CHECKIDAY_API_KEY=your-checkiday-api-key
 OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
 TELEGRAM_DEBUG_BOT_TOKEN=your-debug-bot-token
 TELEGRAM_DEBUG_CHAT_ID=your-debug-chat-id
 TELEGRAM_CHANNEL_BOT_TOKEN=your-channel-bot-token
