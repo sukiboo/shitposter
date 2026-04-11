@@ -41,9 +41,10 @@ steps:
 
   caption_body:
     type: generate_caption
-    provider: openai
-    model: gpt-5.2
-    effort: high
+    provider: anthropic
+    model: claude-sonnet-4-6
+    max_tokens: 4096
+    budget_tokens: 2048
     inputs: holiday, prompt
     template: !file ./templates/holiday_cat_caption_prompt.txt
 

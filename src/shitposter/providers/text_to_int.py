@@ -16,7 +16,7 @@ class PlaceholderTextToIntProvider(TextToIntProvider):
 
 
 class OpenAITextToIntProvider(TextToIntProvider):
-    """Picks one entry from a numbered list via structured output (returns an int index)."""
+    """Picks one entry from a numbered list via OpenAI structured output (returns an int index)."""
 
     name = "openai"
     default_prompt = "Pick one of the following entries:"
@@ -66,6 +66,87 @@ class OpenAITextToIntProvider(TextToIntProvider):
                 )
                 parsed = response.output_parsed
                 return parsed.index - 1  # type: ignore[union-attr]
+            except Exception as e:
+                self._meta["errors"].append(str(e))
+                continue
+        self._meta["errors"].append("all retries failed, fell back to random")
+        return random.randint(0, len(entries) - 1)
+
+
+class AnthropicTextToIntProvider(TextToIntProvider):
+    """Picks one entry from a numbered list via Anthropic tool use (returns an int index)."""
+
+    name = "anthropic"
+    default_prompt = "Pick one of the following entries:"
+    ALLOWED_MODELS = {"claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"}
+    MAX_RETRIES = 3
+
+    def __init__(self, **kwargs):
+        from anthropic import Anthropic
+
+        self.client = Anthropic()
+        self.model = kwargs.get("model", "claude-sonnet-4-6")
+        self.max_tokens = int(kwargs.get("max_tokens", 1024))
+        self.budget_tokens = int(kwargs["budget_tokens"]) if "budget_tokens" in kwargs else None
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
+            )
+        if self.budget_tokens is not None:
+            if self.budget_tokens < 1024:
+                raise ValueError("budget_tokens must be at least 1024")
+            if self.budget_tokens >= self.max_tokens:
+                raise ValueError("max_tokens must be greater than budget_tokens")
+
+    def metadata(self) -> dict:
+        meta = {**super().metadata(), "model": self.model, "max_tokens": self.max_tokens}
+        if self.budget_tokens is not None:
+            meta["budget_tokens"] = self.budget_tokens
+        return meta
+
+    @staticmethod
+    def _tool(n: int) -> dict:
+        return {
+            "name": "choose",
+            "description": "Choose one entry from the list by its number.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "index": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": n,
+                        "description": "The 1-based index of the chosen entry.",
+                    }
+                },
+                "required": ["index"],
+            },
+        }
+
+    def generate(self, prompt: str, entries: list[str]) -> int:
+        numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
+        full_prompt = f"{prompt or self.default_prompt}\n\n{numbered}"
+        tool = self._tool(len(entries))
+        for _ in range(self.MAX_RETRIES):
+            try:
+                kwargs: dict = {
+                    "model": self.model,
+                    "max_tokens": self.max_tokens,
+                    "tools": [tool],
+                    "messages": [{"role": "user", "content": full_prompt}],
+                }
+                if self.budget_tokens is not None:
+                    kwargs["thinking"] = {"type": "enabled", "budget_tokens": self.budget_tokens}
+                    kwargs["tool_choice"] = {"type": "auto"}
+                else:
+                    kwargs["tool_choice"] = {"type": "tool", "name": "choose"}
+                response = self.client.messages.create(**kwargs)
+                block = next(b for b in response.content if b.type == "tool_use")
+                index = int(block.input["index"])  # type: ignore[index]
+                if 1 <= index <= len(entries):
+                    return index - 1
+                self._meta["errors"].append(f"index {index} out of range")
             except Exception as e:
                 self._meta["errors"].append(str(e))
                 continue

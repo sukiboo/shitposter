@@ -5,6 +5,10 @@ from pydantic import AfterValidator, BaseModel, Field
 
 from shitposter.providers.base import TextToEmojiProvider
 
+EMOJI_MIN_COUNT = 1
+EMOJI_MAX_COUNT = 3
+EMOJI_RE = regex.compile(r"^[\p{Extended_Pictographic}\p{Emoji_Component}\u200d\ufe0f\ufe0e]+$")
+
 
 class PlaceholderTextToEmojiProvider(TextToEmojiProvider):
     name = "placeholder"
@@ -17,21 +21,16 @@ class PlaceholderTextToEmojiProvider(TextToEmojiProvider):
 
 
 class OpenAITextToEmojiProvider(TextToEmojiProvider):
-    """Generates 1-3 emoji via structured output, validated with a Unicode regex."""
+    """Generates 1-3 emoji via OpenAI structured output, validated with a Unicode regex."""
 
     name = "openai"
     ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
     ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
     MAX_RETRIES = 3
-    MIN_COUNT = 1
-    MAX_COUNT = 3
-    _EMOJI_RE = regex.compile(
-        r"^[\p{Extended_Pictographic}\p{Emoji_Component}\u200d\ufe0f\ufe0e]+$"
-    )
 
     @staticmethod
     def _check_emoji(v: str) -> str:
-        if not OpenAITextToEmojiProvider._EMOJI_RE.match(v):
+        if not EMOJI_RE.match(v):
             raise ValueError(f"Not an emoji: {v!r}")
         return v
 
@@ -64,7 +63,7 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
             (BaseModel,),
             {
                 "__annotations__": {"emojis": list[emoji_type]},  # type: ignore[valid-type]
-                "emojis": Field(min_length=self.MIN_COUNT, max_length=self.MAX_COUNT),
+                "emojis": Field(min_length=EMOJI_MIN_COUNT, max_length=EMOJI_MAX_COUNT),
             },
         )
 
@@ -80,6 +79,87 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
                 )
                 parsed = response.output_parsed
                 return "".join(parsed.emojis)  # type: ignore[union-attr]
+            except Exception as e:
+                self._meta["errors"].append(str(e))
+                continue
+        self._meta["errors"].append("all retries failed, fell back to placeholder")
+        return "\U0001f389"
+
+
+class AnthropicTextToEmojiProvider(TextToEmojiProvider):
+    """Generates 1-3 emoji via Anthropic tool use, validated with a Unicode regex."""
+
+    name = "anthropic"
+    ALLOWED_MODELS = {"claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"}
+    MAX_RETRIES = 3
+
+    _TOOL = {
+        "name": "emojis",
+        "description": "Return a list of emoji that match the prompt.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "emojis": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": EMOJI_MIN_COUNT,
+                    "maxItems": EMOJI_MAX_COUNT,
+                    "description": "A list of 1-3 emoji characters.",
+                }
+            },
+            "required": ["emojis"],
+        },
+    }
+
+    def __init__(self, **kwargs):
+        from anthropic import Anthropic
+
+        self.client = Anthropic()
+        self.model = kwargs.get("model", "claude-sonnet-4-6")
+        self.max_tokens = int(kwargs.get("max_tokens", 1024))
+        self.budget_tokens = int(kwargs["budget_tokens"]) if "budget_tokens" in kwargs else None
+
+        if self.model not in self.ALLOWED_MODELS:
+            raise ValueError(
+                f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
+            )
+        if self.budget_tokens is not None:
+            if self.budget_tokens < 1024:
+                raise ValueError("budget_tokens must be at least 1024")
+            if self.budget_tokens >= self.max_tokens:
+                raise ValueError("max_tokens must be greater than budget_tokens")
+
+    def metadata(self) -> dict:
+        meta = {**super().metadata(), "model": self.model, "max_tokens": self.max_tokens}
+        if self.budget_tokens is not None:
+            meta["budget_tokens"] = self.budget_tokens
+        return meta
+
+    def generate(self, prompt: str) -> str:
+        for _ in range(self.MAX_RETRIES):
+            try:
+                kwargs: dict = {
+                    "model": self.model,
+                    "max_tokens": self.max_tokens,
+                    "tools": [self._TOOL],
+                    "messages": [{"role": "user", "content": prompt}],
+                }
+                if self.budget_tokens is not None:
+                    kwargs["thinking"] = {"type": "enabled", "budget_tokens": self.budget_tokens}
+                    kwargs["tool_choice"] = {"type": "auto"}
+                else:
+                    kwargs["tool_choice"] = {"type": "tool", "name": "emojis"}
+                response = self.client.messages.create(**kwargs)
+                block = next(b for b in response.content if b.type == "tool_use")
+                emojis = block.input["emojis"]  # type: ignore[index]
+                if not (EMOJI_MIN_COUNT <= len(emojis) <= EMOJI_MAX_COUNT):
+                    self._meta["errors"].append(f"emoji count {len(emojis)} out of range")
+                    continue
+                result = "".join(emojis)
+                if not EMOJI_RE.match(result):
+                    self._meta["errors"].append(f"invalid emoji: {result!r}")
+                    continue
+                return result
             except Exception as e:
                 self._meta["errors"].append(str(e))
                 continue
