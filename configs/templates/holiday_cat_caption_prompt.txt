@@ -3,6 +3,7 @@ Write a single, punchy caption for a social media post.
 Context:
 - Holiday: "{holiday}"
 - Image description: """{prompt}"""
+- Emojis already used in the header: {header_emojis}
 
 Caption requirements:
 - Clearly relate to BOTH the holiday and the specific visual joke.
@@ -16,6 +17,7 @@ Style constraints:
 - Under 20 words.
 - Casual, internet-native tone.
 - Use 1–3 emojis, not at the beginning.
+- Do not reuse any emoji from {header_emojis}; pick different ones that react to the image, not just the holiday.
 - No hashtags, no quotes.
 
 Avoid:

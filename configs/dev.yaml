@@ -32,12 +32,18 @@ steps:
     inputs: prompt
     template: "{prompt}"
 
-  caption_header:
-    type: construct_header
+  header_emojis:
+    type: select_emojis
     provider: openai
     model: gpt-5-mini
-    inputs: date, holiday
+    inputs: holiday
     template: !file ./templates/holiday_emoji_prompt.txt
+
+  caption_header:
+    type: generate_text
+    provider: constant
+    inputs: date, holiday, header_emojis
+    template: "{date:%B %-d} \u2014 {holiday} {header_emojis}"
 
   caption_body:
     type: generate_caption
@@ -45,7 +51,7 @@ steps:
     model: claude-sonnet-4-6
     max_tokens: 4096
     budget_tokens: 2048
-    inputs: holiday, prompt
+    inputs: holiday, prompt, header_emojis
     template: !file ./templates/holiday_cat_caption_prompt.txt
 
   caption:
