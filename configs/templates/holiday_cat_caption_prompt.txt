@@ -1,4 +1,4 @@
-Write a single, punchy caption for a social media post.
+Write a single, punchy caption for a social media post. The caption will appear directly under the image in the post.
 
 Context:
 - Holiday: "{holiday}"
@@ -14,14 +14,14 @@ Caption requirements:
 
 Style constraints:
 - One sentence only.
-- Under 20 words.
-- Casual, internet-native tone.
+- Under 25 words, excluding emojis.
+- Casual, internet-native tone. Lowercase and sentence fragments are fine; avoid punctuation flourishes.
 - Use 1–3 emojis, not at the beginning.
 - Do not reuse any emoji from {header_emojis}; pick different ones that react to the image, not just the holiday.
-- No hashtags, no quotes.
+- No hashtags, no straight or curly quotes.
 
 Avoid:
-- Starting with “apparently” or “my cat.”
+- Starting with "apparently", "my cat", "when [x]...", or "me: [x]".
 - Explaining the joke.
 - Obvious puns or filler phrases.
 - Mentioning the holiday by name.

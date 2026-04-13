@@ -12,12 +12,13 @@ Currently posting to
 1. **Resolve date** — determines the target date (today or override)
 2. **Retrieve holidays** — fetches holidays via API for that date
 3. **Choose holiday** — selects one entry from the list
-4. **Construct header** — builds a formatted header line with emoji
+4. **Select emojis** — picks 1–3 emojis tied to the holiday (reserved for the header)
 5. **Generate prompt** — generates a relevant image prompt
 6. **Generate image** — generates an image from the prompt
-7. **Generate caption** — generates a structured caption (50-350 chars)
-8. **Publish** — sends the image + caption to configured platforms
-9. **Summary** — writes a run summary (config snapshot, run ID, publish status)
+7. **Construct header** — composes the header line `date — holiday emojis` from prior outputs
+8. **Generate caption** — generates a structured caption that avoids the header emojis
+9. **Publish** — sends the image + caption to configured platforms
+10. **Summary** — writes a run summary (config snapshot, run ID, publish status)
 
 Step order and config are defined in a pipeline YAML file under `configs/`. Artifacts are written to a per-run directory under the configured artifact root.
 
@@ -28,7 +29,7 @@ Step order and config are defined in a pipeline YAML file under `configs/`. Arti
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
 | Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_scrape` | `provider`, `inputs` |
 | Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
-| Construct header | `construct_header` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
+| Select emojis | `select_emojis` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate text | `generate_text` | `placeholder`, `constant`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate caption | `generate_caption` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate image | `generate_image` | `placeholder` (random pixels), `openai` (gpt-image-1-mini/1/1.5) | `provider`, `inputs`, `template` |
@@ -56,7 +57,7 @@ src/shitposter/
     resolve_date.py       # ResolveDateStep
     retrieve_holidays.py  # RetrieveHolidaysStep
     choose_holiday.py     # ChooseHolidayStep
-    construct_header.py   # ConstructHeaderStep
+    select_emojis.py      # SelectEmojisStep
     generate_text.py      # GenerateTextStep + GenerateCaptionStep
     generate_image.py     # GenerateImageStep
     publish_post.py       # PublishPostStep
@@ -170,10 +171,11 @@ Each run creates a directory under `<artifacts_path>/<run_id>/`:
   2_holiday.json
   3_prompt.json
   4_image.json
-  5_caption_header.json
-  6_caption_body.json
-  7_caption.json
-  8_publish.json
+  5_header_emojis.json
+  6_caption_header.json
+  7_caption_body.json
+  8_caption.json
+  9_publish.json
   image.png
   summary.json
 ```

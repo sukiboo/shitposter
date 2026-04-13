@@ -1,4 +1,4 @@
-Select one holiday from the list of holidays provided below via the selection rules (in order):
+Select one holiday from the list below using these rules in order:
 
 1. Dominant-holiday rule:
 If the list contains a holiday that is the clear, mainstream, culturally dominant holiday for this date (e.g. Christmas, Thanksgiving, New Year, Valentine's Day, Halloween, Easter -- what most people would immediately associate this date with that holiday), select that one.
@@ -15,8 +15,10 @@ Select ONE holiday that best fits these criteria:
 - Holidays that are hard to visualize or make a joke with
 - Holidays whose name requires too much explanation to be funny
 
+When rules 2 and 3 conflict, prefer the more visual option.
+
 Tie-breakers (only if needed):
-- Prefer holidays with concrete objects/activities (food, books, movies, rides, parties) over abstract themes.
+- Prefer holidays tied to a specific object or activity (food, books, movies, rides, parties) over generic appreciation days or abstract themes.
 - Prefer mid-tier recognizable holidays over the most generic “major” ones, unless rule (1) applies.
 
 List of holidays:

@@ -1,11 +1,14 @@
 Create a concise, vivid image generation prompt featuring a cat themed around {holiday}.
 
+Your output will be sent directly to an image generation model, so write it as a prompt for that model — not as a description of what you'd like it to do.
+
 Base scene:
 - A realistic cat in a clear, recognizable setting related to {holiday}.
 - One coherent scene, instantly readable at a glance.
 
 Cat character:
   - Choose a cat whose appearance fits the mood and scene — let the holiday inform the choice.
+  - Avoid defaulting to a generic adult house cat; pick an age/build/pattern that feels motivated by the scene.
   - Age: anywhere from wobbly kitten to dignified senior, not always adult.
   - Build: full range — tiny and scraggly to absolute chonk.
   - Color/pattern: vary freely — solid black, solid white, tuxedo, ginger, tortoiseshell, grey, calico, etc. Avoid defaulting to orange tabby.
@@ -28,6 +31,8 @@ Tone & constraints:
 Visual quality:
 - High detail, clean composition, clear focal point on the cat.
 - Limit camera/lighting jargon to at most two brief phrases.
+- No artist names, camera brands, or style tags (e.g. "shot on Kodak", "in the style of Pixar").
 
 Output:
 - A single, compact image prompt describing one frozen moment.
+- Maximum 80 words, one paragraph, no lists or headings.
