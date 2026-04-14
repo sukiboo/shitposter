@@ -15,7 +15,7 @@ Caption requirements:
 Style constraints:
 - One sentence only.
 - Under 25 words, excluding emojis.
-- Casual, internet-native tone. Lowercase and sentence fragments are fine; avoid punctuation flourishes.
+- Casual, internet-native tone. Start with a capital letter; sentence fragments are fine; avoid punctuation flourishes.
 - Use 1–3 emojis, not at the beginning.
 - Do not reuse any emoji from {header_emojis}; pick different ones that react to the image, not just the holiday.
 - No hashtags, no straight or curly quotes.
