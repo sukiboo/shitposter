@@ -16,7 +16,9 @@ def _mock_openai():
 
 
 class TestOpenAIModelValidation:
-    @pytest.mark.parametrize("model", ["gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"])
+    @pytest.mark.parametrize(
+        "model", ["gpt-image-2", "gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"]
+    )
     def test_allowed_models(self, model):
         provider = OpenAIImageProvider(**{**IMAGE_DEFAULTS, "model": model})
         assert provider.model == model

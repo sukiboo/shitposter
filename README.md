@@ -32,7 +32,7 @@ Step order and config are defined in a pipeline YAML file under `configs/`. Arti
 | Select emojis | `select_emojis` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate text | `generate_text` | `placeholder`, `constant`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate caption | `generate_caption` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
-| Generate image | `generate_image` | `placeholder` (random pixels), `openai` (gpt-image-1-mini/1/1.5) | `provider`, `inputs`, `template` |
+| Generate image | `generate_image` | `placeholder` (random pixels), `openai` (gpt-image-1-mini/1/1.5/2) | `provider`, `inputs`, `template` |
 | Publish | `publish_post` | `placeholder`, `telegram`, `debug`, `twitter` | `inputs`, `platforms` (list) |
 
 `inputs` declares which prior step outputs this step reads from (list or comma-separated string). Templates use `{step_name}` placeholders resolved from declared inputs only.

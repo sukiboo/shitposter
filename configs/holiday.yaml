@@ -27,7 +27,7 @@ steps:
   image:
     type: generate_image
     provider: openai
-    model: gpt-image-1.5
+    model: gpt-image-2
     inputs: prompt
     template: "{prompt}"
 
