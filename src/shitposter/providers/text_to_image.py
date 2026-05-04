@@ -1,11 +1,15 @@
 import base64
 import io
 import random
+import time
 from typing import Any
 
 from PIL import Image
 
 from shitposter.providers.base import ImageProvider
+
+MODERATION_RETRIES = 2
+MODERATION_RETRY_BACKOFF_SEC = 2.0
 
 
 class RandomImageProvider(ImageProvider):
@@ -66,15 +70,28 @@ class OpenAIImageProvider(ImageProvider):
         }
 
     def generate(self, prompt: str) -> bytes:
+        from openai import BadRequestError
+
         size: Any = f"{self.width}x{self.height}"
         quality: Any = self.quality
-        response = self.client.images.generate(
-            model=self.model,
-            prompt=prompt,
-            size=size,
-            quality=quality,
-            n=1,
-        )
+        for attempt in range(MODERATION_RETRIES + 1):
+            try:
+                response = self.client.images.generate(
+                    model=self.model,
+                    prompt=prompt,
+                    size=size,
+                    quality=quality,
+                    n=1,
+                )
+                break
+            except BadRequestError as e:
+                if (
+                    getattr(e, "code", None) != "moderation_blocked"
+                    or attempt == MODERATION_RETRIES
+                ):
+                    raise
+                print(f"image: moderation_blocked, retrying ({attempt + 1}/{MODERATION_RETRIES})")
+                time.sleep(MODERATION_RETRY_BACKOFF_SEC)
         b64 = response.data[0].b64_json  # type: ignore[index]
         if not b64:
             raise RuntimeError("OpenAI returned no image data")
