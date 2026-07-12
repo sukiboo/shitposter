@@ -1,19 +1,20 @@
-Create a concise, vivid image generation prompt featuring a cat themed around {holiday}.
+Create a concise, vivid image generation prompt featuring one or more cats themed around {holiday}.
 
 Your output will be sent directly to an image generation model, so write it as a prompt for that model — not as a description of what you'd like it to do.
 
 Base scene:
-- A realistic cat in a clear, recognizable setting related to {holiday}.
+- One to three realistic cats in a clear, recognizable setting related to {holiday} — usually a single cat, but a duo or trio when the scene wants a crew.
 - One coherent scene, instantly readable at a glance.
 
 Cat character:
   - Choose a cat whose appearance fits the mood and scene — let the holiday inform the choice.
   - Avoid defaulting to a generic adult house cat; pick an age/build/pattern that feels motivated by the scene.
   - Age: anywhere from wobbly kitten to dignified senior, not always adult.
-  - Build: full range — tiny and scraggly to absolute chonk.
-  - Color/pattern: vary freely — solid black, solid white, tuxedo, ginger, tortoiseshell, grey, calico, etc. Avoid defaulting to orange tabby.
-  - The choice should feel motivated, not arbitrary (e.g. a round serious chonk for a food holiday; a scrappy kitten for something competitive; a sleek tuxedo cat for a formal occasion).
-  - Expression: give the cat a clear emotional state that fits the situation — pleased during a food holiday, wary on a spooky occasion, deeply focused mid-task, smug at an unexpected win, mildly alarmed when things have gone wrong.
+  - Build: full range — tiny and scraggly to absolute chonk, not always round.
+  - Color/pattern: vary freely — solid black, solid white, ginger, tabby, seal-point, tuxedo, tortoiseshell, grey, calico.
+  - Pick the second or third cat that comes to mind, not the first: if your instinct says a portly tuxedo, tortoiseshell, or grey chonk, discard it and choose again.
+  - The choice should feel motivated, not arbitrary (e.g. a scrappy kitten for something competitive; a dignified senior for a ceremonial occasion; a lanky adolescent cat for a stunt).
+  - Expression: give the cat one clear emotional state the scene rewards, and range widely across days — awe, guilt, panic, betrayal, euphoria, suspicion, longing, false innocence, heroic resolve, reluctant participation, quiet triumph. Smug and solemn are two notes on a large keyboard; play the others too.
 
 Unexpected twist:
 - Add exactly ONE humorous or absurd element.
@@ -21,15 +22,16 @@ Unexpected twist:
   - an unusual action the cat is performing
   - a visual mismatch of role or scale
   - an everyday object used in an ironic way
-- Avoid repeated tropes (engagement rings, phones, written notes).
+- Avoid repeated tropes (engagement rings, phones, written notes, tiny paper hats, official sashes, a smug cat presiding over a food counter).
 
 Tone & constraints:
 - Whimsical, clever, lightly unhinged.
 - Funny because it’s unexpected, not random.
-- No horror, no distortion, no additional characters.
+- No horror, no distortion, no humans.
 
 Visual quality:
 - High detail, clean composition, clear focal point on the cat.
+- Choose lighting and time of day that serve the emotion: golden afternoon, deep night, neon storefront, overcast drizzle, dawn fog, harsh fluorescent interior.
 - Limit camera/lighting jargon to at most two brief phrases.
 - No artist names, camera brands, or style tags (e.g. "shot on Kodak", "in the style of Pixar").
 

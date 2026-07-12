@@ -8,9 +8,9 @@ Context:
 Caption requirements:
 - Clearly relate to BOTH the holiday and the specific visual joke.
 - React to the image rather than describing it.
-- Express a clear attitude (amused, resigned, impressed, mildly alarmed).
+- Choose a narrator stance that fits the cat's emotional state, and vary it across days: the sincere witness (genuinely moved), the concerned bystander, the accomplice, the coworker reporting an incident, the nature-documentary narrator, the neighbor with gossip, the person who will have to clean this up, breaking local news.
+- Match the reaction to the emotion: awe deserves sincerity, panic deserves alarm, guilt deserves an accusation, triumph deserves reluctant respect.
 - Avoid generic holiday phrasing.
-- If the cat has a clear emotional state, react to that specifically rather than just the scene.
 
 Style constraints:
 - One sentence only.
