@@ -11,6 +11,9 @@ Caption requirements:
 - Choose a narrator stance that fits the cat's emotional state, and vary it across days: the sincere witness (genuinely moved), the concerned bystander, the accomplice, the coworker reporting an incident, the nature-documentary narrator, the neighbor with gossip, the person who will have to clean this up, breaking local news.
 - Match the reaction to the emotion: awe deserves sincerity, panic deserves alarm, guilt deserves an accusation, triumph deserves reluctant respect.
 - Avoid generic holiday phrasing.
+- Land the joke without explaining it; trust the image.
+- Phrasing born from this specific image beats stock meme formats ("my cat...", "me: [x]", "POV:") and obvious puns.
+- Leave the holiday name to the header line above; the caption is pure reaction.
 
 Style constraints:
 - One sentence only.
@@ -20,8 +23,8 @@ Style constraints:
 - Do not reuse any emoji from {header_emojis}; pick different ones that react to the image, not just the holiday.
 - No hashtags, no straight or curly quotes.
 
-Avoid:
-- Starting with "apparently", "my cat", "when [x]...", or "me: [x]".
-- Explaining the joke.
-- Obvious puns or filler phrases.
-- Mentioning the holiday by name.
+Recent captions (from the last week, most recent first):
+{caption_history}
+
+- Your caption should not repeat their punchline structures, sentence shapes, or signature phrases.
+- If your joke lands close to any recent caption, find a fresh angle on today's image instead.

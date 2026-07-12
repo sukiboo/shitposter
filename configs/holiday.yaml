@@ -15,13 +15,18 @@ steps:
     inputs: holiday_list
     template: !file ./templates/holiday_selection_prompt.txt
 
+  prompt_history:
+    type: retrieve_history
+    step: prompt
+    runs: 7
+
   prompt:
     type: generate_text
     provider: anthropic
     model: claude-sonnet-4-6
     max_tokens: 4096
     budget_tokens: 2048
-    inputs: holiday
+    inputs: holiday, prompt_history
     template: !file ./templates/holiday_cat_image_prompt.txt
 
   image:
@@ -44,13 +49,18 @@ steps:
     inputs: date, holiday, header_emojis
     template: "{date:%B %-d} \u2014 {holiday} {header_emojis}"
 
+  caption_history:
+    type: retrieve_history
+    step: caption_body
+    runs: 7
+
   caption_body:
     type: generate_caption
     provider: anthropic
     model: claude-sonnet-4-6
     max_tokens: 4096
     budget_tokens: 2048
-    inputs: holiday, prompt, header_emojis
+    inputs: holiday, prompt, header_emojis, caption_history
     template: !file ./templates/holiday_cat_caption_prompt.txt
 
   caption:

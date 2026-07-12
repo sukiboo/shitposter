@@ -35,6 +35,12 @@ Visual quality:
 - Limit camera/lighting jargon to at most two brief phrases.
 - No artist names, camera brands, or style tags (e.g. "shot on Kodak", "in the style of Pixar").
 
+Recent posts (image prompts from the last week, most recent first):
+{prompt_history}
+
+- Your prompt must differ clearly from all of the above in coat/pattern, build, setting, twist, and mood.
+- If your idea overlaps with any recent post, discard it and take a different angle.
+
 Output:
 - A single, compact image prompt describing one frozen moment.
 - Maximum 80 words, one paragraph, no lists or headings.

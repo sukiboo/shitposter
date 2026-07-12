@@ -28,6 +28,7 @@ Step order and config are defined in a pipeline YAML file under `configs/`. Arti
 |---|---|---|---|
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
 | Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_scrape` | `provider`, `inputs` |
+| Retrieve history | `retrieve_history` | — (reads past run summaries) | `step`, `runs` |
 | Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Select emojis | `select_emojis` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate text | `generate_text` | `placeholder`, `constant`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
@@ -55,6 +56,7 @@ src/shitposter/
   steps/
     base.py               # Step ABC + StepResult
     resolve_date.py       # ResolveDateStep
+    retrieve_history.py   # RetrieveHistoryStep
     retrieve_holidays.py  # RetrieveHolidaysStep
     choose_holiday.py     # ChooseHolidayStep
     select_emojis.py      # SelectEmojisStep
