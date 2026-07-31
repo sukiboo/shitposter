@@ -70,7 +70,8 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
     def generate(self, prompt: str) -> str:
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.responses.parse(
+                response = self._api_call(
+                    self.client.responses.parse,
                     model=self.model,
                     input=prompt,
                     text_format=self._CaptionResponse,
@@ -82,7 +83,8 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
                 self._meta["errors"].append(str(e))
                 continue
         self._meta["errors"].append("all retries failed, fell back to unstructured")
-        response = self.client.responses.create(
+        response = self._api_call(
+            self.client.responses.create,
             model=self.model,
             input=prompt,
             reasoning={"effort": self.effort},
@@ -155,7 +157,7 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
     def generate(self, prompt: str) -> str:
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.messages.create(**self._api_kwargs(prompt))
+                response = self._api_call(self.client.messages.create, **self._api_kwargs(prompt))
                 block = next(b for b in response.content if b.type == "tool_use")
                 caption = str(block.input["caption"])  # type: ignore[index]
                 if CAPTION_MIN_LENGTH <= len(caption) <= CAPTION_MAX_LENGTH:
@@ -165,6 +167,8 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
                 self._meta["errors"].append(str(e))
                 continue
         self._meta["errors"].append("all retries failed, fell back to unstructured")
-        response = self.client.messages.create(**self._api_kwargs(prompt, use_tool=False))
+        response = self._api_call(
+            self.client.messages.create, **self._api_kwargs(prompt, use_tool=False)
+        )
         block = next(b for b in response.content if b.type == "text")
         return block.text

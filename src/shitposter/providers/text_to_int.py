@@ -64,7 +64,8 @@ class OpenAITextToIntProvider(TextToIntProvider):
         text_format = self._response_model(len(entries))
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.responses.parse(
+                response = self._api_call(
+                    self.client.responses.parse,
                     model=self.model,
                     input=full_prompt,
                     text_format=text_format,
@@ -146,7 +147,7 @@ class AnthropicTextToIntProvider(TextToIntProvider):
                     kwargs["tool_choice"] = {"type": "auto"}
                 else:
                     kwargs["tool_choice"] = {"type": "tool", "name": "choose"}
-                response = self.client.messages.create(**kwargs)
+                response = self._api_call(self.client.messages.create, **kwargs)
                 block = next(b for b in response.content if b.type == "tool_use")
                 index = int(block.input["index"])  # type: ignore[index]
                 if 1 <= index <= len(entries):

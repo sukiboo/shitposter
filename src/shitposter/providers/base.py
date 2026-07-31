@@ -1,8 +1,9 @@
 import time
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import date
-from typing import ClassVar
+from typing import Any, ClassVar
 
 
 class ProviderBase(ABC):
@@ -16,6 +17,15 @@ class ProviderBase(ABC):
 
     def metadata(self) -> dict:
         return {"provider": self.name, **{k: v for k, v in self._meta.items() if v}}
+
+    def _api_call(self, api: Callable[..., Any], **kwargs: Any) -> Any:
+        response = api(**kwargs)
+        usage = getattr(response, "usage", None)
+        if usage is not None:
+            self._meta["usage"].append(
+                {"input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens}
+            )
+        return response
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

@@ -57,7 +57,8 @@ class OpenAITextProvider(TextProvider):
         return {**super().metadata(), "model": self.model, "effort": self.effort}
 
     def generate(self, prompt: str) -> str:
-        response = self.client.responses.create(
+        response = self._api_call(
+            self.client.responses.create,
             model=self.model,
             input=prompt,
             reasoning={"effort": self.effort},
@@ -100,6 +101,6 @@ class AnthropicTextProvider(TextProvider):
             "messages": [{"role": "user", "content": prompt}],
         }
         kwargs.update(thinking_kwargs(self.model, self.budget_tokens, self.effort))
-        response = self.client.messages.create(**kwargs)
+        response = self._api_call(self.client.messages.create, **kwargs)
         block = next(b for b in response.content if b.type == "text")
         return block.text

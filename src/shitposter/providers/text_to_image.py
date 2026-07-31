@@ -76,7 +76,8 @@ class OpenAIImageProvider(ImageProvider):
         quality: Any = self.quality
         for attempt in range(MODERATION_RETRIES + 1):
             try:
-                response = self.client.images.generate(
+                response = self._api_call(
+                    self.client.images.generate,
                     model=self.model,
                     prompt=prompt,
                     size=size,

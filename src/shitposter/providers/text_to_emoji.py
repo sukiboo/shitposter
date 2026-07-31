@@ -77,7 +77,8 @@ class OpenAITextToEmojiProvider(TextToEmojiProvider):
         text_format = self._response_model()
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.responses.parse(
+                response = self._api_call(
+                    self.client.responses.parse,
                     model=self.model,
                     input=prompt,
                     text_format=text_format,
@@ -154,7 +155,7 @@ class AnthropicTextToEmojiProvider(TextToEmojiProvider):
                     kwargs["tool_choice"] = {"type": "auto"}
                 else:
                     kwargs["tool_choice"] = {"type": "tool", "name": "emojis"}
-                response = self.client.messages.create(**kwargs)
+                response = self._api_call(self.client.messages.create, **kwargs)
                 block = next(b for b in response.content if b.type == "tool_use")
                 emojis = block.input["emojis"]  # type: ignore[index]
                 if not (EMOJI_MIN_COUNT <= len(emojis) <= EMOJI_MAX_COUNT):
