@@ -1,5 +1,11 @@
 from pydantic import BaseModel, Field
 
+from shitposter.constants import (
+    ANTHROPIC_TEXT_MODELS,
+    OPENAI_EFFORT_LEVELS,
+    OPENAI_TEXT_MODELS,
+)
+from shitposter.providers.anthropic_common import thinking_kwargs, validate_thinking
 from shitposter.providers.base import TextToCaptionProvider
 
 CAPTION_MIN_LENGTH = 50
@@ -24,8 +30,8 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
     """Caption generation via OpenAI structured output, enforcing appropriate length."""
 
     name = "openai"
-    ALLOWED_MODELS = {"gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"}
-    ALLOWED_EFFORTS = {"none", "low", "medium", "high"}
+    ALLOWED_MODELS = OPENAI_TEXT_MODELS
+    ALLOWED_EFFORTS = OPENAI_EFFORT_LEVELS
     MAX_RETRIES = 3
 
     _CaptionResponse = type(
@@ -88,7 +94,7 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
     """Caption generation via Anthropic tool use, enforcing appropriate length."""
 
     name = "anthropic"
-    ALLOWED_MODELS = {"claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"}
+    ALLOWED_MODELS = ANTHROPIC_TEXT_MODELS
     MAX_RETRIES = 3
 
     _TOOL = {
@@ -115,21 +121,20 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
         self.model = kwargs.get("model", "claude-sonnet-4-6")
         self.max_tokens = int(kwargs.get("max_tokens", 1024))
         self.budget_tokens = int(kwargs["budget_tokens"]) if "budget_tokens" in kwargs else None
+        self.effort = kwargs.get("effort")
 
         if self.model not in self.ALLOWED_MODELS:
             raise ValueError(
                 f"Unsupported model '{self.model}'. " f"Allowed: {', '.join(self.ALLOWED_MODELS)}"
             )
-        if self.budget_tokens is not None:
-            if self.budget_tokens < 1024:
-                raise ValueError("budget_tokens must be at least 1024")
-            if self.budget_tokens >= self.max_tokens:
-                raise ValueError("max_tokens must be greater than budget_tokens")
+        validate_thinking(self.model, self.max_tokens, self.budget_tokens, self.effort)
 
     def metadata(self) -> dict:
         meta = {**super().metadata(), "model": self.model, "max_tokens": self.max_tokens}
         if self.budget_tokens is not None:
             meta["budget_tokens"] = self.budget_tokens
+        if self.effort is not None:
+            meta["effort"] = self.effort
         return meta
 
     def _api_kwargs(self, prompt: str, use_tool: bool = True) -> dict:
@@ -138,15 +143,13 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
             "max_tokens": self.max_tokens,
             "messages": [{"role": "user", "content": prompt}],
         }
+        kwargs.update(thinking_kwargs(self.model, self.budget_tokens, self.effort))
         if use_tool:
             kwargs["tools"] = [self._TOOL]
-            if self.budget_tokens is not None:
-                kwargs["thinking"] = {"type": "enabled", "budget_tokens": self.budget_tokens}
+            if "thinking" in kwargs:
                 kwargs["tool_choice"] = {"type": "auto"}
             else:
                 kwargs["tool_choice"] = {"type": "tool", "name": "caption"}
-        elif self.budget_tokens is not None:
-            kwargs["thinking"] = {"type": "enabled", "budget_tokens": self.budget_tokens}
         return kwargs
 
     def generate(self, prompt: str) -> str:
