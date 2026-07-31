@@ -7,7 +7,15 @@ from shitposter.providers.text_to_emoji import AnthropicTextToEmojiProvider
 from shitposter.providers.text_to_int import AnthropicTextToIntProvider
 from shitposter.providers.text_to_text import AnthropicTextProvider
 
-ALLOWED_MODELS = ["claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"]
+ALLOWED_MODELS = [
+    "claude-opus-5",
+    "claude-opus-4-8",
+    "claude-opus-4-6",
+    "claude-sonnet-5",
+    "claude-sonnet-4-6",
+    "claude-haiku-4-5",
+    "claude-haiku-4-5-20251001",
+]
 
 
 @pytest.fixture(autouse=True)
@@ -64,6 +72,24 @@ class TestAnthropicTextBudgetTokens:
             AnthropicTextProvider(max_tokens=2048, budget_tokens=4096)
 
 
+class TestAnthropicThinkingValidation:
+    def test_rejects_budget_tokens_on_adaptive_model(self):
+        with pytest.raises(ValueError, match="rejects budget_tokens"):
+            AnthropicTextProvider(model="claude-sonnet-5", max_tokens=4096, budget_tokens=2048)
+
+    def test_rejects_effort_on_model_without_support(self):
+        with pytest.raises(ValueError, match="does not support effort"):
+            AnthropicTextProvider(model="claude-haiku-4-5", effort="high")
+
+    def test_rejects_unknown_effort(self):
+        with pytest.raises(ValueError, match="Unsupported effort 'turbo'"):
+            AnthropicTextProvider(model="claude-sonnet-5", effort="turbo")
+
+    def test_accepts_effort_on_supported_model(self):
+        provider = AnthropicTextProvider(model="claude-sonnet-4-6", effort="max")
+        assert provider.effort == "max"
+
+
 class TestAnthropicTextMetadata:
     def test_metadata_without_budget(self):
         provider = AnthropicTextProvider()
@@ -104,6 +130,27 @@ class TestAnthropicTextGenerate:
 
         call_kwargs = provider.client.messages.create.call_args.kwargs
         assert call_kwargs["thinking"] == {"type": "enabled", "budget_tokens": 2048}
+
+    def test_generate_passes_adaptive_thinking_on_newer_model(self):
+        provider = AnthropicTextProvider(model="claude-sonnet-5")
+        text_block = MagicMock(type="text", text="ok")
+        provider.client.messages.create.return_value.content = [text_block]
+
+        provider.generate("test")
+
+        call_kwargs = provider.client.messages.create.call_args.kwargs
+        assert call_kwargs["thinking"] == {"type": "adaptive"}
+        assert "budget_tokens" not in call_kwargs["thinking"]
+
+    def test_generate_passes_effort_on_newer_model(self):
+        provider = AnthropicTextProvider(model="claude-sonnet-5", effort="high")
+        text_block = MagicMock(type="text", text="ok")
+        provider.client.messages.create.return_value.content = [text_block]
+
+        provider.generate("test")
+
+        call_kwargs = provider.client.messages.create.call_args.kwargs
+        assert call_kwargs["output_config"] == {"effort": "high"}
 
     def test_generate_no_thinking_without_budget(self):
         provider = AnthropicTextProvider()

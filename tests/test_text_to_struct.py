@@ -26,7 +26,9 @@ def _mock_openai():
 
 
 class TestOpenAIModelValidation:
-    @pytest.mark.parametrize("model", ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"])
+    @pytest.mark.parametrize(
+        "model", ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2", "gpt-5.6-terra"]
+    )
     def test_allowed_models(self, model):
         provider = OpenAITextToIntProvider(model=model)
         assert provider.model == model

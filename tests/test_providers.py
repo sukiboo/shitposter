@@ -6,7 +6,7 @@ from shitposter.providers.text_to_image import OpenAIImageProvider, RandomImageP
 from shitposter.providers.text_to_text import OpenAITextProvider
 
 IMAGE_DEFAULTS = {"model": "gpt-image-1-mini", "width": 1024, "height": 1024, "quality": "medium"}
-CAPTION_DEFAULTS = {"model": "gpt-5-nano", "temperature": 1.0}
+CAPTION_DEFAULTS = {"model": "gpt-5-nano"}
 
 
 @pytest.fixture(autouse=True)
@@ -60,7 +60,15 @@ class TestOpenAISizeValidation:
 class TestCaptionModelValidation:
     @pytest.mark.parametrize(
         "model",
-        ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-5.1", "gpt-5.2"],
+        [
+            "gpt-5-nano",
+            "gpt-5-mini",
+            "gpt-5",
+            "gpt-5.1",
+            "gpt-5.2",
+            "gpt-5.6-luna",
+            "gpt-5.6-terra",
+        ],
     )
     def test_allowed_models(self, model):
         provider = OpenAITextProvider(**{**CAPTION_DEFAULTS, "model": model})
