@@ -8,11 +8,16 @@ steps:
     provider: checkiday
     inputs: date
 
+  holiday_history:
+    type: retrieve_history
+    step: holiday
+    runs: 14
+
   holiday:
     type: choose_holiday
     provider: openai
     model: gpt-5.6-luna
-    inputs: holiday_list
+    inputs: holiday_list, holiday_history
     template: !file ./templates/holiday_selection_prompt.txt
 
   prompt_history:
@@ -35,11 +40,16 @@ steps:
     inputs: prompt
     template: "{prompt}"
 
+  header_emoji_history:
+    type: retrieve_history
+    step: header_emojis
+    runs: 14
+
   header_emojis:
     type: select_emojis
     provider: openai
     model: gpt-5.6-luna
-    inputs: holiday
+    inputs: holiday, header_emoji_history
     template: !file ./templates/holiday_emoji_prompt.txt
 
   caption_header:
@@ -51,7 +61,7 @@ steps:
   caption_history:
     type: retrieve_history
     step: caption_body
-    runs: 7
+    runs: 14
 
   caption_body:
     type: generate_caption

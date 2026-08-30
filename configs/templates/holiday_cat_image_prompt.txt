@@ -1,46 +1,30 @@
-Create a concise, vivid image generation prompt featuring one or more cats themed around {holiday}.
+Create one concise image-generation prompt for a funny cat image inspired by {holiday}.
 
-Your output will be sent directly to an image generation model, so write it as a prompt for that model — not as a description of what you'd like it to do.
+The holiday is creative context only. Its name will appear in the post header, so the image must not explain or advertise the holiday.
 
-Base scene:
-- One to three realistic cats in a clear, recognizable setting related to {holiday} — usually a single cat, but a duo or trio when the scene wants a crew.
-- One coherent scene, instantly readable at a glance.
+Creative priorities, in order:
+1. One visual joke that reads immediately at thumbnail size.
+2. The cat is the obvious focal point.
+3. A clean composition containing only what the joke needs.
 
-Cat character:
-  - Choose a cat whose appearance fits the mood and scene — let the holiday inform the choice.
-  - Avoid defaulting to a generic adult house cat; pick an age/build/pattern that feels motivated by the scene.
-  - Age: anywhere from wobbly kitten to dignified senior, not always adult.
-  - Build: full range — tiny and scraggly to absolute chonk, not always round.
-  - Color/pattern: vary freely — solid black, solid white, ginger, tabby, seal-point, tuxedo, tortoiseshell, grey, calico.
-  - Pick the second or third cat that comes to mind, not the first: if your instinct says a portly tuxedo, tortoiseshell, or grey chonk, discard it and choose again.
-  - The choice should feel motivated, not arbitrary (e.g. a scrappy kitten for something competitive; a dignified senior for a ceremonial occasion; a lanky adolescent cat for a stunt).
-  - Expression: give the cat one clear emotional state the scene rewards, and range widely across days — awe, guilt, panic, betrayal, euphoria, suspicion, longing, false innocence, heroic resolve, reluctant participation, quiet triumph. Smug and solemn are two notes on a large keyboard; play the others too.
+Scene rules:
+- Use one realistic cat unless a second cat is essential to the joke.
+- Give the cat one clear action and one clear emotion.
+- Build the joke around one essential object, unusual action, or mismatch of role or scale.
+- Use the simplest natural setting for that joke. Keep the background sparse and incidental.
+- Connect the image to the holiday through the central action or object, never through decorations.
+- Prefer an ordinary scene with one absurd detail over an elaborate themed scene.
 
-Unexpected twist:
-- Add exactly ONE humorous or absurd element.
-- The twist must be visual and fall into ONE category:
-  - an unusual action the cat is performing
-  - a visual mismatch of role or scale
-  - an everyday object used in an ironic way
-- Avoid repeated tropes (engagement rings, phones, written notes, tiny paper hats, official sashes, a smug cat presiding over a food counter).
+Hard exclusions:
+- Do not include the holiday name in the output.
+- No visible writing or typography: no signs, banners, bunting, pennants, posters, menus, labels, logos, branded packaging, or text decorations.
+- No generic celebration decorations or collections of holiday-related props.
+- No lists of background objects, crowded displays, event booths, or staged promotional scenes.
+- No humans, horror, or distorted anatomy.
 
-Tone & constraints:
-- Whimsical, clever, lightly unhinged.
-- Funny because it’s unexpected, not random.
-- No horror, no distortion, no humans.
-
-Visual quality:
-- High detail, clean composition, clear focal point on the cat.
-- Choose lighting and time of day that serve the emotion: golden afternoon, deep night, neon storefront, overcast drizzle, dawn fog, harsh fluorescent interior.
-- Limit camera/lighting jargon to at most two brief phrases.
-- No artist names, camera brands, or style tags (e.g. "shot on Kodak", "in the style of Pixar").
-
-Recent posts (image prompts from the last week, most recent first):
+Recent image prompts, most recent first:
 {prompt_history}
 
-- Your prompt must differ clearly from all of the above in coat/pattern, build, setting, twist, and mood.
-- If your idea overlaps with any recent post, discard it and take a different angle.
+Choose a different central joke, cat appearance, setting, and emotion from recent posts. Do not add props or scenery merely to make the image different.
 
-Output:
-- A single, compact image prompt describing one frozen moment.
-- Maximum 80 words, one paragraph, no lists or headings.
+Output only the final image prompt: one paragraph, at most 55 words. Describe only visible details essential to the subject, joke, sparse setting, and lighting. Do not use the holiday name, headings, explanations, camera jargon, artist names, or style tags.

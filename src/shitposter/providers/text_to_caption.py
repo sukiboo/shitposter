@@ -8,11 +8,11 @@ from shitposter.constants import (
 from shitposter.providers.anthropic_common import thinking_kwargs, validate_thinking
 from shitposter.providers.base import TextToCaptionProvider
 
-CAPTION_MIN_LENGTH = 50
-CAPTION_MAX_LENGTH = 350
+CAPTION_MIN_LENGTH = 15
+CAPTION_MAX_LENGTH = 180
 CAPTION_DESCRIPTION = (
-    "A concise, punchy social caption that makes the image feel "
-    "funnier; witty, internet-native, not a literal description."
+    "A short, punchy social caption that adds a second comedic beat to the image; "
+    "specific, surprising, internet-native, and not a literal description."
 )
 
 

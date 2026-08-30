@@ -22,6 +22,31 @@ def test_placeholder_picks_first(run_ctx):
     assert result.summary == "chose #0: 'National Pizza Day'"
 
 
+def test_additional_inputs_are_prompt_context(run_ctx):
+    entries = ["National Pizza Day", "Hug a Cat Day"]
+    history = "- 2026-01-14: National Bagel Day"
+    run_ctx.state.update({"holidays": entries, "holiday_history": history})
+
+    with patch(
+        "shitposter.providers.text_to_int.PlaceholderTextToIntProvider.generate",
+        return_value=1,
+    ) as generate:
+        step = ChooseHolidayStep(
+            run_ctx,
+            {
+                "provider": "placeholder",
+                "inputs": ["holidays", "holiday_history"],
+                "template": "Recent selections:\n{holiday_history}",
+            },
+            "holiday",
+            1,
+        )
+        step.execute()
+
+    generate.assert_called_once_with(f"Recent selections:\n{history}", entries)
+    assert step.output == "Hug a Cat Day"
+
+
 def test_step_sets_state(run_ctx):
     entries = ["Day A", "Day B", "Day C"]
     run_ctx.state["holidays"] = entries

@@ -1,11 +1,18 @@
 Choose 1–3 emojis that best represent the holiday: {holiday}.
 
-Pick the emojis most tightly associated with the holiday itself — these will be reserved for the post header, and the caption will pick different ones reacting to the image. So here you should commit to the "obvious" definitional picks.
+Pick emojis tightly associated with the holiday itself. These will be reserved for the post header; the caption will use different emojis to react to the image.
 
-Guidelines:
-- Prefer concrete, literal symbols tied to the holiday name (animals/objects/activities).
-- If the holiday implies a specific setting or tradition, reflect that (e.g., books for reading/library, film for movie day).
-- Use at most ONE generic celebration emoji (🎉✨🎊) and only if it genuinely fits.
-- Avoid emojis that imply heavy/serious topics (medical, tragedy) unless the holiday explicitly requires it.
-- If the holiday is ambiguous, choose broadly understandable symbols rather than niche references.
-- If multiple emoji sets are plausible, choose the one that feels most distinctive and meme-friendly.
+Recent header emoji choices, most recent first:
+{header_emoji_history}
+
+Selection priorities:
+1. Relevance: prefer concrete, literal symbols tied to the holiday's object, animal, activity, setting, or tradition.
+2. Clarity: choose symbols that are broadly understandable without explanation.
+3. Diversity: when multiple choices are equally relevant and clear, prefer emojis used less frequently and less recently in the history above.
+
+Recent use is a soft preference, not a prohibition. Reuse an emoji when it is clearly the most accurate choice; never choose a weak or confusing symbol solely for novelty.
+
+Additional guidelines:
+- Use at most one generic celebration emoji (🎉✨🎊), and only when it genuinely fits.
+- Avoid emojis that imply heavy or serious topics unless the holiday explicitly requires one.
+- If multiple emoji sets remain equally strong, choose the one that feels most distinctive and meme-friendly.

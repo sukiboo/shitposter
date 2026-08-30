@@ -1,6 +1,6 @@
 # shitposter
 
-Automated content generation and posting pipeline. Generates images, builds captions, and posts to Telegram. Designed to run on a VPS with a systemd timer.
+Automated content generation and posting pipeline. Generates images, builds captions, and posts to configured social platforms. Designed to run on a VPS with a systemd timer.
 
 Currently posting to
 - Telegram: [Cat Slop Daily](https://t.me/catslopdaily)
@@ -10,24 +10,24 @@ Currently posting to
 ## Pipeline
 
 1. **Resolve date** — determines the target date (today or override)
-2. **Retrieve holidays** — fetches holidays via API for that date
-3. **Choose holiday** — selects one entry from the list
-4. **Select emojis** — picks 1–3 emojis tied to the holiday (reserved for the header)
-5. **Generate prompt** — generates a relevant image prompt
-6. **Generate image** — generates an image from the prompt
-7. **Construct header** — composes the header line `date — holiday emojis` from prior outputs
-8. **Generate caption** — generates a structured caption that avoids the header emojis
-9. **Publish** — sends the image + caption to configured platforms
-10. **Summary** — writes a run summary (config snapshot, run ID, publish status)
+2. **Retrieve holidays** — fetches holidays for that date
+3. **Choose holiday** — selects an entry while considering the previous 14 published choices, including recent category use
+4. **Generate prompt** — uses the holiday and recent prompt history to create a minimal, single-joke image prompt
+5. **Generate image** — generates an image from the prompt
+6. **Select emojis** — chooses holiday-specific header emojis while softly preferring choices not used recently
+7. **Construct header** — composes `date — holiday emojis`
+8. **Generate caption** — adds a short second comedic beat using recent captions and emoji choices as diversity context
+9. **Publish** — sends the image and caption to configured platforms
+10. **Summary** — records the run ID, status, and metadata for every step
 
-Step order and config are defined in a pipeline YAML file under `configs/`. Artifacts are written to a per-run directory under the configured artifact root.
+History steps read outputs from previously published run summaries. Their recency rules are soft preferences: relevance and content quality still take priority over novelty. Step order and configuration are defined in a pipeline YAML file under `configs/`. Artifacts are written to a per-run directory under the configured artifact root.
 
 ## Steps and providers
 
 | Step | Type | Providers | Config |
 |---|---|---|---|
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
-| Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_scrape` | `provider`, `inputs` |
+| Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_api`, `checkiday_scrape` | `provider`, `inputs` |
 | Retrieve history | `retrieve_history` | — (reads past run summaries) | `step`, `runs` |
 | Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Select emojis | `select_emojis` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
@@ -167,17 +167,21 @@ uv run shitposter run -s simple
 Each run creates a directory under `<artifacts_path>/<run_id>/`:
 
 ```
-2026-02-08_09-00-00/
+2026-08-30_10-15-54/
   0_date.json
   1_holiday_list.json
-  2_holiday.json
-  3_prompt.json
-  4_image.json
-  5_header_emojis.json
-  6_caption_header.json
-  7_caption_body.json
-  8_caption.json
-  9_publish.json
+  2_holiday_history.json
+  3_holiday.json
+  4_prompt_history.json
+  5_prompt.json
+  6_image.json
+  7_header_emoji_history.json
+  8_header_emojis.json
+  9_caption_header.json
+  10_caption_history.json
+  11_caption_body.json
+  12_caption.json
+  13_publish.json
   image.png
   summary.json
 ```

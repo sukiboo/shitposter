@@ -1,30 +1,33 @@
-Write a single, punchy caption for a social media post. The caption will appear directly under the image in the post.
+Write one punchy social caption to appear beneath the image and its holiday header.
 
 Context:
-- Holiday: "{holiday}"
+- Holiday shown in the header: "{holiday}"
 - Image description: """{prompt}"""
 - Emojis already used in the header: {header_emojis}
 
-Caption requirements:
-- Clearly relate to BOTH the holiday and the specific visual joke.
-- React to the image rather than describing it.
-- Choose a narrator stance that fits the cat's emotional state, and vary it across days: the sincere witness (genuinely moved), the concerned bystander, the accomplice, the coworker reporting an incident, the nature-documentary narrator, the neighbor with gossip, the person who will have to clean this up, breaking local news.
-- Match the reaction to the emotion: awe deserves sincerity, panic deserves alarm, guilt deserves an accusation, triumph deserves reluctant respect.
-- Avoid generic holiday phrasing.
-- Land the joke without explaining it; trust the image.
-- Phrasing born from this specific image beats stock meme formats ("my cat...", "me: [x]", "POV:") and obvious puns.
-- Leave the holiday name to the header line above; the caption is pure reaction.
+Purpose:
+- Add a second comedic beat to the image instead of describing or explaining it.
+- Find a specific implication, reaction, consequence, or attitude that only makes sense for this exact image.
+- Trust the viewer to understand the visual joke and the header; do not repeat the holiday name.
+- Prefer a sharp, surprising observation over a generic statement about the cat's effort, confidence, commitment, or authority.
+- Do not default to a workplace incident, official investigation, protocol, management, or breaking-news framing. Use a stock narrator persona only when the image uniquely earns it.
+- Avoid stock meme formats, obvious puns, and generic holiday phrasing.
 
-Style constraints:
-- One sentence only.
-- Under 25 words, excluding emojis.
-- Casual, internet-native tone. Start with a capital letter; sentence fragments are fine; avoid punctuation flourishes.
-- Use 1–3 emojis, not at the beginning.
-- Do not reuse any emoji from {header_emojis}; pick different ones that react to the image, not just the holiday.
-- No hashtags, no straight or curly quotes.
+Style:
+- One line and 4–18 words, excluding emojis.
+- A complete sentence is optional; concise fragments and unusual sentence shapes are welcome.
+- Casual, internet-native, and immediately understandable. Start with a capital letter.
+- Use 1–3 reaction emojis, not at the beginning.
+- Do not reuse any emoji from {header_emojis}.
+- No hashtags, quotation marks, or decorative punctuation.
 
-Recent captions (from the last week, most recent first):
+Recent captions, most recent first:
 {caption_history}
 
-- Your caption should not repeat their punchline structures, sentence shapes, or signature phrases.
-- If your joke lands close to any recent caption, find a fresh angle on today's image instead.
+Diversity requirements:
+- Do not repeat recent premises, punchline structures, sentence shapes, or signature phrases.
+- Review the reaction emojis in recent captions. When several fit equally well, prefer ones used less frequently and less recently.
+- Recent emoji use is a soft preference, not a prohibition. Reuse one when it is clearly the best reaction; never choose an irrelevant emoji solely for novelty.
+- If the joke or emoji choice resembles a recent caption, take a different angle before answering.
+
+Output only the final caption.

@@ -189,6 +189,14 @@ class TestAnthropicCaptionGenerate:
 
         assert provider.generate("make a caption") == "a" * 100
 
+    def test_accepts_short_punchy_caption(self):
+        provider = AnthropicTextToCaptionProvider()
+        caption = "Tiny paws, huge liability 😬"
+        tool_block = MagicMock(type="tool_use", input={"caption": caption})
+        provider.client.messages.create.return_value.content = [tool_block]
+
+        assert provider.generate("make a caption") == caption
+
     def test_rejects_caption_too_short(self):
         provider = AnthropicTextToCaptionProvider()
         short_block = MagicMock(type="tool_use", input={"caption": "too short"})

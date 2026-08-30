@@ -1,24 +1,32 @@
-Select one holiday from the list below using these rules in order:
+Select one holiday from the numbered candidate list.
 
-1. Dominant-holiday rule:
-If the list contains a holiday that is the clear, mainstream, culturally dominant holiday for this date (e.g. Christmas, Thanksgiving, New Year, Valentine's Day, Halloween, Easter -- what most people would immediately associate this date with that holiday), select that one.
+Recent selections, most recent first:
+{holiday_history}
 
-2. If no dominant holiday present:
-Select ONE holiday that best fits these criteria:
-- Broadly understandable without explanation
-- Strong visual symbols or situations (easy to imagine as an image)
-- Comedically “playable” for absurd cat content
-- Not extremely niche or awkward
+Apply these rules in priority order:
 
-3. Avoid if possible:
-- Heavy/serious observances (political, tragedy, medical, awareness campaigns)
-- Holidays that are hard to visualize or make a joke with
-- Holidays whose name requires too much explanation to be funny
+1. Dominant holiday
+If the candidates include the clear mainstream holiday most people associate with this date, choose it regardless of recent category history. Examples include Christmas, Thanksgiving, New Year, Valentine's Day, Halloween, and Easter.
 
-When rules 2 and 3 conflict, prefer the more visual option.
+2. Content quality
+Prefer a holiday that:
+- is broadly understandable without explanation
+- naturally creates an action, conflict, or visual situation
+- supports a simple cat joke without signs, decorations, or a collection of themed props
+- is playful rather than serious, political, medical, tragic, or awareness-focused
 
-Tie-breakers (only if needed):
-- Prefer holidays tied to a specific object or activity (food, books, movies, rides, parties) over generic appreciation days or abstract themes.
-- Prefer mid-tier recognizable holidays over the most generic “major” ones, unless rule (1) applies.
+3. Category diversity
+Infer a broad category for every strong candidate and recent selection, such as food or drink, animals, activity or sport, culture or entertainment, nature or seasonal, technology or work, or social and everyday life.
 
-List of holidays:
+Treat recent category use as a soft penalty:
+- Strongly prefer a different category after several similar recent selections.
+- Give extra scrutiny to food, drink, and branded promotional observances because they often produce repetitive premises.
+- Prefer a less-used category only when its candidate is comparably clear, visual, and funny.
+- Never choose an obscure or weak holiday solely for category diversity.
+- If all strong candidates share a category, choose the best one.
+
+4. Judge the subject, not the title
+Do not penalize a holiday merely because its name begins with "National." Penalize repetitive subject matter and weak promotional observances, not the word itself.
+
+5. Tie-breaker
+Prefer the candidate whose joke can be communicated through one cat, one central action, and one essential object. Prefer a naturally funny situation over an object that would merely be placed beside a cat.
