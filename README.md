@@ -12,7 +12,7 @@ Currently posting to
 1. **Resolve date** — determines the target date (today or override)
 2. **Retrieve holidays** — fetches holidays for that date
 3. **Choose holiday** — selects an entry while considering the previous 14 published choices, including recent category use
-4. **Generate prompt** — uses the holiday and recent prompt history to create a minimal, single-joke image prompt
+4. **Generate prompt** — creates a clean, single-joke image prompt for the holiday, with a natural, recognizable setting; recent prompts guide diversity rather than style imitation
 5. **Generate image** — generates an image from the prompt
 6. **Select emojis** — chooses holiday-specific header emojis while softly preferring choices not used recently
 7. **Construct header** — composes `date — holiday emojis`

@@ -11,7 +11,7 @@ Scene rules:
 - Use one realistic cat unless a second cat is essential to the joke.
 - Give the cat one clear action and one clear emotion.
 - Build the joke around one essential object, unusual action, or mismatch of role or scale.
-- Use the simplest natural setting for that joke. Keep the background sparse and incidental.
+- Use a natural, recognizable setting for the action, with a little ordinary context that makes the place clear. Keep the cat and joke visually dominant.
 - Connect the image to the holiday through the central action or object, never through decorations.
 - Prefer an ordinary scene with one absurd detail over an elaborate themed scene.
 
@@ -21,6 +21,8 @@ Hard exclusions:
 - No generic celebration decorations or collections of holiday-related props.
 - No lists of background objects, crowded displays, event booths, or staged promotional scenes.
 - No humans, horror, or distorted anatomy.
+
+Recent prompts provide diversity context, not a style to imitate. Let the current action determine its own setting.
 
 Recent image prompts, most recent first:
 {prompt_history}
