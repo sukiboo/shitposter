@@ -1,7 +1,4 @@
-Select one holiday from the numbered candidate list.
-
-Recent selections, most recent first:
-{holiday_history}
+Select one holiday from the candidates.
 
 Apply these rules in priority order:
 

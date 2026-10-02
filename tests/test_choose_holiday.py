@@ -5,7 +5,7 @@ from shitposter.steps.choose_holiday import ChooseHolidayStep
 
 
 def test_placeholder_picks_first(run_ctx):
-    entries = ["National Pizza Day", "World Peace Day", "Hug a Cat Day"]
+    entries = {"National Pizza Day": "Pizza.", "World Peace Day": "Peace.", "Cat Day": "Cats."}
     run_ctx.state["holidays"] = entries
 
     step = ChooseHolidayStep(
@@ -22,8 +22,8 @@ def test_placeholder_picks_first(run_ctx):
     assert result.summary == "chose #0: 'National Pizza Day'"
 
 
-def test_additional_inputs_are_prompt_context(run_ctx):
-    entries = ["National Pizza Day", "Hug a Cat Day"]
+def test_additional_inputs_feed_prompt_and_context(run_ctx):
+    entries = {"National Pizza Day": "A day for pizza.", "Hug a Cat Day": "Hug a cat."}
     history = "- 2026-01-14: National Bagel Day"
     run_ctx.state.update({"holidays": entries, "holiday_history": history})
 
@@ -36,19 +36,24 @@ def test_additional_inputs_are_prompt_context(run_ctx):
             {
                 "provider": "placeholder",
                 "inputs": ["holidays", "holiday_history"],
-                "template": "Recent selections:\n{holiday_history}",
+                "template": "Avoid repeating {holiday_history}",
+                "context": "Recent selections:\n{holiday_history}",
             },
             "holiday",
             1,
         )
         step.execute()
 
-    generate.assert_called_once_with(f"Recent selections:\n{history}", entries)
+    generate.assert_called_once_with(
+        f"Avoid repeating {history}", entries, f"Recent selections:\n{history}"
+    )
+    artifact = json.loads(run_ctx.run_dir.joinpath("1_holiday.json").read_text())
+    assert artifact["context"] == f"Recent selections:\n{history}"
     assert step.output == "Hug a Cat Day"
 
 
 def test_step_sets_state(run_ctx):
-    entries = ["Day A", "Day B", "Day C"]
+    entries = {"Day A": "About A.", "Day B": "About B.", "Day C": "About C."}
     run_ctx.state["holidays"] = entries
 
     with (

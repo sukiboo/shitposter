@@ -29,7 +29,7 @@ History steps read outputs from previously published run summaries. Their recenc
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
 | Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_api`, `checkiday_scrape` | `provider`, `inputs` |
 | Retrieve history | `retrieve_history` | — (reads past run summaries) | `step`, `runs` |
-| Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
+| Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template`, `context` |
 | Select emojis | `select_emojis` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate text | `generate_text` | `placeholder`, `constant`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate caption | `generate_caption` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
@@ -37,6 +37,10 @@ History steps read outputs from previously published run summaries. Their recenc
 | Publish | `publish_post` | `placeholder`, `telegram`, `debug`, `twitter` | `inputs`, `platforms` (list) |
 
 `inputs` declares which prior step outputs this step reads from (list or comma-separated string). Templates use `{step_name}` placeholders resolved from declared inputs only.
+
+`retrieve_holidays` outputs a `{name: description}` dict. Descriptions are scraped from each holiday's Checkiday page, and holidays without a write-up are dropped. `choose_holiday` passes the dict to its provider; `openai` and `anthropic` use only the names.
+
+`choose_holiday` renders two strings from its inputs: `template` holds the selection rules and the optional `context` holds background such as recent selections. `openai` and `anthropic` join the rules, the context, and the numbered names into one prompt.
 
 ## Project structure
 

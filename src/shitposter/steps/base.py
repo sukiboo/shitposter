@@ -25,7 +25,9 @@ class Step(ABC):
 
         if self.registry is not None:
             kwargs = {
-                k: v for k, v in config.items() if k not in ("provider", "inputs", "template")
+                k: v
+                for k, v in config.items()
+                if k not in ("provider", "inputs", "template", "context")
             }
             self.provider = self.registry[config["provider"]](**kwargs)
 

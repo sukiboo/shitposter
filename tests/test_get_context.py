@@ -1,12 +1,21 @@
-from datetime import date
+from datetime import date, timedelta
+from types import SimpleNamespace
 from unittest.mock import patch
 
+import httpx
+import pytest
+
 from shitposter.providers.web_to_context import (
+    API_DATE_FORMAT,
     CheckiDayProvider,
     CheckiDayProviderAPI,
     CheckiDayProviderScrape,
+    _parse_description,
+    _scrape_descriptions,
 )
 from shitposter.steps.retrieve_holidays import RetrieveHolidaysStep
+
+SCRAPE_DESCRIPTIONS = "shitposter.providers.web_to_context._scrape_descriptions"
 
 SAMPLE_API_RESPONSE = {
     "events": [
@@ -34,10 +43,43 @@ SAMPLE_HTML = """
 </body></html>
 """
 
+WRITE_UP_HTML = """
+<html><head>
+<script type="application/ld+json">
+{"@type": "BreadcrumbList", "itemListElement": []}
+</script>
+<script type="application/ld+json">
+{"@type": "Article", "headline": "Be Electrific Day",
+ "description": "A day to be electrifying!\\nThomas Edison was born on this day."}
+</script>
+</head><body>
+<p>A day to be electrifying!</p>
+<h2>How to Observe Be Electrific Day</h2>
+<p>Plug something in.</p>
+</body></html>
+"""
+
+BLURB_HTML = """
+<html><head>
+<script type="application/ld+json">
+{"@type": "Article", "headline": "Guitar Day",
+ "description": "Guitar Day is being observed today! It has been observed since 2016."}
+</script>
+</head><body>
+<p>Guitar Day is being observed today! It has been observed since 2016.</p>
+<h2>Sponsor</h2>
+</body></html>
+"""
+
+
+def _pass_through(records, errors):
+    return records
+
 
 @patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
+@patch(SCRAPE_DESCRIPTIONS, side_effect=_pass_through)
 @patch("httpx.get")
-def test_api_generate_holidays(mock_get):
+def test_api_generate_holidays(mock_get, mock_descriptions):
     mock_get.return_value.status_code = 200
     mock_get.return_value.raise_for_status = lambda: None
     mock_get.return_value.json.return_value = SAMPLE_API_RESPONSE
@@ -68,6 +110,103 @@ def test_api_generate_empty(mock_get):
     assert provider.generate(date(2026, 1, 1)) == []
 
 
+@patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
+@patch(SCRAPE_DESCRIPTIONS, side_effect=_pass_through)
+@patch("httpx.get")
+def test_api_omits_date_for_today(mock_get, mock_descriptions):
+    today = date.today()
+    mock_get.return_value.raise_for_status = lambda: None
+    mock_get.return_value.json.return_value = {
+        **SAMPLE_API_RESPONSE,
+        "date": today.strftime(API_DATE_FORMAT),
+    }
+
+    holidays = CheckiDayProviderAPI().generate(today)
+
+    assert len(holidays) == 2
+    assert mock_get.call_args.kwargs["params"] == {}
+
+
+@patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
+@patch("httpx.get")
+def test_api_rejects_another_day_when_date_is_omitted(mock_get):
+    today = date.today()
+    yesterday = (today - timedelta(days=1)).strftime(API_DATE_FORMAT)
+    mock_get.return_value.raise_for_status = lambda: None
+    mock_get.return_value.json.return_value = {**SAMPLE_API_RESPONSE, "date": yesterday}
+
+    with pytest.raises(ValueError, match=f"returned events for {yesterday}"):
+        CheckiDayProviderAPI().generate(today)
+    mock_get.assert_called_once()
+
+
+@patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
+@patch("time.sleep")
+@patch("httpx.get")
+def test_api_does_not_retry_forbidden(mock_get, mock_sleep):
+    request = httpx.Request("GET", CheckiDayProviderAPI.API_URL)
+    error = httpx.HTTPStatusError(
+        "403 Forbidden", request=request, response=httpx.Response(403, request=request)
+    )
+    mock_get.return_value.raise_for_status.side_effect = error
+
+    provider = CheckiDayProviderAPI()
+    with pytest.raises(httpx.HTTPStatusError):
+        provider.generate(date(2026, 2, 11))
+
+    mock_get.assert_called_once()
+    mock_sleep.assert_not_called()
+    assert len(provider.metadata()["errors"]) == 1
+
+
+def test_parse_description_returns_first_paragraph():
+    assert _parse_description(WRITE_UP_HTML) == "A day to be electrifying!"
+
+
+def test_parse_description_ignores_generated_blurb():
+    assert _parse_description(BLURB_HTML) is None
+
+
+@patch("httpx.Client")
+def test_scrape_descriptions_drops_holidays_without_write_up(mock_client):
+    pages = {"https://example.com/a": WRITE_UP_HTML, "https://example.com/b": BLURB_HTML}
+    client = mock_client.return_value.__enter__.return_value
+    client.get.side_effect = lambda url: SimpleNamespace(
+        text=pages[url], raise_for_status=lambda: None
+    )
+    records = [
+        {"name": "Be Electrific Day", "url": "https://example.com/a", "description": "card"},
+        {"name": "Guitar Day", "url": "https://example.com/b", "description": "card"},
+        {"name": "No Link Day", "url": None, "description": "card"},
+    ]
+    errors: list[str] = []
+
+    result = _scrape_descriptions(records, errors)
+
+    assert result == [
+        {
+            "name": "Be Electrific Day",
+            "url": "https://example.com/a",
+            "description": "A day to be electrifying!",
+        }
+    ]
+    assert client.get.call_count == 2
+    assert errors == []
+
+
+@patch("httpx.Client")
+def test_scrape_descriptions_records_fetch_error(mock_client):
+    client = mock_client.return_value.__enter__.return_value
+    client.get.side_effect = httpx.ReadTimeout("slow")
+    records = [{"name": "Slow Day", "url": "https://example.com/a", "description": "card"}]
+    errors: list[str] = []
+
+    result = _scrape_descriptions(records, errors)
+
+    assert result == []
+    assert errors == ["description of 'Slow Day': ReadTimeout: slow"]
+
+
 def test_scrape_parse_holidays():
     holidays = CheckiDayProviderScrape._parse(SAMPLE_HTML)
     assert len(holidays) == 2
@@ -82,25 +221,28 @@ def test_scrape_parse_empty():
 
 
 def test_format():
-    holidays = [{"name": "Day A"}, {"name": "Day B"}]
+    holidays = [
+        {"name": "Day A", "description": "About A."},
+        {"name": "Day B", "description": "About B."},
+    ]
     result = RetrieveHolidaysStep._format(holidays)
-    assert result == ["Day A", "Day B"]
+    assert result == {"Day A": "About A.", "Day B": "About B."}
 
 
 def test_format_empty():
-    assert RetrieveHolidaysStep._format([]) == []
+    assert RetrieveHolidaysStep._format([]) == {}
 
 
 @patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
 def test_step_sets_state(run_ctx):
-    holidays = [{"name": "Test Day", "url": None, "description": None}]
+    holidays = [{"name": "Test Day", "url": None, "description": "About Test Day."}]
     run_ctx.state["date"] = date.today()
 
     with patch.object(CheckiDayProviderAPI, "generate", side_effect=lambda target_date: holidays):
         config = {"provider": "checkiday", "inputs": ["date"]}
         result = RetrieveHolidaysStep(run_ctx, config, "context", 0).execute()
 
-    assert run_ctx.state["context"] == ["Test Day"]
+    assert run_ctx.state["context"] == {"Test Day": "About Test Day."}
     assert run_ctx.run_dir.joinpath("0_context.json").exists()
     assert result.metadata["params"]["provider"] == "checkiday_api"
 

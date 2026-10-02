@@ -10,20 +10,23 @@ class ChooseHolidayStep(Step):
         if not input_names:
             raise ValueError("choose_holiday requires a candidate-list input")
 
-        # The first input is the selectable list; any remaining inputs provide
-        # context to the prompt, such as recently selected holidays.
+        # The first input maps the selectable entries to their descriptions; any
+        # remaining inputs feed the prompt (selection rules) and the context
+        # (background such as recently selected holidays).
         entries = self.inputs[input_names[0]]
-        if not isinstance(entries, list):
-            raise TypeError("choose_holiday's first input must be a list")
+        if not isinstance(entries, dict):
+            raise TypeError("choose_holiday's first input must be a dict of entry: description")
 
         prompt = self.template.format(**self.inputs)
-        index = self.provider.generate(prompt, entries)
-        self.output = entries[index]
+        context = self.config.get("context", "").format(**self.inputs)
+        index = self.provider.generate(prompt, entries, context)
+        self.output = list(entries)[index]
 
         artifact = {
             **self.metadata,
             "index": index,
             "prompt": prompt,
+            "context": context,
         }
         self.write_artifact(artifact)
 

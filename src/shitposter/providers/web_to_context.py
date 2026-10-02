@@ -1,3 +1,4 @@
+import json
 import os
 import time
 from datetime import date
@@ -10,6 +11,37 @@ from shitposter.providers.base import ContextProvider
 HTTP_TIMEOUT = 30
 MAX_RETRIES = 5
 BACKOFF_BASE = 2
+NON_RETRYABLE_STATUSES = {401, 403}  # Auth and plan errors do not succeed on retry
+API_DATE_FORMAT = "%m/%d/%Y"
+WRITE_UP_HEADING = "How to Observe"  # Only holidays with a write-up have this section
+
+
+def _parse_description(html: str) -> str | None:
+    soup = BeautifulSoup(html, "html.parser")
+    headings = (h.get_text(strip=True) for h in soup.find_all("h2"))
+    if not any(heading.startswith(WRITE_UP_HEADING) for heading in headings):
+        return None
+    for script in soup.find_all("script", type="application/ld+json"):
+        data = json.loads(script.get_text())
+        if data.get("@type") == "Article":
+            return data["description"].split("\n")[0]
+    return None
+
+
+def _scrape_descriptions(records: list[dict], errors: list[str]) -> list[dict]:
+    with httpx.Client(follow_redirects=True, timeout=HTTP_TIMEOUT) as client:
+        for record in records:
+            record["description"] = None
+            if not record["url"]:
+                continue
+            try:
+                resp = client.get(record["url"])
+                resp.raise_for_status()
+            except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+                errors.append(f"description of '{record['name']}': {type(e).__name__}: {e}")
+                continue
+            record["description"] = _parse_description(resp.text)
+    return [record for record in records if record["description"]]
 
 
 class CheckiDayProviderAPI(ContextProvider):
@@ -20,24 +52,38 @@ class CheckiDayProviderAPI(ContextProvider):
         self.api_key = os.environ["CHECKIDAY_API_KEY"]
 
     def generate(self, target_date: date) -> list[dict]:
+        # Free plan rejects the date parameter; the API then answers for "today"
+        params = {} if target_date == date.today() else {"date": target_date.isoformat()}
         last_exc: Exception = RuntimeError("no retries attempted")
         for attempt in range(1, MAX_RETRIES + 1):
             try:
                 resp = httpx.get(
                     self.API_URL,
                     headers={"apikey": self.api_key},
-                    params={"date": target_date.isoformat()},
+                    params=params,
                     timeout=HTTP_TIMEOUT,
                 )
                 resp.raise_for_status()
                 data = resp.json()
-                return [
+                expected_date = target_date.strftime(API_DATE_FORMAT)
+                if not params and data["date"] != expected_date:
+                    raise ValueError(
+                        f"Checkiday API returned events for {data['date']}, "
+                        f"expected {expected_date}"
+                    )
+                records = [
                     {"name": e["name"], "url": e.get("url"), "description": None}
                     for e in data.get("events", [])
                 ]
+                return _scrape_descriptions(records, self._meta["errors"])
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
                 last_exc = e
                 self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
+                if (
+                    isinstance(e, httpx.HTTPStatusError)
+                    and e.response.status_code in NON_RETRYABLE_STATUSES
+                ):
+                    break
                 if attempt < MAX_RETRIES:
                     time.sleep(BACKOFF_BASE**attempt)
         raise last_exc
@@ -53,7 +99,7 @@ class CheckiDayProviderScrape(ContextProvider):
             try:
                 resp = httpx.get(url, follow_redirects=True, timeout=HTTP_TIMEOUT)
                 resp.raise_for_status()
-                return self._parse(resp.text)
+                return _scrape_descriptions(self._parse(resp.text), self._meta["errors"])
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
                 last_exc = e
                 self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")

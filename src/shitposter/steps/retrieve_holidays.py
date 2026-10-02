@@ -17,5 +17,5 @@ class RetrieveHolidaysStep(Step):
         return StepResult(metadata=self.metadata, summary=f"retrieved {len(entries)} holidays")
 
     @staticmethod
-    def _format(records: list[dict]) -> list[str | None]:
-        return [record["name"] for record in records]
+    def _format(records: list[dict]) -> dict[str, str]:
+        return {record["name"]: record["description"] for record in records}

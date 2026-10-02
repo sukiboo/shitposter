@@ -19,6 +19,7 @@ steps:
     provider: openai
     model: gpt-5-nano
     inputs: holiday_list, holiday_history
+    context: "Recent selections, most recent first:\n{holiday_history}"
     template: !file ./templates/holiday_selection_prompt.txt
 
   prompt_history:

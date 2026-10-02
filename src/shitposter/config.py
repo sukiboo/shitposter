@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Step config fields that are formatted with the step's inputs.
+TEMPLATE_FIELDS = ("template", "context")
+
 
 def load_settings(steps_path: Path = Path("configs/steps.yaml")) -> Settings:
     load_dotenv(override=True)
@@ -105,16 +108,17 @@ class RunConfig(BaseModel):
                         f"Step '{key}' references input '{inp}' "
                         f"which is not a previously defined step"
                     )
-            template = step.model_extra.get("template", "") if step.model_extra else ""
-            if template:
-                placeholders = {
-                    fname for _, fname, _, _ in string.Formatter().parse(template) if fname
-                }
-                unknown = placeholders - set(step.inputs)
-                if unknown:
-                    raise ValueError(
-                        f"Step '{key}' template references {unknown} "
-                        f"but declared inputs are {step.inputs}"
-                    )
+            for field in TEMPLATE_FIELDS:
+                template = step.model_extra.get(field, "") if step.model_extra else ""
+                if template:
+                    placeholders = {
+                        fname for _, fname, _, _ in string.Formatter().parse(template) if fname
+                    }
+                    unknown = placeholders - set(step.inputs)
+                    if unknown:
+                        raise ValueError(
+                            f"Step '{key}' {field} references {unknown} "
+                            f"but declared inputs are {step.inputs}"
+                        )
             seen.add(key)
         return self

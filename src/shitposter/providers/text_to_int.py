@@ -17,7 +17,7 @@ class PlaceholderTextToIntProvider(TextToIntProvider):
     def __init__(self, **kwargs):
         pass
 
-    def generate(self, prompt: str, entries: list[str]) -> int:
+    def generate(self, prompt: str, entries: dict[str, str], context: str = "") -> int:
         return 0
 
 
@@ -58,9 +58,9 @@ class OpenAITextToIntProvider(TextToIntProvider):
             {"__annotations__": {"index": int}, "index": Field(ge=1, le=n)},
         )
 
-    def generate(self, prompt: str, entries: list[str]) -> int:
+    def generate(self, prompt: str, entries: dict[str, str], context: str = "") -> int:
         numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
-        full_prompt = f"{prompt or self.default_prompt}\n\n{numbered}"
+        full_prompt = "\n\n".join(filter(None, (prompt or self.default_prompt, context, numbered)))
         text_format = self._response_model(len(entries))
         for _ in range(self.MAX_RETRIES):
             try:
@@ -130,9 +130,9 @@ class AnthropicTextToIntProvider(TextToIntProvider):
             },
         }
 
-    def generate(self, prompt: str, entries: list[str]) -> int:
+    def generate(self, prompt: str, entries: dict[str, str], context: str = "") -> int:
         numbered = "\n".join(f"{i}. {entry}" for i, entry in enumerate(entries, 1))
-        full_prompt = f"{prompt or self.default_prompt}\n\n{numbered}"
+        full_prompt = "\n\n".join(filter(None, (prompt or self.default_prompt, context, numbered)))
         tool = self._tool(len(entries))
         for _ in range(self.MAX_RETRIES):
             try:

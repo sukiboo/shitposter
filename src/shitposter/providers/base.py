@@ -61,7 +61,7 @@ class TextToIntProvider(ProviderBase):
     _registry: ClassVar[dict[str, type["TextToIntProvider"]]] = {}
 
     @abstractmethod
-    def generate(self, prompt: str, entries: list[str]) -> int: ...
+    def generate(self, prompt: str, entries: dict[str, str], context: str = "") -> int: ...
 
 
 class TextToEmojiProvider(ProviderBase):

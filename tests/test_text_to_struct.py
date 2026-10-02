@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -12,7 +14,7 @@ from shitposter.providers.text_to_int import (
 class TestPlaceholder:
     def test_returns_zero(self):
         provider = PlaceholderTextToIntProvider()
-        assert provider.generate("pick one", ["a", "b", "c"]) == 0
+        assert provider.generate("pick one", {"a": "A.", "b": "B.", "c": "C."}) == 0
 
     def test_metadata(self):
         provider = PlaceholderTextToIntProvider()
@@ -41,6 +43,31 @@ class TestOpenAIModelValidation:
     def test_rejects_unsupported_model(self, model):
         with pytest.raises(ValueError, match=f"Unsupported model '{model}'"):
             OpenAITextToIntProvider(model=model)
+
+
+class TestOpenAIPrompt:
+    def test_joins_rules_context_and_numbered_entries(self):
+        provider: Any = OpenAITextToIntProvider()
+        provider.client.responses.parse.return_value = SimpleNamespace(
+            output_parsed=SimpleNamespace(index=2), usage=None
+        )
+        entries = {"Day A": "About A.", "Day B": "About B."}
+
+        assert provider.generate("rules", entries, "history") == 1
+
+        prompt = provider.client.responses.parse.call_args.kwargs["input"]
+        assert prompt == "rules\n\nhistory\n\n1. Day A\n2. Day B"
+
+    def test_omits_empty_context(self):
+        provider: Any = OpenAITextToIntProvider()
+        provider.client.responses.parse.return_value = SimpleNamespace(
+            output_parsed=SimpleNamespace(index=1), usage=None
+        )
+
+        provider.generate("rules", {"Day A": "About A."})
+
+        prompt = provider.client.responses.parse.call_args.kwargs["input"]
+        assert prompt == "rules\n\n1. Day A"
 
 
 class TestEmojiValidation:

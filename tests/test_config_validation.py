@@ -36,6 +36,21 @@ def test_template_placeholder_not_in_inputs():
         )
 
 
+def test_context_placeholder_not_in_inputs():
+    with pytest.raises(Exception, match="context references.*{'typo'}"):
+        _make_config(
+            {
+                "holidays": {"type": "generate_text", "provider": "placeholder"},
+                "holiday": {
+                    "type": "choose_holiday",
+                    "provider": "placeholder",
+                    "inputs": ["holidays"],
+                    "context": "Recent selections: {typo}",
+                },
+            }
+        )
+
+
 def test_inputs_without_template_passes():
     _make_config(
         {
