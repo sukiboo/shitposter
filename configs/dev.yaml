@@ -2,7 +2,6 @@ steps:
   date:
     type: resolve_date
     provider: date
-    value: 2026-02-14
 
   holiday_list:
     type: retrieve_holidays
@@ -16,8 +15,7 @@ steps:
 
   holiday:
     type: choose_holiday
-    provider: openai
-    model: gpt-5-nano
+    provider: jev
     inputs: holiday_list, holiday_history
     context: "Recent selections, most recent first:\n{holiday_history}"
     template: !file ./templates/holiday_selection_prompt.txt
@@ -29,10 +27,9 @@ steps:
 
   prompt:
     type: generate_text
-    provider: anthropic
-    model: claude-sonnet-4-6
-    max_tokens: 4096
-    budget_tokens: 2048
+    provider: openai
+    model: gpt-5.6-terra
+    effort: high
     inputs: holiday, prompt_history
     template: !file ./templates/holiday_cat_image_prompt.txt
 
@@ -51,7 +48,7 @@ steps:
   header_emojis:
     type: select_emojis
     provider: openai
-    model: gpt-5-mini
+    model: gpt-5.6-luna
     inputs: holiday, header_emoji_history
     template: !file ./templates/holiday_emoji_prompt.txt
 
@@ -68,10 +65,9 @@ steps:
 
   caption_body:
     type: generate_caption
-    provider: anthropic
-    model: claude-sonnet-4-6
-    max_tokens: 4096
-    budget_tokens: 2048
+    provider: openai
+    model: gpt-5.6-terra
+    effort: high
     inputs: holiday, prompt, header_emojis, caption_history
     template: !file ./templates/holiday_cat_caption_prompt.txt
 

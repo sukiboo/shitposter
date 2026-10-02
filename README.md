@@ -29,7 +29,7 @@ History steps read outputs from previously published run summaries. Their recenc
 | Resolve date | `resolve_date` | `date` | `provider`, `value` |
 | Retrieve holidays | `retrieve_holidays` | `checkiday`, `checkiday_api`, `checkiday_scrape` | `provider`, `inputs` |
 | Retrieve history | `retrieve_history` | — (reads past run summaries) | `step`, `runs` |
-| Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template`, `context` |
+| Choose holiday | `choose_holiday` | `placeholder`, `openai`, `anthropic`, `jev` | `provider`, `inputs`, `template`, `context` |
 | Select emojis | `select_emojis` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate text | `generate_text` | `placeholder`, `constant`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
 | Generate caption | `generate_caption` | `placeholder`, `openai`, `anthropic` | `provider`, `inputs`, `template` |
@@ -38,9 +38,9 @@ History steps read outputs from previously published run summaries. Their recenc
 
 `inputs` declares which prior step outputs this step reads from (list or comma-separated string). Templates use `{step_name}` placeholders resolved from declared inputs only.
 
-`retrieve_holidays` outputs a `{name: description}` dict. Descriptions are scraped from each holiday's Checkiday page, and holidays without a write-up are dropped. `choose_holiday` passes the dict to its provider; `openai` and `anthropic` use only the names.
+`retrieve_holidays` outputs a `{name: description}` dict. Descriptions are scraped from each holiday's Checkiday page, and holidays without a write-up are dropped. `choose_holiday` passes the dict to its provider: `jev` uses the descriptions as choice criteria and samples the holiday from the returned probabilities, while `openai` and `anthropic` use only the names.
 
-`choose_holiday` renders two strings from its inputs: `template` holds the selection rules and the optional `context` holds background such as recent selections. `openai` and `anthropic` join the rules, the context, and the numbered names into one prompt.
+`choose_holiday` renders two strings from its inputs: `template` holds the selection rules and the optional `context` holds background such as recent selections. `jev` sends the context as `state` and the rules as `instructions`; `openai` and `anthropic` join the rules, the context, and the numbered names into one prompt.
 
 ## Project structure
 
@@ -72,7 +72,7 @@ src/shitposter/
     base.py               # provider ABCs + auto-registration via __init_subclass__
     text_to_date.py       # date providers (date)
     web_to_context.py     # context providers (checkiday API, checkiday_scrape)
-    text_to_int.py        # text-to-int providers (placeholder, openai, anthropic)
+    text_to_int.py        # text-to-int providers (placeholder, openai, anthropic, jev)
     text_to_emoji.py      # text-to-emoji providers (placeholder, openai, anthropic)
     text_to_text.py       # text providers (placeholder, constant, openai, anthropic)
     text_to_caption.py    # caption providers (placeholder, openai, anthropic) — structured output
@@ -113,6 +113,7 @@ ARTIFACTS_PATH=./artifacts
 CHECKIDAY_API_KEY=your-checkiday-api-key
 OPENAI_API_KEY=your-openai-api-key
 ANTHROPIC_API_KEY=your-anthropic-api-key
+TYPESAFE_API_KEY=your-typesafe-api-key
 TELEGRAM_DEBUG_BOT_TOKEN=your-debug-bot-token
 TELEGRAM_DEBUG_CHAT_ID=your-debug-chat-id
 TELEGRAM_CHANNEL_BOT_TOKEN=your-channel-bot-token

@@ -15,8 +15,7 @@ steps:
 
   holiday:
     type: choose_holiday
-    provider: openai
-    model: gpt-5.6-luna
+    provider: jev
     inputs: holiday_list, holiday_history
     context: "Recent selections, most recent first:\n{holiday_history}"
     template: !file ./templates/holiday_selection_prompt.txt

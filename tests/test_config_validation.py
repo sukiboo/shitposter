@@ -1,6 +1,10 @@
+from pathlib import Path
+
 import pytest
 
-from shitposter.config import RunConfig
+from shitposter.config import RunConfig, load_run_config
+
+CONFIGS = sorted(Path(__file__).parent.parent.joinpath("configs").glob("*.yaml"))
 
 
 def _make_config(steps: dict) -> RunConfig:
@@ -76,3 +80,8 @@ def test_unused_input_in_template_passes():
             },
         }
     )
+
+
+@pytest.mark.parametrize("path", CONFIGS, ids=lambda path: path.name)
+def test_shipped_configs_are_valid(path):
+    load_run_config(path)

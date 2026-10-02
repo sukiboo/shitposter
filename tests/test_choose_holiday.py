@@ -1,6 +1,8 @@
 import json
 from unittest.mock import patch
 
+import pytest
+
 from shitposter.steps.choose_holiday import ChooseHolidayStep
 
 
@@ -80,3 +82,18 @@ def test_step_sets_state(run_ctx):
 
     artifact = json.loads(run_ctx.run_dir.joinpath("1_holiday.json").read_text())
     assert artifact["index"] == 2
+
+
+def test_requires_candidate_input(run_ctx):
+    step = ChooseHolidayStep(run_ctx, {"provider": "placeholder"}, "holiday", 1)
+    with pytest.raises(ValueError, match="candidate-list input"):
+        step.execute()
+
+
+def test_rejects_candidates_without_descriptions(run_ctx):
+    run_ctx.state["holidays"] = ["Day A", "Day B"]
+    step = ChooseHolidayStep(
+        run_ctx, {"provider": "placeholder", "inputs": ["holidays"]}, "holiday", 1
+    )
+    with pytest.raises(TypeError, match="dict of entry: description"):
+        step.execute()

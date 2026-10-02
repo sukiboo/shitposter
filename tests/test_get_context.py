@@ -7,6 +7,7 @@ import pytest
 
 from shitposter.providers.web_to_context import (
     API_DATE_FORMAT,
+    MAX_RETRIES,
     CheckiDayProvider,
     CheckiDayProviderAPI,
     CheckiDayProviderScrape,
@@ -159,12 +160,60 @@ def test_api_does_not_retry_forbidden(mock_get, mock_sleep):
     assert len(provider.metadata()["errors"]) == 1
 
 
+@patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
+@patch("time.sleep")
+@patch("httpx.get")
+def test_api_retries_server_errors(mock_get, mock_sleep):
+    request = httpx.Request("GET", CheckiDayProviderAPI.API_URL)
+    error = httpx.HTTPStatusError(
+        "500 Server Error", request=request, response=httpx.Response(500, request=request)
+    )
+    mock_get.return_value.raise_for_status.side_effect = error
+
+    with pytest.raises(httpx.HTTPStatusError):
+        CheckiDayProviderAPI().generate(date(2026, 2, 11))
+
+    assert mock_get.call_count == MAX_RETRIES
+    assert mock_sleep.call_count == MAX_RETRIES - 1
+
+
 def test_parse_description_returns_first_paragraph():
     assert _parse_description(WRITE_UP_HTML) == "A day to be electrifying!"
 
 
 def test_parse_description_ignores_generated_blurb():
     assert _parse_description(BLURB_HTML) is None
+
+
+def test_parse_description_without_article_metadata():
+    html = "<html><body><h2>How to Observe Guitar Day</h2></body></html>"
+    assert _parse_description(html) is None
+
+
+@patch("httpx.Client")
+@patch("httpx.get")
+def test_scrape_generate_keeps_only_holidays_with_write_up(mock_get, mock_client):
+    pages = {
+        "https://www.checkiday.com/be-electrific-day": WRITE_UP_HTML,
+        "https://www.checkiday.com/guitar-day": BLURB_HTML,
+    }
+    mock_get.return_value.raise_for_status = lambda: None
+    mock_get.return_value.text = SAMPLE_HTML
+    client = mock_client.return_value.__enter__.return_value
+    client.get.side_effect = lambda url: SimpleNamespace(
+        text=pages[url], raise_for_status=lambda: None
+    )
+
+    holidays = CheckiDayProviderScrape().generate(date(2026, 2, 11))
+
+    assert mock_get.call_args.args == ("https://www.checkiday.com/02/11/2026",)
+    assert holidays == [
+        {
+            "name": "Be Electrific Day",
+            "url": "https://www.checkiday.com/be-electrific-day",
+            "description": "A day to be electrifying!",
+        }
+    ]
 
 
 @patch("httpx.Client")

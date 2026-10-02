@@ -80,6 +80,47 @@ class OpenAITextToIntProvider(TextToIntProvider):
         return random.randint(0, len(entries) - 1)
 
 
+class JevTextToIntProvider(TextToIntProvider):
+    """Samples one entry from a TypeSafe Jev choice distribution (returns an int index)."""
+
+    name = "jev"
+    default_prompt = "Pick one of the following entries:"
+    QUESTION = "choice"
+
+    def __init__(self, **kwargs):
+        from typesafe_sdk import TypeSafeClient
+
+        self.client = TypeSafeClient()
+        self.model = kwargs.get("model", "jev-latest")
+
+    def metadata(self) -> dict:
+        return {**super().metadata(), "model": self.model}
+
+    def generate(self, prompt: str, entries: dict[str, str], context: str = "") -> int:
+        question = {
+            "type": "choice",
+            "instructions": prompt or self.default_prompt,
+            "criteria": entries,
+        }
+        try:
+            response = self._api_call(
+                self.client.system_one,
+                state=context,
+                questions={self.QUESTION: question},
+                model=self.model,
+            )
+            answer = response.choices[self.QUESTION]
+        except Exception as e:
+            self._meta["errors"].append(str(e))
+            self._meta["errors"].append("request failed, fell back to random")
+            return random.randint(0, len(entries) - 1)
+        self._meta["confidence"].append(answer.confidence)
+        self._meta["probabilities"].append(answer.probabilities)
+        labels = list(answer.probabilities)
+        (choice,) = random.choices(labels, weights=list(answer.probabilities.values()))
+        return list(entries).index(choice)
+
+
 class AnthropicTextToIntProvider(TextToIntProvider):
     """Picks one entry from a numbered list via Anthropic tool use (returns an int index)."""
 
