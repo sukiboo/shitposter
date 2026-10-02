@@ -38,7 +38,7 @@ History steps read outputs from previously published run summaries. Their recenc
 
 `inputs` declares which prior step outputs this step reads from (list or comma-separated string). Templates use `{step_name}` placeholders resolved from declared inputs only.
 
-`retrieve_holidays` outputs a `{name: description}` dict. Descriptions are scraped from each holiday's Checkiday page, and holidays without a write-up are dropped. `choose_holiday` passes the dict to its provider: `jev` uses the descriptions as choice criteria and samples the holiday from the returned probabilities, while `openai` and `anthropic` use only the names.
+`retrieve_holidays` outputs a `{name: description}` dict. Descriptions are scraped from each holiday's Checkiday page, and holidays without a write-up are dropped; their names are saved as `dropped` in the step artifact. `choose_holiday` passes the dict to its provider: `jev` uses the descriptions as choice criteria and samples the holiday from the returned probabilities, while `openai` and `anthropic` use only the names.
 
 `choose_holiday` renders two strings from its inputs: `template` holds the selection rules and the optional `context` holds background such as recent selections. `jev` sends the context as `state` and the rules as `instructions`; `openai` and `anthropic` join the rules, the context, and the numbered names into one prompt.
 

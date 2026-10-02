@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from collections import defaultdict
 from datetime import date
 
 import httpx
@@ -28,19 +29,19 @@ def _parse_description(html: str) -> str | None:
     return None
 
 
-def _scrape_descriptions(records: list[dict], errors: list[str]) -> list[dict]:
+def _scrape_descriptions(records: list[dict], meta: defaultdict[str, list]) -> list[dict]:
     with httpx.Client(follow_redirects=True, timeout=HTTP_TIMEOUT) as client:
         for record in records:
-            record["description"] = None
             if not record["url"]:
                 continue
             try:
                 resp = client.get(record["url"])
                 resp.raise_for_status()
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
-                errors.append(f"description of '{record['name']}': {type(e).__name__}: {e}")
+                meta["errors"].append(f"description of '{record['name']}': {type(e).__name__}: {e}")
                 continue
             record["description"] = _parse_description(resp.text)
+    meta["dropped"].extend(record["name"] for record in records if not record["description"])
     return [record for record in records if record["description"]]
 
 
@@ -75,7 +76,7 @@ class CheckiDayProviderAPI(ContextProvider):
                     {"name": e["name"], "url": e.get("url"), "description": None}
                     for e in data.get("events", [])
                 ]
-                return _scrape_descriptions(records, self._meta["errors"])
+                return _scrape_descriptions(records, self._meta)
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
                 last_exc = e
                 self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
@@ -99,7 +100,7 @@ class CheckiDayProviderScrape(ContextProvider):
             try:
                 resp = httpx.get(url, follow_redirects=True, timeout=HTTP_TIMEOUT)
                 resp.raise_for_status()
-                return _scrape_descriptions(self._parse(resp.text), self._meta["errors"])
+                return _scrape_descriptions(self._parse(resp.text), self._meta)
             except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
                 last_exc = e
                 self._meta["errors"].append(f"attempt {attempt}: {type(e).__name__}: {e}")
@@ -124,13 +125,10 @@ class CheckiDayProviderScrape(ContextProvider):
             href = title_el.get("href")
             url = href if isinstance(href, str) and href.startswith("http") else None
 
-            desc_el = card.select_one(".mdl-card__supporting-text")
-            description = desc_el.get_text(strip=True) if desc_el else None
-
             if name.lower() == "on this day in history":
                 continue
 
-            records.append({"name": name, "url": url, "description": description})
+            records.append({"name": name, "url": url, "description": None})
 
         return records
 
@@ -158,6 +156,7 @@ class CheckiDayProvider(ContextProvider):
         meta: dict[str, object] = {"provider": self._delegate.name}
         if self._fallback_error:
             meta["fallback_error"] = self._fallback_error
-        if self._delegate._meta.get("errors"):
-            meta["errors"] = self._delegate._meta["errors"]
+        for key in ("errors", "dropped"):
+            if self._delegate._meta.get(key):
+                meta[key] = self._delegate._meta[key]
         return meta

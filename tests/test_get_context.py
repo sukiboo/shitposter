@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import date, timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -73,7 +74,7 @@ BLURB_HTML = """
 """
 
 
-def _pass_through(records, errors):
+def _pass_through(records, meta):
     return records
 
 
@@ -204,9 +205,11 @@ def test_scrape_generate_keeps_only_holidays_with_write_up(mock_get, mock_client
         text=pages[url], raise_for_status=lambda: None
     )
 
-    holidays = CheckiDayProviderScrape().generate(date(2026, 2, 11))
+    provider = CheckiDayProviderScrape()
+    holidays = provider.generate(date(2026, 2, 11))
 
     assert mock_get.call_args.args == ("https://www.checkiday.com/02/11/2026",)
+    assert provider.metadata()["dropped"] == ["Get Out Your Guitar Day"]
     assert holidays == [
         {
             "name": "Be Electrific Day",
@@ -224,13 +227,13 @@ def test_scrape_descriptions_drops_holidays_without_write_up(mock_client):
         text=pages[url], raise_for_status=lambda: None
     )
     records = [
-        {"name": "Be Electrific Day", "url": "https://example.com/a", "description": "card"},
-        {"name": "Guitar Day", "url": "https://example.com/b", "description": "card"},
-        {"name": "No Link Day", "url": None, "description": "card"},
+        {"name": "Be Electrific Day", "url": "https://example.com/a", "description": None},
+        {"name": "Guitar Day", "url": "https://example.com/b", "description": None},
+        {"name": "No Link Day", "url": None, "description": None},
     ]
-    errors: list[str] = []
+    meta: defaultdict[str, list] = defaultdict(list)
 
-    result = _scrape_descriptions(records, errors)
+    result = _scrape_descriptions(records, meta)
 
     assert result == [
         {
@@ -240,20 +243,23 @@ def test_scrape_descriptions_drops_holidays_without_write_up(mock_client):
         }
     ]
     assert client.get.call_count == 2
-    assert errors == []
+    assert dict(meta) == {"dropped": ["Guitar Day", "No Link Day"]}
 
 
 @patch("httpx.Client")
 def test_scrape_descriptions_records_fetch_error(mock_client):
     client = mock_client.return_value.__enter__.return_value
     client.get.side_effect = httpx.ReadTimeout("slow")
-    records = [{"name": "Slow Day", "url": "https://example.com/a", "description": "card"}]
-    errors: list[str] = []
+    records = [{"name": "Slow Day", "url": "https://example.com/a", "description": None}]
+    meta: defaultdict[str, list] = defaultdict(list)
 
-    result = _scrape_descriptions(records, errors)
+    result = _scrape_descriptions(records, meta)
 
     assert result == []
-    assert errors == ["description of 'Slow Day': ReadTimeout: slow"]
+    assert dict(meta) == {
+        "errors": ["description of 'Slow Day': ReadTimeout: slow"],
+        "dropped": ["Slow Day"],
+    }
 
 
 def test_scrape_parse_holidays():
@@ -261,7 +267,7 @@ def test_scrape_parse_holidays():
     assert len(holidays) == 2
     assert holidays[0]["name"] == "Be Electrific Day"
     assert holidays[0]["url"] == "https://www.checkiday.com/be-electrific-day"
-    assert holidays[0]["description"] == "A day to be electrifying!"
+    assert holidays[0]["description"] is None
     assert holidays[1]["name"] == "Get Out Your Guitar Day"
 
 
@@ -343,3 +349,10 @@ def test_wrapper_metadata_before_generate():
     provider = CheckiDayProvider()
     assert provider.metadata()["provider"] == "checkiday_api"
     assert "fallback_error" not in provider.metadata()
+
+
+@patch.dict("os.environ", {"CHECKIDAY_API_KEY": "test-key"})
+def test_wrapper_reports_dropped_holidays():
+    provider = CheckiDayProvider()
+    provider._api._meta["dropped"].append("Guitar Day")
+    assert provider.metadata()["dropped"] == ["Guitar Day"]
