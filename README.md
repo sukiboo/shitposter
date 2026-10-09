@@ -107,8 +107,8 @@ SERVER_HOST=your-hostname
 SERVER_PATH=~/apps/shitposter
 REPO_URL=https://github.com/sukiboo/shitposter.git
 STEPS_CONFIG=dev
-RUN_SCHEDULE="*-*-* 08:00:00"
-RUN_TIMEZONE=America/New_York
+RUN_SCHEDULE="*-*-* 00:00:00"
+RUN_TIMEZONE=UTC
 
 # Services
 ARTIFACTS_PATH=./artifacts
@@ -201,7 +201,7 @@ uv run pytest
 
 ## Deployment
 
-The pipeline runs on a VPS via a systemd user timer. All deploy config is read from `.env`.
+The pipeline runs on a VPS via a systemd user timer. All deploy config is read from `.env`. The default schedule starts generation daily at 00:00 UTC; publishing follows when generation finishes. Changes to `RUN_SCHEDULE` or `RUN_TIMEZONE` take effect after redeployment.
 
 ```bash
 # first-time setup + all subsequent deploys
