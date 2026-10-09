@@ -16,7 +16,7 @@ Currently posting to
 5. **Generate image** — generates an image from the prompt
 6. **Select emojis** — chooses holiday-specific header emojis while softly preferring choices not used recently
 7. **Construct header** — composes `date — holiday emojis`
-8. **Generate caption** — adds a short second comedic beat using recent captions and emoji choices as diversity context
+8. **Generate caption** — uses the generated image, rather than its prompt, to add an immediately understandable second comedic beat grounded in visible details; recent captions and emoji choices provide diversity context
 9. **Publish** — sends the image and caption to configured platforms
 10. **Summary** — records the run ID, status, and metadata for every step
 
@@ -37,6 +37,8 @@ History steps read outputs from previously published run summaries. Their recenc
 | Publish | `publish_post` | `placeholder`, `telegram`, `debug`, `twitter` | `inputs`, `platforms` (list) |
 
 `inputs` declares which prior step outputs this step reads from (list or comma-separated string). Templates use `{step_name}` placeholders resolved from declared inputs only.
+
+`generate_caption` optionally accepts an `image` input containing the generated PNG path. The OpenAI and Anthropic providers attach its bytes to the caption request, including retries and unstructured fallback. Without `image`, caption generation remains text-only. The dev and holiday pipelines supply the image, holiday, header emojis, and caption history—not the original image prompt. Step artifacts retain the image path and expanded caption instructions; image bytes remain in `image.png`.
 
 `retrieve_holidays` outputs a `{name: description}` dict. Descriptions are scraped from each holiday's Checkiday page, and holidays without a write-up are dropped; their names are saved as `dropped` in the step artifact. `choose_holiday` passes the dict to its provider: `jev` uses the descriptions as choice criteria and samples the holiday from the returned probabilities, while `openai` and `anthropic` use only the names.
 

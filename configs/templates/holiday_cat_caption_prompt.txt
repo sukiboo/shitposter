@@ -2,10 +2,11 @@ Write one punchy social caption to appear beneath the image and its holiday head
 
 Context:
 - Holiday shown in the header: "{holiday}"
-- Image description: """{prompt}"""
+- The attached image is the primary visual reference.
 - Emojis already used in the header: {header_emojis}
 
 Purpose:
+- Build the joke around an action, expression, or object clearly visible in the image. Add a second comedic beat whose connection is immediately understandable, without requiring an invented backstory.
 - Add a second comedic beat to the image instead of describing or explaining it.
 - Find a specific implication, reaction, consequence, or attitude that only makes sense for this exact image.
 - Trust the viewer to understand the visual joke and the header; do not repeat the holiday name.

@@ -68,7 +68,7 @@ steps:
     provider: openai
     model: gpt-5.6-terra
     effort: high
-    inputs: holiday, prompt, header_emojis, caption_history
+    inputs: holiday, image, header_emojis, caption_history
     template: !file ./templates/holiday_cat_caption_prompt.txt
 
   caption:

@@ -75,7 +75,7 @@ class TextToCaptionProvider(ProviderBase):
     _registry: ClassVar[dict[str, type["TextToCaptionProvider"]]] = {}
 
     @abstractmethod
-    def generate(self, prompt: str) -> str: ...
+    def generate(self, prompt: str, image_path: str | None = None) -> str: ...
 
 
 class DateProvider(ProviderBase):

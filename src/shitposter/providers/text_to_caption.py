@@ -1,3 +1,6 @@
+import base64
+from pathlib import Path
+
 from pydantic import BaseModel, Field
 
 from shitposter.constants import (
@@ -8,6 +11,8 @@ from shitposter.constants import (
 from shitposter.providers.anthropic_common import thinking_kwargs, validate_thinking
 from shitposter.providers.base import TextToCaptionProvider
 
+CAPTION_IMAGE_MEDIA_TYPE = "image/png"
+CAPTION_IMAGE_DETAIL = "auto"
 CAPTION_MIN_LENGTH = 15
 CAPTION_MAX_LENGTH = 180
 CAPTION_DESCRIPTION = (
@@ -22,7 +27,7 @@ class PlaceholderTextToCaptionProvider(TextToCaptionProvider):
     def __init__(self, **kwargs):
         pass
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, image_path: str | None = None) -> str:
         return "Placeholder caption."
 
 
@@ -67,15 +72,33 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
     def metadata(self) -> dict:
         return {**super().metadata(), "model": self.model, "effort": self.effort}
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, image_path: str | None = None) -> str:
+        kwargs: dict = {
+            "model": self.model,
+            "input": prompt,
+            "reasoning": {"effort": self.effort},
+        }
+        if image_path is not None:
+            image_data = base64.b64encode(Path(image_path).read_bytes()).decode("ascii")
+            kwargs["input"] = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": prompt},
+                        {
+                            "type": "input_image",
+                            "image_url": f"data:{CAPTION_IMAGE_MEDIA_TYPE};base64,{image_data}",
+                            "detail": CAPTION_IMAGE_DETAIL,
+                        },
+                    ],
+                }
+            ]
         for _ in range(self.MAX_RETRIES):
             try:
                 response = self._api_call(
                     self.client.responses.parse,
-                    model=self.model,
-                    input=prompt,
                     text_format=self._CaptionResponse,
-                    reasoning={"effort": self.effort},
+                    **kwargs,
                 )
                 parsed = response.output_parsed
                 return parsed.caption  # type: ignore[union-attr]
@@ -83,12 +106,7 @@ class OpenAITextToCaptionProvider(TextToCaptionProvider):
                 self._meta["errors"].append(str(e))
                 continue
         self._meta["errors"].append("all retries failed, fell back to unstructured")
-        response = self._api_call(
-            self.client.responses.create,
-            model=self.model,
-            input=prompt,
-            reasoning={"effort": self.effort},
-        )
+        response = self._api_call(self.client.responses.create, **kwargs)
         return response.output_text
 
 
@@ -139,12 +157,26 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
             meta["effort"] = self.effort
         return meta
 
-    def _api_kwargs(self, prompt: str, use_tool: bool = True) -> dict:
+    def _api_kwargs(
+        self, prompt: str, use_tool: bool = True, image_data: str | None = None
+    ) -> dict:
         kwargs: dict = {
             "model": self.model,
             "max_tokens": self.max_tokens,
             "messages": [{"role": "user", "content": prompt}],
         }
+        if image_data is not None:
+            kwargs["messages"][0]["content"] = [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": CAPTION_IMAGE_MEDIA_TYPE,
+                        "data": image_data,
+                    },
+                },
+            ]
         kwargs.update(thinking_kwargs(self.model, self.budget_tokens, self.effort))
         if use_tool:
             kwargs["tools"] = [self._TOOL]
@@ -154,10 +186,17 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
                 kwargs["tool_choice"] = {"type": "tool", "name": "caption"}
         return kwargs
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, image_path: str | None = None) -> str:
+        image_data = (
+            base64.b64encode(Path(image_path).read_bytes()).decode("ascii")
+            if image_path is not None
+            else None
+        )
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self._api_call(self.client.messages.create, **self._api_kwargs(prompt))
+                response = self._api_call(
+                    self.client.messages.create, **self._api_kwargs(prompt, image_data=image_data)
+                )
                 block = next(b for b in response.content if b.type == "tool_use")
                 caption = str(block.input["caption"])  # type: ignore[index]
                 if CAPTION_MIN_LENGTH <= len(caption) <= CAPTION_MAX_LENGTH:
@@ -168,7 +207,8 @@ class AnthropicTextToCaptionProvider(TextToCaptionProvider):
                 continue
         self._meta["errors"].append("all retries failed, fell back to unstructured")
         response = self._api_call(
-            self.client.messages.create, **self._api_kwargs(prompt, use_tool=False)
+            self.client.messages.create,
+            **self._api_kwargs(prompt, use_tool=False, image_data=image_data),
         )
         block = next(b for b in response.content if b.type == "text")
         return block.text
