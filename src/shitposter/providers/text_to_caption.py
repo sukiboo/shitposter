@@ -16,8 +16,9 @@ CAPTION_IMAGE_DETAIL = "auto"
 CAPTION_MIN_LENGTH = 15
 CAPTION_MAX_LENGTH = 180
 CAPTION_DESCRIPTION = (
-    "A short, punchy social caption that adds a second comedic beat to the image; "
-    "specific, surprising, internet-native, and not a literal description."
+    "A short, punchy social caption expressing a recognizable thought or reaction to the "
+    "cat's visible situation; immediately understandable, with a simple joke grounded "
+    "in visible details."
 )
 
 

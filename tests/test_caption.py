@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from PIL import Image
+from pydantic import ValidationError
 
 from shitposter.providers.text_to_caption import (
     AnthropicTextToCaptionProvider,
@@ -18,6 +19,16 @@ HOLIDAY = "World Egg Day"
 PROMPT = "Caption for World Egg Day."
 CAPTION = "Nobody tell him kittens don't come in shells."
 PNG_SIZE = (1, 1)
+CAPTION_FIELD = {
+    "type": "string",
+    "minLength": 15,
+    "maxLength": 180,
+    "description": (
+        "A short, punchy social caption expressing a recognizable thought or reaction to the "
+        "cat's visible situation; immediately understandable, with a simple joke grounded "
+        "in visible details."
+    ),
+}
 
 
 @pytest.fixture(autouse=True)
@@ -104,9 +115,28 @@ def test_caption_request(provider, image_path, with_image):
     _assert_request_content(provider, calls[0].kwargs, image_data)
     if isinstance(provider, OpenAITextToCaptionProvider):
         assert calls[0].kwargs["text_format"] is provider._CaptionResponse
+        schema = calls[0].kwargs["text_format"].model_json_schema()
     else:
         assert calls[0].kwargs["tools"] == [provider._TOOL]
         assert calls[0].kwargs["tool_choice"] == {"type": "tool", "name": "caption"}
+        schema = calls[0].kwargs["tools"][0]["input_schema"]
+    assert schema["type"] == "object"
+    assert schema["required"] == ["caption"]
+    assert set(schema["properties"]) == {"caption"}
+    field = schema["properties"]["caption"]
+    assert {key: value for key, value in field.items() if key != "title"} == CAPTION_FIELD
+
+
+@pytest.mark.parametrize("length,valid", [(14, False), (15, True), (180, True), (181, False)])
+def test_openai_caption_schema_length_limits(length, valid):
+    caption = "a" * length
+    schema = OpenAITextToCaptionProvider._CaptionResponse
+
+    if valid:
+        assert schema.model_validate({"caption": caption}).caption == caption
+    else:
+        with pytest.raises(ValidationError):
+            schema.model_validate({"caption": caption})
 
 
 def test_caption_retry_keeps_image(provider, image_path):

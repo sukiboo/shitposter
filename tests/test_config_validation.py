@@ -5,11 +5,14 @@ import pytest
 from shitposter.config import RunConfig, load_run_config
 
 CONFIGS = sorted(Path(__file__).parent.parent.joinpath("configs").glob("*.yaml"))
-GROUNDING_RULE = (
-    "Build the joke around an action, expression, or object clearly visible in the image. "
-    "Add a second comedic beat whose connection is immediately understandable, "
-    "without requiring an invented backstory."
-)
+CAPTION_PURPOSE = [
+    "- Express a recognizable thought or reaction to the cat's visible situation.",
+    "- Let the visible action, expression, or object make the joke immediately understandable, "
+    "without an invented backstory.",
+    "- Prefer a simple, clear joke over a surprising connection that needs explaining.",
+    "- Trust the viewer to understand the visual joke and the header; "
+    "do not repeat the holiday name.",
+]
 
 
 def _make_config(steps: dict) -> RunConfig:
@@ -102,5 +105,6 @@ def test_active_caption_configs_use_image_and_grounding(name):
     assert caption.model_extra is not None
     template = caption.model_extra["template"]
     assert "The attached image is the primary visual reference." in template
-    assert GROUNDING_RULE in template
+    purpose = template.split("Purpose:\n", 1)[1].split("\n\nStyle:", 1)[0]
+    assert purpose.splitlines() == CAPTION_PURPOSE
     assert "{prompt}" not in template

@@ -16,7 +16,7 @@ Currently posting to
 5. **Generate image** — generates an image from the prompt
 6. **Select emojis** — chooses holiday-specific header emojis while softly preferring choices not used recently
 7. **Construct header** — composes `date — holiday emojis`
-8. **Generate caption** — uses the generated image, rather than its prompt, to add an immediately understandable second comedic beat grounded in visible details; recent captions and emoji choices provide diversity context
+8. **Generate caption** — uses the generated image, rather than its prompt, for a recognizable thought or reaction to the cat's visible situation; favors a simple, clear joke over a surprising connection that needs explaining. The structured-output schema follows the same guidance; recent captions and emoji choices provide diversity context.
 9. **Publish** — sends the image and caption to configured platforms
 10. **Summary** — records the run ID, status, and metadata for every step
 

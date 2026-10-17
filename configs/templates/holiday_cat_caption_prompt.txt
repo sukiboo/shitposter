@@ -6,13 +6,10 @@ Context:
 - Emojis already used in the header: {header_emojis}
 
 Purpose:
-- Build the joke around an action, expression, or object clearly visible in the image. Add a second comedic beat whose connection is immediately understandable, without requiring an invented backstory.
-- Add a second comedic beat to the image instead of describing or explaining it.
-- Find a specific implication, reaction, consequence, or attitude that only makes sense for this exact image.
+- Express a recognizable thought or reaction to the cat's visible situation.
+- Let the visible action, expression, or object make the joke immediately understandable, without an invented backstory.
+- Prefer a simple, clear joke over a surprising connection that needs explaining.
 - Trust the viewer to understand the visual joke and the header; do not repeat the holiday name.
-- Prefer a sharp, surprising observation over a generic statement about the cat's effort, confidence, commitment, or authority.
-- Do not default to a workplace incident, official investigation, protocol, management, or breaking-news framing. Use a stock narrator persona only when the image uniquely earns it.
-- Avoid stock meme formats, obvious puns, and generic holiday phrasing.
 
 Style:
 - One line and 4–18 words, excluding emojis.
